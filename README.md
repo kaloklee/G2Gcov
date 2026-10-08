@@ -31,13 +31,13 @@ remotes::install_github("kaloklee/G2G_cov")
 
 ## Quick Start
 
-### Time-invariant covariates
+### Time-invariant covariates using the Veteran dataset
 
 ```r
 library(G2Gcov)
 library(survival)
 
-data(veteran, package = "survival")
+head(veteran)
 
 fit <- G2G_static_MLE(
   Surv(time, status) ~ age + karno,
