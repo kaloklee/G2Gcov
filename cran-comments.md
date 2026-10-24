@@ -37,14 +37,21 @@ Linux, macOS, and Windows R-devel checks were run via R-hub v2 GitHub Actions
   model with support for both time-invariant and time-varying covariates,
   following the methodology of Fader & Hardie (1997).
 * All \donttest{} examples run successfully; they are wrapped in \donttest{}
-  because numerical optimisation takes several seconds per call.
-* During BFGS optimisation, R may internally produce "NaNs produced" warnings
+  because numerical optimization on the bundled kb_data takes up to about a
+  minute per call.
+* During BFGS optimization, R may internally produce "NaNs produced" warnings
   as the optimizer explores regions of the parameter space where the
   log-likelihood is undefined. These are expected, benign, and are suppressed
   within the package using withCallingHandlers(). They do not appear to end
   users and did not produce any warnings in R CMD check across any platform.
-* The package uses survival::Surv() only in vignettes and optional tests
-  (listed under Suggests). Core estimation functions do not require it.
+* survival is listed under Suggests and used only in vignettes and tests.
+  Model formulas are written as Surv(time, status) ~ ..., but the package
+  reads the variable names from the formula without calling Surv(), so the
+  core functions work without survival installed.
+* The time-varying vignette fits several models and takes a few minutes to
+  run, so it is precomputed: its output is generated locally from a source
+  file kept in the GitHub repository, and the package builds it without
+  refitting any models. The time-invariant vignette is fast and runs live.
 * URL and BugReports fields point to https://github.com/kaloklee/G2G_cov.
 
 ## Downstream dependencies

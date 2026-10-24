@@ -5,12 +5,16 @@
 \alias{kb_data}
 \title{KB dataset}
 \format{
-A data frame (tibble) with at least the following columns:
+A data frame with 34,506 rows (1,499 subjects observed for up to 24
+weeks) and the following columns:
 \describe{
   \item{id}{Integer subject identifier.}
   \item{week}{Integer week index for the observation.}
   \item{num_weeks}{Total weeks observed for the subject (integer).}
-  \item{censor}{Binary indicator for event observation.}
+  \item{censor}{1 on the final row of a subject who had not yet had the
+                 event by the end of observation; 0 on every other row.
+                 A subject's event occurred in week \code{num_weeks}
+                 unless that row has \code{censor = 1}.}
   \item{coupon}{Coupon stock covariate that measures the aggregate effects
                  of distributing coupons to potential customers.}
   \item{anyp}{Promotions covariate that measures the percent of stores in 

@@ -25,8 +25,11 @@ A list containing the optimization results from \code{\link[stats]{optim}}
   with additional elements:
   \item{par}{Parameter estimates. First two are r and alpha (shape and rate
     parameters), remaining are covariate coefficients.}
-  \item{par_stderr}{Standard errors of parameter estimates}
-  \item{par_upper}{Upper bounds of 95\% confidence intervals}
+  \item{par_stderr}{Standard errors of parameter estimates, on the same
+    scale as \code{par} (delta method for \code{r} and \code{alpha}).}
+  \item{par_upper}{Upper bounds of 95\% confidence intervals. For \code{r}
+    and \code{alpha} the interval is computed on the log scale and
+    exponentiated.}
   \item{par_lower}{Lower bounds of 95\% confidence intervals}
   \item{value}{Negative log-likelihood at the optimum}
   \item{convergence}{Convergence code (0 indicates successful convergence)}
@@ -39,7 +42,8 @@ using maximum likelihood estimation.
 \examples{
 \donttest{
   data(kb_data)
-  kb_data$status <- 1L - kb_data$censor
+  kb_data$status <- as.integer(kb_data$week == kb_data$num_weeks &
+                                 kb_data$censor == 0)
   fit <- G2G_varying_MLE(
     "Surv(week, status) ~ coupon + anyp",
     data    = kb_data,

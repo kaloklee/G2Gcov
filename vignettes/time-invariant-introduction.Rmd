@@ -25,9 +25,11 @@ knitr::opts_chunk$set(
 
 The **Grassia(II)-Geometric (G2G)** model is a discrete-time survival model that
 accounts for unobserved heterogeneity across subjects (Fader and Hardie, 1997).
-Each subject has a latent event propensity drawn from a Gamma distribution:
+Each subject has a latent event rate $\lambda$ drawn from a Gamma
+distribution, which corresponds to a baseline per-period event probability
+$p_0$:
 
-$$p_0 \sim \text{Gamma}(r,\, \alpha)$$
+$$\lambda \sim \text{Gamma}(r,\, \alpha), \qquad p_0 = 1 - e^{-\lambda}$$
 
 Covariates shift this baseline propensity through a log-linear link. For a
 subject with covariate vector **x**, the cumulative covariate effect at period
@@ -57,7 +59,7 @@ Prentice, 1980), a randomized trial of two treatments for lung cancer with
 # veteran is lazy-loaded in the survival package; accessible directly
 vet <- survival::veteran
 
-# Add a unique subject ID (required by the visualisation functions)
+# Add a unique subject ID (required by the visualization functions)
 vet$id <- seq_len(nrow(vet))
 
 head(vet[, c("id", "time", "status", "age", "karno")])
@@ -116,9 +118,10 @@ knitr::kable(
 
 **Interpreting the estimates:**
 
-- **r (shape)** and **alpha (rate)** define the Gamma distribution over
-  baseline event propensity. The population mean propensity is
-  $r / \alpha = `r round(fit$par[1] / fit$par[2], 3)`$.
+- **r (shape)** and **alpha (rate)** define the Gamma distribution of the
+  baseline event rate $\lambda$. The population mean of the baseline
+  per-period event probability is
+  $1 - (\alpha / (\alpha + 1))^r = `r round(1 - (fit$par[2] / (fit$par[2] + 1))^fit$par[1], 3)`$.
 - Covariate coefficients are on the log-hazard scale. Positive values
   increase the hazard (shorter survival); negative values decrease it.
 
@@ -146,11 +149,12 @@ clinical expectation.
 
 ## Baseline Propensity Distribution
 
-`plot_p0()` plots the fitted Gamma density over baseline event propensity.
-The shaded region covers the central 90% of the distribution (default:
-central 90% band); the solid vertical line marks the mean.
+`plot_p0()` plots the distribution of the baseline per-period event
+probability $p_0 = 1 - e^{-\lambda}$ implied by the fitted Gamma
+distribution. The shaded region covers the central 90% of the distribution;
+the solid vertical line marks the mean and the dashed line the mode.
 
-```{r plot-p0, fig.cap = "Fitted Gamma distribution over baseline event propensity"}
+```{r plot-p0, fig.cap = "Distribution of the baseline per-period event probability"}
 plot_p0(fit)
 ```
 
@@ -160,10 +164,12 @@ distribution suggests a relatively homogeneous population.
 
 ## Survivor Curve
 
-`plot_survival_insample_g2g()` plots the mean predicted survivor function
-S(t) over the training data.
+`plot_survival_insample_g2g()` plots the model-implied survivor function
+S(t) over the training data. Each period's model retention is averaged over
+the subjects still at risk, and these rates are chained together in the same
+way as a Kaplan-Meier curve.
 
-```{r plot-survival, fig.cap = "In-sample G2G mean survivor curve"}
+```{r plot-survival, fig.cap = "In-sample G2G survivor curve"}
 plot_survival_insample_g2g(
   fo         = Surv(time, status) ~ age + karno,
   train      = vet,

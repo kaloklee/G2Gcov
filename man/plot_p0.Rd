@@ -20,13 +20,18 @@ Default is \code{c(0.05, 0.95)}.}
 A \code{ggplot} object.
 }
 \description{
-Visualizes the gamma distribution over baseline churn propensity implied
-by the fitted \code{r} (shape) and \code{alpha} (rate) parameters.
+Visualizes the distribution of the baseline per-period event probability
+\eqn{p_0 = 1 - \exp(-\lambda)}, where \eqn{\lambda} follows the Gamma
+distribution with the fitted \code{r} (shape) and \code{alpha} (rate).
+This is the propensity of a subject whose covariates are all zero. The
+density, quantiles, and mean of \eqn{p_0} are computed exactly from the
+Gamma distribution.
 }
 \examples{
 \donttest{
   data(kb_data)
-  kb_data$status <- 1L - kb_data$censor
+  kb_data$status <- as.integer(kb_data$week == kb_data$num_weeks &
+                                 kb_data$censor == 0)
   fit <- G2G_varying_MLE("Surv(week, status) ~ coupon + anyp",
                           data = kb_data, subject = "id")
   plot_p0(fit)

@@ -27,13 +27,16 @@ data structure.}
 A \code{ggplot} object.
 }
 \description{
-Fits the G2G model on the supplied training data and plots the mean
-predicted survivor function S(t) over the training period.
+Fits the G2G model on the supplied training data and plots the
+model-implied survivor function S(t) over the training period. The curve
+chains together, period by period, the mean model retention of the
+subjects at risk, in the same way a Kaplan-Meier curve is built.
 }
 \examples{
 \donttest{
   data(kb_data)
-  kb_data$status <- 1L - kb_data$censor
+  kb_data$status <- as.integer(kb_data$week == kb_data$num_weeks &
+                                 kb_data$censor == 0)
   plot_survival_insample_g2g(
     fo      = "Surv(week, status) ~ coupon + anyp",
     train   = kb_data,

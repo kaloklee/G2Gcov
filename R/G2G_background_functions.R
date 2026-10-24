@@ -118,8 +118,11 @@ G2G_varying_LL <- function(par,data_df) {
 #'   with additional elements:
 #'   \item{par}{Parameter estimates. First two are r and alpha (shape and rate
 #'     parameters), remaining are covariate coefficients.}
-#'   \item{par_stderr}{Standard errors of parameter estimates}
-#'   \item{par_upper}{Upper bounds of 95\% confidence intervals}
+#'   \item{par_stderr}{Standard errors of parameter estimates, on the same
+#'     scale as \code{par} (delta method for \code{r} and \code{alpha}).}
+#'   \item{par_upper}{Upper bounds of 95\% confidence intervals. For \code{r}
+#'     and \code{alpha} the interval is computed on the log scale and
+#'     exponentiated.}
 #'   \item{par_lower}{Lower bounds of 95\% confidence intervals}
 #'   \item{value}{Negative log-likelihood at the optimum}
 #'   \item{convergence}{Convergence code (0 indicates successful convergence)}
@@ -130,7 +133,8 @@ G2G_varying_LL <- function(par,data_df) {
 #' @examples
 #' \donttest{
 #'   data(kb_data)
-#'   kb_data$status <- 1L - kb_data$censor
+#'   kb_data$status <- as.integer(kb_data$week == kb_data$num_weeks &
+#'                                  kb_data$censor == 0)
 #'   fit <- G2G_varying_MLE(
 #'     "Surv(week, status) ~ coupon + anyp",
 #'     data    = kb_data,
@@ -180,6 +184,19 @@ G2G_varying_MLE <- function(fo, data, subject) {
   if (any(data[[time_name]] < 1))
     stop("Time column '", time_name,
          "' must contain values >= 1.", call. = FALSE)
+  gappy_ids <- names(which(tapply(data[[time_name]], data[[subject]], function(t)
+    !isTRUE(all.equal(sort(as.numeric(t)), as.numeric(seq_along(t)))))))
+  if (length(gappy_ids) > 0L)
+    stop("Each subject must have one row per period 1, 2, ..., T in '",
+         time_name, "', with no gaps or duplicates, but ", length(gappy_ids),
+         " subject(s) do not.", call. = FALSE)
+  last_time <- ave(data[[time_name]], data[[subject]], FUN = max)
+  bad_ids   <- unique(data[[subject]][data[[status_name]] == 1 &
+                                        data[[time_name]] != last_time])
+  if (length(bad_ids) > 0L)
+    stop("Status column '", status_name, "' must be 1 only in a subject's ",
+         "final period (person-period format), but ", length(bad_ids),
+         " subject(s) have an event before their last period.", call. = FALSE)
   # ---------------------------------------------------------------------------
   
   #df_temp<-data[,c(all.vars(as.formula(fo))[-c(1:2)])];
@@ -189,11 +206,14 @@ G2G_varying_MLE <- function(fo, data, subject) {
   model_data<-data.frame(id = unlist(data[,c(subject)]), 
                          time = unlist(data[,c(time_name)]),
                          status = unlist(data[,c(status_name)]),
-                         X=X[,-1]);
+                         X=X[,-1, drop = FALSE]);
+  # The likelihood accumulates covariate effects row by row within subject,
+  # so rows must be in time order within each subject.
+  model_data <- model_data[order(model_data$id, model_data$time), ]
   solution <- G2G_varying_optim(model_data)
 
   # Construct parameter names
-  par_names <- c("r (shape)", "alpha (rate)", colnames(X[,-1]))
+  par_names <- c("r (shape)", "alpha (rate)", colnames(X)[-1])
 
   names(solution$par) <- par_names
   hess_inv <- tryCatch(solve(solution$hessian),
@@ -203,14 +223,7 @@ G2G_varying_MLE <- function(fo, data, subject) {
   } else {
     sqrt(diag(hess_inv))
   }
-  solution$par_upper <- solution$par + 1.96 * solution$par_stderr
-  solution$par_lower <- solution$par - 1.96 * solution$par_stderr
-
-  # Exponentiate first two parameters
-  exp_idx <- 1:2
-  solution$par[exp_idx] <- exp(solution$par[exp_idx])
-  solution$par_upper[exp_idx] <- exp(solution$par_upper[exp_idx])
-  solution$par_lower[exp_idx] <- exp(solution$par_lower[exp_idx])
+  solution <- .natural_scale(solution)
   class(solution) <- c("G2Gcov", "list")
   return(solution)
 
@@ -219,7 +232,7 @@ G2G_varying_MLE <- function(fo, data, subject) {
 #' Internal Optimization for Time-Varying Model
 #'
 #' Internal wrapper function that performs the actual optimization for the
-#' G2G model with time-varying covariates using L-BFGS-B method.
+#' G2G model with time-varying covariates using the BFGS method.
 #'
 #' @param model_data Data frame prepared by \code{G2G_varying_MLE} containing
 #'   id, time, status, and covariate columns

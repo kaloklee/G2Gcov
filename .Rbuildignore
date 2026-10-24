@@ -26,3 +26,5 @@
 ^.pdf
 ^\.positai$
 ^\.claude$
+^vignettes/.*\.Rmd\.orig$
+^vignettes/precompile\.R$

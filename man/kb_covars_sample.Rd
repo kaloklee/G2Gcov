@@ -10,7 +10,7 @@ A data frame with the same columns as \code{kb_data}:
   \item{id}{Integer subject identifier.}
   \item{week}{Integer week index for the observation.}
   \item{num_weeks}{Total weeks observed for the subject (integer).}
-  \item{censor}{Binary indicator: 1 = censored, 0 = event observed.}
+  \item{censor}{1 on the final row of a censored subject; 0 otherwise.}
   \item{coupon}{Coupon stock covariate.}
   \item{anyp}{Trade promotions covariate.}
 }
@@ -22,7 +22,8 @@ Derived from \code{\link{kb_data}}; see \file{data-raw/prepare_kb_data.R}.
 kb_covars_sample
 }
 \description{
-A small subset of \code{\link{kb_data}} provided for use in quick
-examples and tests where the full dataset would be unnecessarily slow.
+A small subset of \code{\link{kb_data}} (all 50 rows of the first 22
+subjects) provided for use in quick examples and tests where the full
+dataset would be unnecessarily slow.
 }
 \keyword{datasets}

@@ -20,6 +20,6 @@ List containing optimization results from \code{\link[stats]{optim}}
 }
 \description{
 Internal wrapper function that performs the actual optimization for the
-G2G model with time-varying covariates using L-BFGS-B method.
+G2G model with time-varying covariates using the BFGS method.
 }
 \keyword{internal}
