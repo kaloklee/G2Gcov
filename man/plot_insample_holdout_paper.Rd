@@ -40,11 +40,20 @@ Fits the G2G model on the training portion of the data (rows where
 Kaplan-Meier actual curve against G2G model predictions: one for
 percent surviving and one for period-over-period retention rate.
 An optional grouping variable produces faceted panels.
+
+The G2G retention rate in each period is the mean model-implied retention
+of the subjects at risk in that period, and the G2G survival curve chains
+these rates together, mirroring how the Kaplan-Meier curve is built from
+the observed retention rates.
+
+\code{status} must equal 1 only in the period in which a subject's event
+occurs, and 0 in every other period.
 }
 \examples{
 \donttest{
   data(kb_data)
-  kb_data$status <- 1L - kb_data$censor
+  kb_data$status <- as.integer(kb_data$week == kb_data$num_weeks &
+                                 kb_data$censor == 0)
   out <- plot_insample_holdout_paper(
     fo       = "Surv(week, status) ~ coupon + anyp",
     data     = kb_data,

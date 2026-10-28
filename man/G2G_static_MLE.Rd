@@ -23,9 +23,13 @@ A list containing the optimization results from
     elements are \code{r (shape)} and \code{alpha (rate)}, returned on
     the natural (exponentiated) scale. Remaining elements are covariate
     log-hazard coefficients.}
-  \item{par_stderr}{Standard errors derived from the observed Hessian.
-    \code{NA} when the Hessian is singular or near-singular.}
-  \item{par_upper}{Upper bounds of 95\% Wald confidence intervals.}
+  \item{par_stderr}{Standard errors derived from the observed Hessian,
+    on the same scale as \code{par} (delta method for \code{r} and
+    \code{alpha}). \code{NA} when the Hessian is singular or
+    near-singular.}
+  \item{par_upper}{Upper bounds of 95\% Wald confidence intervals. For
+    \code{r} and \code{alpha} the interval is computed on the log scale
+    and exponentiated, so it is not symmetric around the estimate.}
   \item{par_lower}{Lower bounds of 95\% Wald confidence intervals.}
   \item{value}{Negative log-likelihood at the optimum.}
   \item{convergence}{Convergence code from \code{optim} (0 = success).}

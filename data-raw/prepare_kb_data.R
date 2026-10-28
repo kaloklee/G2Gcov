@@ -14,6 +14,10 @@ kb_raw <- read_csv("data-raw/kb_covars.csv")
 kb_data <- kb_raw %>%
   rename_with(tolower)
 
+# Store a plain data frame, without readr's tibble class or its "spec" and
+# "problems" attributes
+kb_data <- data.frame(lapply(kb_data, as.vector))
+
 # ---- Print Columns and Data Types ----
 message("--- Column Names (kb_data) ---")
 print(names(kb_data))
@@ -24,5 +28,9 @@ message("---------------------------------\n")
 # ---- Verify ----
 stopifnot(!any(is.na(kb_data)))
 
+# ---- Small sample for quick examples: all rows of the first 22 subjects ----
+kb_covars_sample <- kb_data[kb_data$id %in% 1:22, ]
+
 # ---- Save ----
 usethis::use_data(kb_data, overwrite = TRUE)
+usethis::use_data(kb_covars_sample, overwrite = TRUE)

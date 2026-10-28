@@ -54,9 +54,13 @@ G2G_static_LL <- function(par, df) {
 #'     elements are \code{r (shape)} and \code{alpha (rate)}, returned on
 #'     the natural (exponentiated) scale. Remaining elements are covariate
 #'     log-hazard coefficients.}
-#'   \item{par_stderr}{Standard errors derived from the observed Hessian.
-#'     \code{NA} when the Hessian is singular or near-singular.}
-#'   \item{par_upper}{Upper bounds of 95\% Wald confidence intervals.}
+#'   \item{par_stderr}{Standard errors derived from the observed Hessian,
+#'     on the same scale as \code{par} (delta method for \code{r} and
+#'     \code{alpha}). \code{NA} when the Hessian is singular or
+#'     near-singular.}
+#'   \item{par_upper}{Upper bounds of 95\% Wald confidence intervals. For
+#'     \code{r} and \code{alpha} the interval is computed on the log scale
+#'     and exponentiated, so it is not symmetric around the estimate.}
 #'   \item{par_lower}{Lower bounds of 95\% Wald confidence intervals.}
 #'   \item{value}{Negative log-likelihood at the optimum.}
 #'   \item{convergence}{Convergence code from \code{optim} (0 = success).}
@@ -95,12 +99,23 @@ G2G_static_MLE <- function(formula, data) {
          ". Remove or impute missing values before fitting.", call. = FALSE)
   # ---------------------------------------------------------------------------
 
-  # Extract variables from formula
-  mf <- model.frame(formula, data = data)
-  y  <- model.response(mf)
-  X  <- model.matrix(formula, data = data)[, -1, drop = FALSE]
+  # Read time and status straight from the columns named on the left-hand
+  # side, so Surv() is never evaluated and the survival package need not be
+  # attached.
+  formula <- as.formula(formula)
+  lhs     <- all.vars(formula[[2]])
+  time    <- data[[lhs[1]]]
+  status  <- data[[lhs[2]]]
+  X <- model.matrix(stats::delete.response(stats::terms(formula)),
+                    data = data)[, -1, drop = FALSE]
 
-  if (sum(y[, 2]) == 0L)
+  if (!all(status %in% c(0, 1)))
+    stop("Status column '", lhs[2], "' must contain only 0 and 1.",
+         call. = FALSE)
+  if (any(time < 1))
+    stop("Time column '", lhs[1], "' must contain values >= 1.",
+         call. = FALSE)
+  if (sum(status) == 0L)
     stop("No events found (all status = 0). At least one event is required.",
          call. = FALSE)
   n_par <- 2L + ncol(X)
@@ -109,7 +124,7 @@ G2G_static_MLE <- function(formula, data) {
          call. = FALSE)
 
   # Create data frame for optimization
-  df <- data.frame(time = y[, 1], status = y[, 2], X)
+  df <- data.frame(time = time, status = status, X)
 
   # Run optimization — muffle expected NaNs produced during BFGS exploration
   solution <- withCallingHandlers(
@@ -137,14 +152,7 @@ G2G_static_MLE <- function(formula, data) {
   } else {
     sqrt(diag(hess_inv))
   }
-  solution$par_upper <- solution$par + 1.96 * solution$par_stderr
-  solution$par_lower <- solution$par - 1.96 * solution$par_stderr
-  
-  # Exponentiate first two parameters
-  exp_idx <- 1:2
-  solution$par[exp_idx] <- exp(solution$par[exp_idx])
-  solution$par_upper[exp_idx] <- exp(solution$par_upper[exp_idx])
-  solution$par_lower[exp_idx] <- exp(solution$par_lower[exp_idx])
+  solution <- .natural_scale(solution)
   class(solution) <- c("G2Gcov", "list")
   return(solution)
 }

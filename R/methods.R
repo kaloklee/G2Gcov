@@ -16,7 +16,8 @@
 #' @examples
 #' \donttest{
 #'   data(kb_data)
-#'   kb_data$status <- 1L - kb_data$censor
+#'   kb_data$status <- as.integer(kb_data$week == kb_data$num_weeks &
+#'                                  kb_data$censor == 0)
 #'   fit <- G2G_varying_MLE("Surv(week, status) ~ coupon + anyp",
 #'                           data = kb_data, subject = "id")
 #'   print(fit)

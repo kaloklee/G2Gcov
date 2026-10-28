@@ -28,13 +28,15 @@ plot_survival_holdout_g2g(
 A \code{ggplot} object.
 }
 \description{
-Fits the G2G model on the training data and plots the mean predicted
-survivor function S(t) evaluated on the hold-out test period.
+Fits the G2G model on the training data and plots the model-implied
+survivor function S(t) over the hold-out test period, computed the same
+way as in \code{\link{plot_survival_insample_g2g}}.
 }
 \examples{
 \donttest{
   data(kb_data)
-  kb_data$status <- 1L - kb_data$censor
+  kb_data$status <- as.integer(kb_data$week == kb_data$num_weeks &
+                                 kb_data$censor == 0)
   train <- kb_data[kb_data$week <= 12L, ]
   test  <- kb_data[kb_data$week >  12L, ]
   plot_survival_holdout_g2g(

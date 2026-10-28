@@ -10,6 +10,7 @@ inst/doc
 .Rapp.history
 Rplots.pdf
 *.png
+!vignettes/figures-tv/*.png
 *.jpg
 *.jpeg
 *.pdf

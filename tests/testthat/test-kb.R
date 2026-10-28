@@ -21,12 +21,16 @@ test_that("kb_data week values are positive integers", {
   expect_true(all(kb_data$week == as.integer(kb_data$week)))
 })
 
-test_that("G2G_varying_MLE survival values are in [0, 1] on kb_data", {
-  kb <- kb_data
-  kb$status <- 1L - kb$censor
+test_that("kb_data has exactly one event row per subject who had the event", {
+  kb <- kb_with_status()
+  events_per_id <- tapply(kb$status, kb$id, sum)
+  expect_true(all(events_per_id <= 1))
+  expect_equal(sum(kb$status), 101)
+})
 
-  fit <- G2G_varying_MLE("Surv(week, status) ~ coupon + anyp",
-                          data = kb, subject = "id")
+test_that("G2G_varying_MLE survival values are in [0, 1] on kb_data", {
+  kb  <- kb_with_status()
+  fit <- kb_fit()
 
   par  <- list(r = fit$par[["r (shape)"]], alpha = fit$par[["alpha (rate)"]],
                beta = fit$par[-(1:2)])
@@ -40,11 +44,8 @@ test_that("G2G_varying_MLE survival values are in [0, 1] on kb_data", {
 })
 
 test_that("G2G_varying_MLE survival is monotone non-increasing per subject", {
-  kb <- kb_data
-  kb$status <- 1L - kb$censor
-
-  fit <- G2G_varying_MLE("Surv(week, status) ~ coupon + anyp",
-                          data = kb, subject = "id")
+  kb  <- kb_with_status()
+  fit <- kb_fit()
 
   par  <- list(r = fit$par[["r (shape)"]], alpha = fit$par[["alpha (rate)"]],
                beta = fit$par[-(1:2)])

@@ -15,7 +15,7 @@ test_that("log1mexp is mathematically correct at log(0.5)", {
 })
 
 test_that("log1mexp returns NaN for positive input", {
-  expect_true(is.nan(G2Gcov:::log1mexp(1)))
+  expect_true(is.nan(suppressWarnings(G2Gcov:::log1mexp(1))))
 })
 
 # --- Utility: logdiffexp ---
@@ -66,14 +66,59 @@ test_that("G2G_static_MLE CI bounds bracket the point estimates", {
   expect_true(all(fit$par >= fit$par_lower))
 })
 
+test_that("G2G_static_MLE does not need the survival package attached", {
+  skip_if_not_installed("survival")
+  vet <- survival::veteran
+  # A formula whose environment cannot see Surv()
+  fo <- stats::as.formula("Surv(time, status) ~ age + karno", env = baseenv())
+  fit <- G2G_static_MLE(fo, data = vet)
+  expect_equal(fit$convergence, 0)
+  expect_named(fit$par, c("r (shape)", "alpha (rate)", "age", "karno"))
+})
+
+test_that("G2G_static_MLE errors on a non-binary status column", {
+  skip_if_not_installed("survival")
+  vet <- survival::veteran
+  vet$status[1] <- 2
+  expect_error(
+    G2G_static_MLE(Surv(time, status) ~ age + karno, data = vet),
+    "must contain only 0 and 1"
+  )
+})
+
+test_that("standard errors of r and alpha are on the natural scale", {
+  skip_if_not_installed("survival")
+  fit <- G2G_static_MLE(Surv(time, status) ~ age + karno,
+                        data = survival::veteran)
+  # The interval for r and alpha is +/- 1.96 SE on the log scale, and the
+  # delta-method SE on the natural scale is estimate * log-scale SE.
+  se_log <- (log(fit$par_upper[1:2]) - log(fit$par_lower[1:2])) / (2 * 1.96)
+  expect_equal(unname(fit$par_stderr[1:2]), unname(fit$par[1:2] * se_log),
+               tolerance = 1e-8)
+})
+
 # --- G2G_varying_MLE ---
 
-test_that("G2G_varying_MLE returns correct structure (kb_data)", {
-  kb <- kb_data
-  kb$status <- 1L - kb$censor
+test_that("G2G_varying_MLE does not depend on row order", {
+  panel <- sim_panel()
+  fit_sorted   <- G2G_varying_MLE("Surv(time, status) ~ x",
+                                  data = panel, subject = "id")
+  set.seed(2)
+  fit_shuffled <- G2G_varying_MLE("Surv(time, status) ~ x",
+                                  data = panel[sample(nrow(panel)), ],
+                                  subject = "id")
+  expect_equal(fit_shuffled$value, fit_sorted$value, tolerance = 1e-6)
+  expect_equal(fit_shuffled$par, fit_sorted$par, tolerance = 1e-4)
+})
 
-  fit <- G2G_varying_MLE("Surv(week, status) ~ coupon + anyp",
-                          data = kb, subject = "id")
+test_that("G2G_varying_MLE names the coefficient of a single covariate", {
+  fit <- G2G_varying_MLE("Surv(time, status) ~ x",
+                         data = sim_panel(), subject = "id")
+  expect_named(fit$par, c("r (shape)", "alpha (rate)", "x"))
+})
+
+test_that("G2G_varying_MLE returns correct structure (kb_data)", {
+  fit <- kb_fit()
 
   expect_type(fit, "list")
   expect_equal(fit$convergence, 0)
@@ -86,11 +131,7 @@ test_that("G2G_varying_MLE returns correct structure (kb_data)", {
 })
 
 test_that("G2G_varying_MLE negative log-likelihood is finite", {
-  kb <- kb_data
-  kb$status <- 1L - kb$censor
-
-  fit <- G2G_varying_MLE("Surv(week, status) ~ coupon + anyp",
-                          data = kb, subject = "id")
+  fit <- kb_fit()
 
   expect_true(is.finite(fit$value))
   expect_true(fit$value > 0)
@@ -106,7 +147,7 @@ test_that("G2G_varying_MLE errors on non-data-frame input", {
 })
 
 test_that("G2G_varying_MLE errors when subject column is missing", {
-  kb <- kb_data; kb$status <- 1L - kb$censor
+  kb <- kb_data; kb$status <- as.integer(kb$week == kb$num_weeks & kb$censor == 0)
   expect_error(
     G2G_varying_MLE("Surv(week, status) ~ coupon", data = kb, subject = "person"),
     "not found in 'data'"
@@ -114,7 +155,7 @@ test_that("G2G_varying_MLE errors when subject column is missing", {
 })
 
 test_that("G2G_varying_MLE errors when formula column is missing", {
-  kb <- kb_data; kb$status <- 1L - kb$censor
+  kb <- kb_data; kb$status <- as.integer(kb$week == kb$num_weeks & kb$censor == 0)
   expect_error(
     G2G_varying_MLE("Surv(week, status) ~ nonexistent", data = kb, subject = "id"),
     "not found in 'data'"
@@ -130,8 +171,37 @@ test_that("G2G_varying_MLE errors when no events present", {
   )
 })
 
+test_that("G2G_varying_MLE errors when an event precedes a subject's last period", {
+  kb <- kb_data
+  kb$status <- 1L - kb$censor   # marks an event in every non-final period
+  expect_error(
+    G2G_varying_MLE("Surv(week, status) ~ coupon", data = kb, subject = "id"),
+    "event before their last period"
+  )
+})
+
+test_that("G2G_varying_MLE errors when a subject's periods have a gap", {
+  panel <- sim_panel()
+  long_ids <- unique(panel$id[panel$time == 3])
+  panel <- panel[!(panel$id == long_ids[1] & panel$time == 2), ]
+  expect_error(
+    G2G_varying_MLE("Surv(time, status) ~ x", data = panel, subject = "id"),
+    "no gaps or duplicates"
+  )
+})
+
+test_that("G2G_static_MLE errors on time values below 1", {
+  skip_if_not_installed("survival")
+  vet <- survival::veteran
+  vet$time[1] <- 0
+  expect_error(
+    G2G_static_MLE(Surv(time, status) ~ age + karno, data = vet),
+    "must contain values >= 1"
+  )
+})
+
 test_that("G2G_varying_MLE errors on NA values in key columns", {
-  kb <- kb_data; kb$status <- 1L - kb$censor
+  kb <- kb_data; kb$status <- as.integer(kb$week == kb$num_weeks & kb$censor == 0)
   kb$coupon[1] <- NA
   expect_error(
     G2G_varying_MLE("Surv(week, status) ~ coupon", data = kb, subject = "id"),
@@ -170,9 +240,7 @@ test_that("G2G_static_MLE errors on NA in formula columns", {
 # --- print.G2Gcov ---
 
 test_that("print.G2Gcov returns the fit object invisibly", {
-  kb <- kb_data; kb$status <- 1L - kb$censor
-  fit <- G2G_varying_MLE("Surv(week, status) ~ coupon + anyp",
-                          data = kb, subject = "id")
+  fit <- kb_fit()
   expect_s3_class(fit, "G2Gcov")
   out <- capture.output(result <- print(fit))
   expect_identical(result, fit)
