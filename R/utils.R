@@ -11,7 +11,7 @@
 #' \url{https://CRAN.R-project.org/package=Rmpfr}
 log1mexp <- function(x) {
   ifelse(
-    x > -0.6931472,
+    x > -log(2),
     log(-expm1(x)),
     log1p(-exp(x))
   )
@@ -37,20 +37,4 @@ logdiffexp <- function(a, b) {
     a + log1mexp(b - a),
     ifelse((a < Inf) & (a == b), -Inf, NaN)
   )
-}
-
-
-# r and alpha are optimized as log(r) and log(alpha). Build 95% Wald
-# intervals on that scale, then report r and alpha on their natural scale,
-# with standard errors from the delta method: SE(exp(x)) = exp(x) * SE(x).
-.natural_scale <- function(solution) {
-  se  <- solution$par_stderr
-  idx <- 1:2
-  solution$par_upper <- solution$par + 1.96 * se
-  solution$par_lower <- solution$par - 1.96 * se
-  solution$par[idx]        <- exp(solution$par[idx])
-  solution$par_upper[idx]  <- exp(solution$par_upper[idx])
-  solution$par_lower[idx]  <- exp(solution$par_lower[idx])
-  solution$par_stderr[idx] <- solution$par[idx] * se[idx]
-  solution
 }
