@@ -59,7 +59,7 @@ print(fit_varying)
 plot_p0(fit_varying)
 
 # Predict individual survival curve S(t) along a specific customer trajectory
-# (Subject 5 is included in kb_data_sample)
+# (Subject 24 is included in kb_data_sample)
 customer_path <- kb_data_sample[kb_data_sample$id == 24, c("coupon", "anyp")]
 G2G_varying_survival(solution = fit_varying, X_mat = customer_path)
 
@@ -73,14 +73,14 @@ G2G_varying_retention(solution = fit_varying, X_mat = customer_path)
 
 ### 2. Secondary: Time-Invariant (Static) Covariates
 
-When covariates remain fixed throughout observation (such as baseline demographics), standard survival datasets (like `survival::veteran`) can be modeled directly:
+When covariates remain fixed throughout observation (such as baseline demographics or treatment arms), standard survival datasets (like `survival::veteran`) can be modeled directly, including both numeric and categorical/factor variables:
 
 ```r
 library(G2Gcov)
 library(survival)
 
-# Estimate the static model
-fit <- G2G_static_MLE(
+# Estimate the static model with numeric (age) and factor (celltype) covariates
+fit_static <- G2G_static_MLE(
   Surv(time, status) ~ age + celltype,
   data = veteran
 )
@@ -88,14 +88,14 @@ fit <- G2G_static_MLE(
 # Inspect model summary
 print(fit_static)
 
-# Plot baseline probability distribution
+# Plot baseline probability distribution (at reference covariate levels)
 plot_p0(fit_static)
 
 # Predict survival over 10 periods for a specific baseline covariate profile
-G2G_static_survival(fit, data.frame(age = 49, celltype = "squamous"), 10) 
+G2G_static_survival(fit_static, data.frame(age = 49, celltype = "squamous"), 10)
 
 # Predict retention over 10 periods
-G2G_static_retention(fit, data.frame(age = 49, celltype = "squamous"), 10) 
+G2G_static_retention(fit_static, data.frame(age = 49, celltype = "squamous"), 10)
 ```
 
 ---
@@ -107,10 +107,18 @@ G2G_static_retention(fit, data.frame(age = 49, celltype = "squamous"), 10)
 
 | Column | Type | Description |
 |---|---|---|
-| `id` | Identifier | Unique subject identifier (numeric or character) |
+| `id` | Identifier | Unique subject identifier (numeric, character, or factor) |
 | `week` (or `time`) | Integer | Sequential discrete period index (1, 2, 3, …) |
 | `status` | Binary (0/1) | 1 if the event occurred in that specific period; 0 otherwise |
-| `coupon, anyp, ...` | Numeric | Time-varying or static covariates |
+| `coupon, anyp, ...` | Numeric / Factor / Character | Dynamic or static covariates (continuous, binary, or multi-level categories) |
+
+### Support for Categorical and Non-Numeric Variables
+
+The package natively handles non-numeric variables (both `factor` and `character` vectors) through standard R formula mechanics (`model.matrix`):
+
+* **Automatic Dummy Encoding:** Multi-level factors are automatically expanded into binary dummy indicators using standard treatment contrasts (`contr.treatment`).
+* **Baseline Hazard Interpretation:** The first level is treated as the reference category and absorbed into the baseline frailty distribution parameterized by $r$ and $\alpha$ (which represents the hazard when all dummy variables equal zero).
+* **Profile Predictions:** When generating predictions with `G2G_static_survival()` or `G2G_static_retention()`, passing a `data.frame` with the original factor levels (e.g., `data.frame(age = 49, celltype = "squamous")`) ensures clean, automatic level mapping.
 
 ---
 
