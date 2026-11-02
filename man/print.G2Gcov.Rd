@@ -2,14 +2,14 @@
 % Please edit documentation in R/methods.R
 \name{print.G2Gcov}
 \alias{print.G2Gcov}
-\title{Print a Fitted G2G Model}
+\title{Print a Fitted G2Gcov Model}
 \usage{
 \method{print}{G2Gcov}(x, digits = 4, ...)
 }
 \arguments{
 \item{x}{A fitted model object of class \code{"G2Gcov"}.}
 
-\item{digits}{Integer. Number of significant digits to print. Default 4.}
+\item{digits}{Integer. Number of decimal places to print. Default 4.}
 
 \item{...}{Further arguments passed to or from other methods (unused).}
 }
@@ -18,15 +18,24 @@ Invisibly returns \code{x}.
 }
 \description{
 Displays a formatted summary of a G2G model fit returned by
-\code{\link{G2G_static_MLE}} or \code{\link{G2G_varying_MLE}}, including
+\code{\link{G2G_static_MLE}} (time-invariant covariates) or
+\code{\link{G2G_varying_MLE}} (time-varying covariates), including
 convergence status, log-likelihood, AIC, and a parameter table with
-standard errors and 95\% Wald confidence intervals.
+standard errors and Wald confidence intervals at the fitted confidence level.
+}
+\details{
+Both fitting functions return an object of class \code{"G2Gcov"}, and this
+one method prints either. It only relies on the elements the two have in
+common: \code{par}, \code{par_stderr}, \code{par_lower}, \code{par_upper},
+\code{value}, \code{convergence}, and optional \code{level}. If any of the
+standard errors or confidence limits are missing or \code{NA} (the fitting
+functions return \code{NA} when the Hessian at the optimum is singular or
+not positive definite), they print as \code{NA} and a note is added below the table.
 }
 \examples{
 \donttest{
   data(kb_data)
-  kb_data$status <- as.integer(kb_data$week == kb_data$num_weeks &
-                                 kb_data$censor == 0)
+  kb_data$status <- 1L - kb_data$censor
   fit <- G2G_varying_MLE("Surv(week, status) ~ coupon + anyp",
                           data = kb_data, subject = "id")
   print(fit)

@@ -170,6 +170,8 @@ G2G_varying_LL <- function(par,data_df) {
 #' @param subject Character string specifying the name of the subject ID column
 #'   in the data frame. This column identifies which observations belong to
 #'   the same subject over time.
+#' @param level Confidence level for the Wald confidence intervals, a single
+#'   number strictly between 0 and 1. Default is 0.95.
 #'
 #' @return A list of class \code{"G2Gcov"} containing the optimization results
 #'   from \code{\link[stats]{optim}} with additional elements. All estimates,
@@ -181,9 +183,13 @@ G2G_varying_LL <- function(par,data_df) {
 #'     \code{par}). For r and alpha these come from the delta method, e.g. SE(r)
 #'     is approximately r * SE(log r). If the Hessian is not positive definite
 #'     (or cannot be inverted) a warning is issued and these are \code{NA}.}
-#'   \item{par_upper}{Upper bounds of 95\% confidence intervals. For r and alpha
-#'     the interval is formed on the log scale and exponentiated.}
-#'   \item{par_lower}{Lower bounds of 95\% confidence intervals}
+#'   \item{par_upper}{Upper bounds of the Wald confidence intervals at the
+#'     requested \code{level}. For r and alpha the interval is formed on the log
+#'     scale and exponentiated.}
+#'   \item{par_lower}{Lower bounds of the Wald confidence intervals at the
+#'     requested \code{level}}
+#'   \item{level}{The confidence level used for \code{par_lower} and
+#'     \code{par_upper}}
 #'   \item{value}{Negative log-likelihood at the optimum}
 #'   \item{convergence}{Convergence code (0 indicates successful convergence; a
 #'     warning is issued for any other code)}
@@ -199,7 +205,7 @@ G2G_varying_LL <- function(par,data_df) {
 #'
 #' @export
 #' @importFrom stats aggregate optim as.formula ave model.matrix model.frame terms
-#' @importFrom stats .getXlevels
+#' @importFrom stats .getXlevels qnorm
 #' @examples
 #' \donttest{
 #'   data(kb_data)
@@ -210,16 +216,28 @@ G2G_varying_LL <- function(par,data_df) {
 #'     subject = "id"
 #'   )
 #'   print(fit)
+#'
+#'   # 90% confidence intervals instead of the default 95%
+#'   fit90 <- G2G_varying_MLE(
+#'     "Surv(week, status) ~ coupon + anyp",
+#'     data    = kb_data,
+#'     subject = "id",
+#'     level   = 0.90
+#'   )
 #' }
 #'
-G2G_varying_MLE <- function(fo, data, subject) {
+G2G_varying_MLE <- function(fo, data, subject, level = 0.95) {
 
   # Workflow: (1) validate the inputs, (2) build and standardize the covariate
   # matrix, (3) maximize the likelihood via G2G_varying_optim(), (4) get standard
-  # errors and 95% Wald intervals from the inverse Hessian, and (5) convert the
-  # results back to the original covariate scale.
+  # errors and Wald intervals at the requested confidence level from the inverse
+  # Hessian, and (5) convert the results back to the original covariate scale.
   #
   # --- Input validation -------------------------------------------------------
+  if (!is.numeric(level) || length(level) != 1L || is.na(level) ||
+      level <= 0 || level >= 1)
+    stop("'level' must be a single number strictly between 0 and 1.",
+         call. = FALSE)
   if (!is.data.frame(data))
     stop("'data' must be a data frame.", call. = FALSE)
   if (!is.character(subject) || length(subject) != 1L)
@@ -353,54 +371,72 @@ G2G_varying_MLE <- function(fo, data, subject) {
     warning("The Hessian at the solution is not positive definite (or could ",
             "not be inverted), so standard errors and confidence intervals ",
             "are NA.", call. = FALSE)
+  # --- Reporting-scale results ------------------------------------------------
+  # Everything below is computed from the untouched internal-scale estimates in
+  # solution$par (log r, log alpha', standardized coefficients beta') and the
+  # inverse Hessian, and the four result vectors are assembled once at the end.
+  # Nothing in solution$par is overwritten before the last step, so the blocks
+  # can be read (and reordered) independently.
+  #
+  # Critical value of the standard normal for the requested level (1.96 for 95%).
+  z <- qnorm(1 - (1 - level) / 2)
+
   # Standard errors on the internal scale.
-  solution$par_stderr <- if (is.null(hess_inv)) {
+  se_internal <- if (is.null(hess_inv)) {
     rep(NA_real_, length(solution$par))
   } else {
     sqrt(diag(hess_inv))
   }
-  names(solution$par_stderr) <- par_names
-  # 95% Wald confidence limits (estimate +/- 1.96 * SE) on the internal scale.
-  # The steps below convert estimates, SEs and limits to the reporting scale.
-  solution$par_upper <- solution$par + 1.96 * solution$par_stderr
-  solution$par_lower <- solution$par - 1.96 * solution$par_stderr
 
-  # log(alpha) on the original covariate scale. Centering moves a constant into
-  # alpha, so log(alpha) = log(alpha') + sum((ctr / scl) * beta'), where alpha'
-  # and beta' come from the standardized fit. This is a linear combination of the
-  # fitted parameters, so its variance is exactly a' %*% vcov %*% a.
-  a_vec <- c(0, 1, ctr / scl)
-  log_alpha <- sum(a_vec * solution$par)
+  # 1. Coefficients, in original covariate units. Centering does not change
+  #    them; scaling by scl does. Wald limits are estimate +/- z * SE.
+  b_idx <- seq_along(solution$par)[-(1:2)]
+  b_est <- solution$par[b_idx] / scl
+  b_se  <- se_internal[b_idx]  / scl
+  b_lwr <- b_est - z * b_se
+  b_upr <- b_est + z * b_se
+
+  # 2. Shape r: the interval is built on the log scale and exponentiated; the
+  #    reported SE is the delta-method value, SE(r) ~ r * SE(log r).
+  r_log_est <- solution$par[1]
+  r_log_se  <- se_internal[1]
+  r_est     <- exp(r_log_est)
+  r_se      <- r_est * r_log_se
+  r_lwr     <- exp(r_log_est - z * r_log_se)
+  r_upr     <- exp(r_log_est + z * r_log_se)
+
+  # 3. Rate alpha on the original covariate scale. Centering moves a constant
+  #    into alpha, so log(alpha) = log(alpha') + sum((ctr / scl) * beta'), where
+  #    alpha' and beta' come from the standardized fit. This is a linear
+  #    combination of the fitted parameters, so its variance is exactly
+  #    a' %*% vcov %*% a. The interval is built on the log scale.
+  a_vec        <- c(0, 1, ctr / scl)
+  log_alpha    <- sum(a_vec * solution$par)
   se_log_alpha <- if (is.null(hess_inv)) {
     NA_real_
   } else {
     sqrt(drop(t(a_vec) %*% hess_inv %*% a_vec))
   }
+  alpha_est <- exp(log_alpha)
+  alpha_se  <- alpha_est * se_log_alpha
+  alpha_lwr <- exp(log_alpha - z * se_log_alpha)
+  alpha_upr <- exp(log_alpha + z * se_log_alpha)
 
-  # Coefficients: convert from standardized units back to original covariate
-  # units (centering does not change them; scaling by scl does)
-  b_idx <- seq_along(solution$par)[-(1:2)]
-  solution$par[b_idx]        <- solution$par[b_idx]        / scl
-  solution$par_stderr[b_idx] <- solution$par_stderr[b_idx] / scl
-  solution$par_upper[b_idx]  <- solution$par_upper[b_idx]  / scl
-  solution$par_lower[b_idx]  <- solution$par_lower[b_idx]  / scl
-
-  # r: exponentiate, then delta-method SE on the original scale,
-  # SE(r) is approximately r * SE(log r)
-  solution$par[1]        <- exp(solution$par[1])
-  solution$par_upper[1]  <- exp(solution$par_upper[1])
-  solution$par_lower[1]  <- exp(solution$par_lower[1])
-  solution$par_stderr[1] <- solution$par[1] * solution$par_stderr[1]
-
-  # alpha: original covariate scale, with the interval built on the log scale
-  solution$par[2]        <- exp(log_alpha)
-  solution$par_upper[2]  <- exp(log_alpha + 1.96 * se_log_alpha)
-  solution$par_lower[2]  <- exp(log_alpha - 1.96 * se_log_alpha)
-  solution$par_stderr[2] <- solution$par[2] * se_log_alpha
+  # Assemble the reporting-scale vectors (named like the coefficients).
+  solution$par        <- c(r_est, alpha_est, b_est)
+  solution$par_stderr <- c(r_se,  alpha_se,  b_se)
+  solution$par_lower  <- c(r_lwr, alpha_lwr, b_lwr)
+  solution$par_upper  <- c(r_upr, alpha_upr, b_upr)
+  names(solution$par)        <- par_names
+  names(solution$par_stderr) <- par_names
+  names(solution$par_lower)  <- par_names
+  names(solution$par_upper)  <- par_names
 
   # Keep the standardization constants (the hessian is on the standardized scale)
   solution$center <- ctr
   solution$scale  <- scl
+  # Record the confidence level so print/summary methods can label the limits.
+  solution$level  <- level
   solution$terms   <- tt
   solution$xlevels <- .getXlevels(tt, mf_cov)
   # Tag the result with class "G2Gcov".

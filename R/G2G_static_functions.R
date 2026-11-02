@@ -93,6 +93,8 @@ G2G_static_LL <- function(par, df) {
 #' @param data A data frame containing all variables referenced in
 #'   \code{formula}. One row per subject. The observed times must be whole
 #'   numbers >= 1 (discrete periods).
+#' @param level Confidence level for the Wald confidence intervals, a single
+#'   number strictly between 0 and 1. Default is 0.95.
 #'
 #' @return A list of class \code{"G2Gcov"} containing the optimization results
 #'   from \code{\link[stats]{optim}} with the following additional elements.
@@ -108,10 +110,13 @@ G2G_static_LL <- function(par, df) {
 #'     method (e.g. SE(r) is approximately r * SE(log r)). If the Hessian at the
 #'     optimum is not positive definite (or cannot be inverted) a warning is
 #'     issued and these are \code{NA}.}
-#'   \item{par_upper}{Upper bounds of 95\% Wald confidence intervals. For
-#'     \code{r} and \code{alpha} the interval is formed on the log scale and
-#'     exponentiated.}
-#'   \item{par_lower}{Lower bounds of 95\% Wald confidence intervals.}
+#'   \item{par_upper}{Upper bounds of the Wald confidence intervals at the
+#'     requested \code{level}. For \code{r} and \code{alpha} the interval is
+#'     formed on the log scale and exponentiated.}
+#'   \item{par_lower}{Lower bounds of the Wald confidence intervals at the
+#'     requested \code{level}.}
+#'   \item{level}{The confidence level used for \code{par_lower} and
+#'     \code{par_upper}.}
 #'   \item{value}{Negative log-likelihood at the optimum.}
 #'   \item{convergence}{Convergence code from \code{optim} (0 = success; a
 #'     warning is issued for any other code).}
@@ -131,42 +136,52 @@ G2G_static_LL <- function(par, df) {
 #'   baseline propensity distribution.
 #'
 #' @importFrom stats optim model.matrix model.frame model.response terms
-#' @importFrom stats delete.response
-#' @importFrom stats .getXlevels
+#' @importFrom stats delete.response .getXlevels qnorm
 #' @examples
 #' \donttest{
 #'   if (requireNamespace("survival", quietly = TRUE)) {
 #'     library(survival)
 #'     fit <- G2G_static_MLE(Surv(time, status) ~ age + karno, data = veteran)
 #'     print(fit)
+#'
+#'     # 90% confidence intervals instead of the default 95%
+#'     fit90 <- G2G_static_MLE(
+#'       Surv(time, status) ~ age + karno,
+#'       data  = veteran,
+#'       level = 0.90
+#'     )
 #'   }
 #' }
 #' @export
-G2G_static_MLE <- function(formula, data) {
-
+G2G_static_MLE <- function(formula, data, level = 0.95) {
+  
   # Workflow: (1) validate the inputs, (2) build and standardize the covariate
-  # matrix, (3) maximize the likelihood with BFGS, (4) get standard errors and 95%
-  # Wald intervals from the inverse Hessian, and (5) convert the results back to
-  # the original covariate scale.
+  # matrix, (3) maximize the likelihood with BFGS, (4) get standard errors and
+  # Wald intervals at the requested confidence level from the inverse Hessian,
+  # and (5) convert the results back to the original covariate scale.
   #
   # --- Input validation -------------------------------------------------------
+  if (!is.numeric(level) || length(level) != 1L || is.na(level) ||
+      level <= 0 || level >= 1)
+    stop("'level' must be a single number strictly between 0 and 1.",
+         call. = FALSE)
   if (!is.data.frame(data))
     stop("'data' must be a data frame.", call. = FALSE)
-
+  
   # Every variable named in the formula (time, status and covariates).
   vars <- all.vars(formula)
   missing_cols <- setdiff(vars, names(data))
   if (length(missing_cols) > 0L)
     stop("Column(s) not found in 'data': ",
          paste(missing_cols, collapse = ", "), ".", call. = FALSE)
-
+  
   na_cols <- vars[vapply(vars, function(v) anyNA(data[[v]]), logical(1L))]
   if (length(na_cols) > 0L)
     stop("NA values found in column(s): ",
          paste(na_cols, collapse = ", "),
          ". Remove or impute missing values before fitting.", call. = FALSE)
   # ---------------------------------------------------------------------------
-
+  
   # The formula is evaluated by model.frame()/model.matrix(), so transformations,
   # interactions and factor() terms are honored here.
   # Extract variables from formula
@@ -184,7 +199,7 @@ G2G_static_MLE <- function(formula, data) {
   # Design matrix without the intercept column (alpha plays the role of the
   # intercept); factors expand to dummy columns.
   X  <- model.matrix(formula, data = data)[, -1, drop = FALSE]
-
+  
   # The model is for discrete periods 1, 2, 3, ... (the likelihood uses S(t - 1)),
   # so observed times must be whole numbers >= 1.
   if (any(y[, 1] < 1))
@@ -192,7 +207,7 @@ G2G_static_MLE <- function(formula, data) {
   if (any(abs(y[, 1] - round(y[, 1])) > sqrt(.Machine$double.eps)))
     stop("Observed times must be whole numbers (discrete periods 1, 2, 3, ...).",
          call. = FALSE)
-
+  
   # Sanity checks: at least one event, and more rows than parameters
   # (r, alpha and one coefficient per design-matrix column).
   if (sum(y[, 2]) == 0L)
@@ -202,7 +217,7 @@ G2G_static_MLE <- function(formula, data) {
   if (nrow(data) <= n_par)
     stop("Insufficient data: need more rows than parameters (", n_par, ").",
          call. = FALSE)
-
+  
   # Standardize the covariates (center and scale) so exp(X %*% beta) cannot
   # overflow and the optimizer is well conditioned. This is an exact
   # reparameterization of the model: centering is absorbed by alpha and scaling
@@ -214,11 +229,11 @@ G2G_static_MLE <- function(formula, data) {
     stop("Covariate(s) with no variation: ",
          paste(names(scl)[scl == 0], collapse = ", "),
          ". Remove them before fitting.", call. = FALSE)
-
+  
   # Create data frame for optimization
   # Layout expected by G2G_static_LL(): time, status, then the standardized covariates.
   df <- data.frame(time = y[, 1], status = y[, 2], Xs)
-
+  
   # Run optimization — muffle expected NaNs produced during BFGS exploration
   # Starting values: r = alpha = 0.5 (passed to optim as log(0.5), because the
   # parameters are on the log scale) and all coefficients 0 (no covariate
@@ -244,15 +259,15 @@ G2G_static_MLE <- function(formula, data) {
   if (solution$convergence != 0)
     warning("optim() did not converge (convergence code ", solution$convergence,
             "); estimates and standard errors may be unreliable.", call. = FALSE)
-
+  
   # Construct parameter names
   par_names <- c("r (shape)", "alpha (rate)", colnames(Xs))
-
+  
   names(solution$par) <- par_names
   # The Hessian stays on the internal parameterization, so its labels say so.
   hess_names <- c("log(r)", "log(alpha)", colnames(Xs))
   dimnames(solution$hessian) <- list(hess_names, hess_names)
-
+  
   # Calculate standard errors and confidence intervals
   # Covariance matrix of the internal-scale estimates: the inverse of the Hessian
   # of the negative log-likelihood. The inverse is only used when the Hessian is
@@ -270,54 +285,73 @@ G2G_static_MLE <- function(formula, data) {
     warning("The Hessian at the solution is not positive definite (or could ",
             "not be inverted), so standard errors and confidence intervals ",
             "are NA.", call. = FALSE)
+  
+  # --- Reporting-scale results ------------------------------------------------
+  # Everything below is computed from the untouched internal-scale estimates in
+  # solution$par (log r, log alpha', standardized coefficients beta') and the
+  # inverse Hessian, and the four result vectors are assembled once at the end.
+  # Nothing in solution$par is overwritten before the last step, so the blocks
+  # can be read (and reordered) independently.
+  #
+  # Critical value of the standard normal for the requested level (1.96 for 95%).
+  z <- qnorm(1 - (1 - level) / 2)
+  
   # Standard errors on the internal scale.
-  solution$par_stderr <- if (is.null(hess_inv)) {
+  se_internal <- if (is.null(hess_inv)) {
     rep(NA_real_, length(solution$par))
   } else {
     sqrt(diag(hess_inv))
   }
-  names(solution$par_stderr) <- par_names
-  # 95% Wald confidence limits (estimate +/- 1.96 * SE) on the internal scale.
-  # The steps below convert estimates, SEs and limits to the reporting scale.
-  solution$par_upper <- solution$par + 1.96 * solution$par_stderr
-  solution$par_lower <- solution$par - 1.96 * solution$par_stderr
-
-  # log(alpha) on the original covariate scale. Centering moves a constant into
-  # alpha, so log(alpha) = log(alpha') + sum((ctr / scl) * beta'), where alpha'
-  # and beta' come from the standardized fit. This is a linear combination of the
-  # fitted parameters, so its variance is exactly a' %*% vcov %*% a.
-  a_vec <- c(0, 1, ctr / scl)
-  log_alpha <- sum(a_vec * solution$par)
+  
+  # 1. Coefficients, in original covariate units. Centering does not change
+  #    them; scaling by scl does. Wald limits are estimate +/- z * SE.
+  b_idx <- seq_along(solution$par)[-(1:2)]
+  b_est <- solution$par[b_idx] / scl
+  b_se  <- se_internal[b_idx]  / scl
+  b_lwr <- b_est - z * b_se
+  b_upr <- b_est + z * b_se
+  
+  # 2. Shape r: the interval is built on the log scale and exponentiated; the
+  #    reported SE is the delta-method value, SE(r) ~ r * SE(log r).
+  r_log_est <- solution$par[1]
+  r_log_se  <- se_internal[1]
+  r_est     <- exp(r_log_est)
+  r_se      <- r_est * r_log_se
+  r_lwr     <- exp(r_log_est - z * r_log_se)
+  r_upr     <- exp(r_log_est + z * r_log_se)
+  
+  # 3. Rate alpha on the original covariate scale. Centering moves a constant
+  #    into alpha, so log(alpha) = log(alpha') + sum((ctr / scl) * beta'), where
+  #    alpha' and beta' come from the standardized fit. This is a linear
+  #    combination of the fitted parameters, so its variance is exactly
+  #    a' %*% vcov %*% a. The interval is built on the log scale.
+  a_vec        <- c(0, 1, ctr / scl)
+  log_alpha    <- sum(a_vec * solution$par)
   se_log_alpha <- if (is.null(hess_inv)) {
     NA_real_
   } else {
     sqrt(drop(t(a_vec) %*% hess_inv %*% a_vec))
   }
+  alpha_est <- exp(log_alpha)
+  alpha_se  <- alpha_est * se_log_alpha
+  alpha_lwr <- exp(log_alpha - z * se_log_alpha)
+  alpha_upr <- exp(log_alpha + z * se_log_alpha)
   
-  # Coefficients: convert from standardized units back to original covariate
-  # units (centering does not change them; scaling by scl does)
-  b_idx <- seq_along(solution$par)[-(1:2)]
-  solution$par[b_idx]        <- solution$par[b_idx]        / scl
-  solution$par_stderr[b_idx] <- solution$par_stderr[b_idx] / scl
-  solution$par_upper[b_idx]  <- solution$par_upper[b_idx]  / scl
-  solution$par_lower[b_idx]  <- solution$par_lower[b_idx]  / scl
-
-  # r: exponentiate, then delta-method SE on the original scale,
-  # SE(r) is approximately r * SE(log r)
-  solution$par[1]        <- exp(solution$par[1])
-  solution$par_upper[1]  <- exp(solution$par_upper[1])
-  solution$par_lower[1]  <- exp(solution$par_lower[1])
-  solution$par_stderr[1] <- solution$par[1] * solution$par_stderr[1]
-
-  # alpha: original covariate scale, with the interval built on the log scale
-  solution$par[2]        <- exp(log_alpha)
-  solution$par_upper[2]  <- exp(log_alpha + 1.96 * se_log_alpha)
-  solution$par_lower[2]  <- exp(log_alpha - 1.96 * se_log_alpha)
-  solution$par_stderr[2] <- solution$par[2] * se_log_alpha
-
+  # Assemble the reporting-scale vectors (named like the coefficients).
+  solution$par        <- c(r_est, alpha_est, b_est)
+  solution$par_stderr <- c(r_se,  alpha_se,  b_se)
+  solution$par_lower  <- c(r_lwr, alpha_lwr, b_lwr)
+  solution$par_upper  <- c(r_upr, alpha_upr, b_upr)
+  names(solution$par)        <- par_names
+  names(solution$par_stderr) <- par_names
+  names(solution$par_lower)  <- par_names
+  names(solution$par_upper)  <- par_names
+  
   # Keep the standardization constants (the hessian is on the standardized scale)
   solution$center <- ctr
   solution$scale  <- scl
+  # Record the confidence level so print/summary methods can label the limits.
+  solution$level  <- level
   # Keep the terms (response removed) and factor levels so new data can be coded
   # the same way at prediction time (used by G2G_static_survival).
   tt <- terms(mf)
@@ -372,14 +406,14 @@ G2G_static_survival <- function(solution, X_vect, timeperiod) {
   if (!is.numeric(timeperiod) || length(timeperiod) != 1L || is.na(timeperiod) ||
       timeperiod < 1 || timeperiod != round(timeperiod))
     stop("'timeperiod' must be a single whole number >= 1.", call. = FALSE)
-
+  
   # Fitted parameters (original covariate scale): r, alpha and the coefficients.
   r <- solution$par[1]
   alpha <- solution$par[2]
   beta <- solution$par[-c(1:2)]
   
   # Build the one-row covariate matrix X from the covariate values supplied.
- if (is.data.frame(X_vect)) {
+  if (is.data.frame(X_vect)) {
     # Original variable names; factors and dummies are coded as in the fit.
     if (nrow(X_vect) != 1L)
       stop("'X_vect' must have exactly one row. For several covariate ",
@@ -425,14 +459,14 @@ G2G_static_survival <- function(solution, X_vect, timeperiod) {
     }
     X <- matrix(X_vect, nrow = 1)
   }
-
+  
   # Periods 1, 2, ..., timeperiod.
   cen    <- seq_len(timeperiod)
   # Constant covariate effect exp(x' * beta) (the covariates do not change over time).
   C_c    <- c(exp(X %*% beta))
   # log S(t) = -r * log(1 + t * C / alpha) for each period t.
   LL_cen <- -r * log(1 + C_c * cen / alpha)
-
+  
   # Prepend S(0) = 1 and exponentiate back to the survival scale.
   return(c(1, exp(LL_cen)))
 }

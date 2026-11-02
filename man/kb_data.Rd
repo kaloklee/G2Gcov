@@ -3,37 +3,37 @@
 \docType{data}
 \name{kb_data}
 \alias{kb_data}
-\title{KB dataset}
+\title{KB Dataset}
 \format{
-A data frame with 34,506 rows (1,499 subjects observed for up to 24
-weeks) and the following columns:
+A data frame with 34,506 rows and 7 variables:
 \describe{
   \item{id}{Integer subject identifier.}
-  \item{week}{Integer week index for the observation.}
+  \item{week}{Integer week index for the observation (running 1, 2, ...).}
   \item{num_weeks}{Total weeks observed for the subject (integer).}
-  \item{censor}{1 on the final row of a subject who had not yet had the
-                 event by the end of observation; 0 on every other row.
-                 A subject's event occurred in week \code{num_weeks}
-                 unless that row has \code{censor = 1}.}
-  \item{coupon}{Coupon stock covariate that measures the aggregate effects
-                 of distributing coupons to potential customers.}
-  \item{anyp}{Promotions covariate that measures the percent of stores in 
-               the market with trade promotions within a given week.}
+  \item{censor}{Censoring indicator on the subject's final row: 1 if the
+    subject was censored before experiencing the event, 0 if the event
+    occurred. 0 on all preceding rows.}
+  \item{coupon}{Coupon stock covariate measuring aggregate distributed
+    coupons.}
+  \item{anyp}{Trade promotions covariate measuring percentage of stores with
+    active promotions in the market during the week.}
+  \item{status}{Discrete-time failure event indicator: 1 in the terminal
+    period if the subject experienced the event, 0 otherwise.}
 }
 }
 \source{
-Internal raw CSV: \file{data-raw/kb_covars.csv}, processed by
-\file{data-raw/prepare_kb_data.R}.
+Simulated customer churn data modeled after retail cohort dynamics.
+  Processed via \file{data-raw/prepare_kb_data.R}.
 }
 \usage{
 kb_data
 }
 \description{
-Cleaned dataset created by the script `data-raw/prepare_kb_data.R`.
-The raw input is read from `data-raw/kb_covars.csv` and column names
-are converted to lower case for consistency.
+Person-period discrete-time survival dataset observing 1,499 subjects for up
+to 24 weeks with marketing covariates.
 }
 \examples{
+data(kb_data)
 head(kb_data)
 }
 \keyword{datasets}

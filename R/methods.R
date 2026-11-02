@@ -1,3 +1,5 @@
+# R/methods.R
+
 #' Print a Fitted G2Gcov Model
 #'
 #' @description
@@ -5,16 +7,16 @@
 #' \code{\link{G2G_static_MLE}} (time-invariant covariates) or
 #' \code{\link{G2G_varying_MLE}} (time-varying covariates), including
 #' convergence status, log-likelihood, AIC, and a parameter table with
-#' standard errors and 95\% Wald confidence intervals.
+#' standard errors and Wald confidence intervals at the fitted confidence level.
 #'
 #' @details
 #' Both fitting functions return an object of class \code{"G2Gcov"}, and this
 #' one method prints either. It only relies on the elements the two have in
 #' common: \code{par}, \code{par_stderr}, \code{par_lower}, \code{par_upper},
-#' \code{value} and \code{convergence}. If any of the standard errors or
-#' confidence limits are missing or \code{NA} (the fitting functions return
-#' \code{NA} when the Hessian at the optimum is singular or not positive
-#' definite), they print as \code{NA} and a note is added below the table.
+#' \code{value}, \code{convergence}, and optional \code{level}. If any of the
+#' standard errors or confidence limits are missing or \code{NA} (the fitting
+#' functions return \code{NA} when the Hessian at the optimum is singular or
+#' not positive definite), they print as \code{NA} and a note is added below the table.
 #'
 #' @param x A fitted model object of class \code{"G2Gcov"}.
 #' @param digits Integer. Number of decimal places to print. Default 4.
@@ -34,7 +36,7 @@
 #' @export
 print.G2Gcov <- function(x, digits = 4, ...) {
   k <- length(x$par)
-
+  
   # A fit from either G2G_static_MLE() or G2G_varying_MLE() is printed from the
   # same elements. Anything a fit does not carry is shown as NA instead of
   # making the print fail.
@@ -45,7 +47,7 @@ print.G2Gcov <- function(x, digits = 4, ...) {
   par_names <- names(x$par)
   if (is.null(par_names)) par_names <- paste0("par", seq_len(k))
   value <- if (is.null(x$value)) NA_real_ else x$value
-
+  
   conv_msg <- if (is.null(x$convergence)) {
     "Unknown"
   } else if (x$convergence == 0L) {
@@ -54,10 +56,10 @@ print.G2Gcov <- function(x, digits = 4, ...) {
     paste0("Did NOT converge (code ", x$convergence,
            ") -- interpret estimates with caution")
   }
-
+  
   aic <- round(2 * k + 2 * value, digits)
   ll  <- round(-value, digits)
-
+  
   cat("G2G Model Fit\n")
   cat(strrep("-", 52), "\n")
   cat(sprintf("%-18s %s\n", "Convergence:",    conv_msg))
@@ -65,22 +67,34 @@ print.G2Gcov <- function(x, digits = 4, ...) {
   cat(sprintf("%-18s %s\n", "AIC:",            aic))
   cat(sprintf("%-18s %d\n", "Parameters:",     k))
   cat("\nCoefficients:\n")
-
+  
+  # Dynamic column labels based on x$level (defaults to 95 if missing)
+  lvl_pct <- if (!is.null(x$level)) round(x$level * 100) else 95
+  lower_col <- paste0("Lower.", lvl_pct)
+  upper_col <- paste0("Upper.", lvl_pct)
+  
   se  <- or_na("par_stderr")
   tab <- data.frame(
     Estimate  = round(x$par,           digits),
     Std.Error = round(se,              digits),
-    Lower.95  = round(or_na("par_lower"), digits),
-    Upper.95  = round(or_na("par_upper"), digits),
+    round(or_na("par_lower"), digits),
+    round(or_na("par_upper"), digits),
     row.names = par_names,
     check.names = FALSE
   )
+  names(tab)[3:4] <- c(lower_col, upper_col)
   print(tab)
-
-  if (anyNA(se))
+  
+  # Footnotes: singular Hessian or extreme small-sample variance
+  if (anyNA(se)) {
     cat("\nNote: some standard errors are NA (the Hessian at the optimum is",
         "singular or not positive definite).\n")
-
+  } else if (length(x$par) >= 2L && !is.na(x$par[2]) && x$par[2] > 0 && (se[2] / x$par[2] > 2)) {
+    cat("\nWarning: Extremely wide confidence intervals for baseline parameters",
+        "suggest a flat likelihood ridge (common with small sample sizes or few",
+        "observed events). Interpret estimates and limits with caution.\n")
+  }
+  
   invisible(x)
 }
 
@@ -146,4 +160,3 @@ plot_p0 <- function(solution) {
   
   invisible(list(mean = mean_p0, median = median_p0))
 }
-

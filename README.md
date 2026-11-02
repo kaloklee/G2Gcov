@@ -26,7 +26,7 @@ Or install the development version from GitHub:
 
 ```r
 # install.packages("remotes")
-remotes::install_github("kaloklee/G2G_cov")
+remotes::install_github("kaloklee/G2Gcov")
 ```
 
 ---
@@ -39,16 +39,29 @@ remotes::install_github("kaloklee/G2G_cov")
 library(G2Gcov)
 library(survival)
 
-head(veteran)
-
+#Estimate the static model
 fit <- G2G_static_MLE(
   Surv(time, status) ~ age + karno,
   data = veteran
 )
 
-print(fit$par)          # r, alpha, covariate coefficients
-print(fit$par_stderr)   # standard errors
-plot_p0(fit)            # baseline per-period event probability
+
+#Print the coefficients
+print.G2Gcov(fit)
+
+#Plot baseline propensity (without covariates) distribution
+plot_p0(fit)            
+
+#Extract the survival function with the impact of covariates at specific values
+X1 = veteran[6,c("age","karno")]
+G2G_static_survival(solution=fit, X_vect=X1, timeperiod=10)
+
+#Alternative ways of extracting the survival function
+G2G_static_survival(fit, data.frame(age = 60, karno = 70), 10)   # recommended
+G2G_static_survival(fit, c(karno = 70, age = 60), 10)            # named, order-safe
+
+#Extract the retention curve with the impact of covariates at specific values
+G2G_static_retention(solution=fit, X_vect=X1, timeperiod=10)
 ```
 
 ### Time-varying covariates
@@ -110,9 +123,6 @@ A useful tutorial on constructing person-period datasets can be found at
 | `G2G_static_MLE()` | MLE for G2G model with time-invariant covariates |
 | `G2G_varying_MLE()` | MLE for G2G model with time-varying covariates |
 | `plot_p0()` | Plot the distribution of the baseline per-period event probability |
-| `plot_survival_insample_g2g()` | In-sample model survivor curve |
-| `plot_survival_holdout_g2g()` | Hold-out model survivor curve |
-| `plot_insample_holdout_paper()` | Actual vs. model survival and retention |
 
 ---
 
@@ -133,6 +143,9 @@ Fader, P.S. and Hardie, B.G.S. (1997). How to project customer retention.
 Fader, P.S. and Hardie, B.G.S. (2007). How to project customer retention
 revisited: The role of duration dependence.
 *Journal of Interactive Marketing*, 21(1), 76–90.
+
+Fader, P.S. and Hardie, B.G.S. (2020), “Incorporating Time-Varying Covariates in a Simple Mixture Model for Discrete-Time Duration Data.”
+<https://brucehardie.com/notes/037/>
 
 Lee, K.L., Fader, P.S. and Hardie, B.G.S. (2007). How to project patient
 persistency. *Foresight: The International Journal of Applied Forecasting*,
