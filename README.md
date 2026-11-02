@@ -150,9 +150,7 @@ vignette("G2Gcov", package = "G2Gcov")
 ## References
 
 * Fader, P.S. and Hardie, B.G.S. (1997). *How to project customer retention*. **Journal of Interactive Marketing**, 11(1), 61–73.
-* Fader, P.S. and Hardie, B.G.S. (2007). *How to project customer retention revisited: The role of duration dependence*. **Journal of Interactive Marketing**, 21(1), 76–90.
 * Fader, P.S. and Hardie, B.G.S. (2020). *Incorporating Time-Varying Covariates in a Simple Mixture Model for Discrete-Time Duration Data*. [Research Note](https://brucehardie.com/notes/037/).
-* Lee, K.L., Fader, P.S. and Hardie, B.G.S. (2007). *How to project patient persistency*. **Foresight: The International Journal of Applied Forecasting**, Issue 8, 31–35.
 
 ---
 
