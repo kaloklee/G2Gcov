@@ -33,6 +33,7 @@
 #'                           data = kb_data, subject = "id")
 #'   print(fit)
 #' }
+#' @method print G2Gcov
 #' @export
 print.G2Gcov <- function(x, digits = 4, ...) {
   k <- length(x$par)

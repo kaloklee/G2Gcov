@@ -53,21 +53,21 @@ fit_varying <- G2G_varying_MLE(
 )
 
 # Print parameter estimates, standard errors, and Wald confidence intervals
-print.G2Gcov(fit_varying)
+print(fit_varying)
 
 # Plot baseline churn probability distribution across the population (p0)
 plot_p0(fit_varying)
 
 # Predict individual survival curve S(t) along a specific customer trajectory
-# (Subject 50 is included in kb_data_sample)
-customer_path <- kb_data_sample[kb_data_sample$id == 50, c("coupon", "anyp")]
+# (Subject 5 is included in kb_data_sample)
+customer_path <- kb_data_sample[kb_data_sample$id == 24, c("coupon", "anyp")]
 G2G_varying_survival(solution = fit_varying, X_mat = customer_path)
 
 # Predict period-to-period retention r(t) along the same trajectory
 G2G_varying_retention(solution = fit_varying, X_mat = customer_path)
 ```
 
-> **Note on Datasets:** `kb_data_sample` is a fast-running, 20-subject subset intended for quick trials, unit tests, and interactive exploration. For full empirical analyses, use `data(kb_data)`, which contains the entire cohort of 1,000 subjects (12,852 person-period rows).
+> **Note on Datasets:** `kb_data_sample` is a fast-running, 20-subject subset intended for quick trials, unit tests, and interactive exploration. For full empirical analyses, use `data(kb_data)`, which contains the entire cohort of 1,499 subjects (34,506 person-period rows).
 
 ---
 
@@ -80,23 +80,22 @@ library(G2Gcov)
 library(survival)
 
 # Estimate the static model
-fit_static <- G2G_static_MLE(
-  Surv(time, status) ~ age + karno,
+fit <- G2G_static_MLE(
+  Surv(time, status) ~ age + celltype,
   data = veteran
 )
 
 # Inspect model summary
-print.G2Gcov(fit_static)
+print(fit_static)
 
 # Plot baseline probability distribution
 plot_p0(fit_static)
 
 # Predict survival over 10 periods for a specific baseline covariate profile
-profile <- data.frame(age = 60, karno = 70)
-G2G_static_survival(solution = fit_static, X_vect = profile, timeperiod = 10)
+G2G_static_survival(fit, data.frame(age = 49, celltype = "squamous"), 10) 
 
 # Predict retention over 10 periods
-G2G_static_retention(solution = fit_static, X_vect = profile, timeperiod = 10)
+G2G_static_retention(fit, data.frame(age = 49, celltype = "squamous"), 10) 
 ```
 
 ---
@@ -111,7 +110,6 @@ G2G_static_retention(solution = fit_static, X_vect = profile, timeperiod = 10)
 | `id` | Identifier | Unique subject identifier (numeric or character) |
 | `week` (or `time`) | Integer | Sequential discrete period index (1, 2, 3, …) |
 | `status` | Binary (0/1) | 1 if the event occurred in that specific period; 0 otherwise |
-| `censor` | Binary (0/1) | 1 on the final row if the subject was censored before event occurred |
 | `coupon, anyp, ...` | Numeric | Time-varying or static covariates |
 
 ---
@@ -122,7 +120,7 @@ G2G_static_retention(solution = fit_static, X_vect = profile, timeperiod = 10)
 |---|---|
 | `G2G_varying_MLE()` | Maximum likelihood estimation with time-varying covariates |
 | `G2G_static_MLE()` | Maximum likelihood estimation with time-invariant covariates |
-| `print.G2Gcov()` | Formatted display of parameter estimates, SEs, Wald CIs, and goodness-of-fit metrics |
+| `print()` | S3 print method displaying estimates, SEs, Wald confidence intervals, and AIC |
 | `G2G_varying_survival()` | Compute discrete-time survival probabilities $S(t)$ along dynamic covariate paths |
 | `G2G_varying_retention()` | Compute period-to-period retention probabilities along dynamic covariate paths |
 | `G2G_static_survival()` | Compute discrete-time survival probabilities $S(t)$ under static covariates |
