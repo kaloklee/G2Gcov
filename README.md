@@ -3,8 +3,8 @@
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 **G2Gcov** implements the Grassia(II)-Geometric (G2G) distribution for
-discrete-time survival analysis with both time-invariant and time-varying
-covariates, following the methodology of Fader and Hardie (1997).
+discrete-time survival analysis with both time-varying and time-invariant
+covariates, following the methodology of Fader and Hardie (1997, 2020).
 
 The G2G model accounts for unobserved heterogeneity across subjects through a
 Gamma-distributed frailty. Covariates enter through a log-linear link on the
@@ -33,126 +33,124 @@ remotes::install_github("kaloklee/G2Gcov")
 
 ## Quick Start
 
-### Time-invariant covariates using the Veteran dataset
+### 1. Primary Focus: Time-Varying Covariates (`kb_data_sample`)
+
+For dynamic marketing interventions, subscription tracking, or clinical regimes where covariates evolve over time, data must be structured in **person-period (long) format**. 
+
+Here we demonstrate estimation using `kb_data_sample`, a 20-subject random sample included for rapid experimentation and testing:
+
+```r
+library(G2Gcov)
+
+# Load the quick-start sample dataset (20 subjects)
+data(kb_data_sample)
+
+# Estimate the discrete-time model with dynamic marketing covariates
+fit_varying <- G2G_varying_MLE(
+  fo      = "Surv(week, status) ~ coupon + anyp",
+  data    = kb_data_sample,
+  subject = "id"
+)
+
+# Print parameter estimates, standard errors, and Wald confidence intervals
+print.G2Gcov(fit_varying)
+
+# Plot baseline churn probability distribution across the population (p0)
+plot_p0(fit_varying)
+
+# Predict individual survival curve S(t) along a specific customer trajectory
+# (Subject 50 is included in kb_data_sample)
+customer_path <- kb_data_sample[kb_data_sample$id == 50, c("coupon", "anyp")]
+G2G_varying_survival(solution = fit_varying, X_mat = customer_path)
+
+# Predict period-to-period retention r(t) along the same trajectory
+G2G_varying_retention(solution = fit_varying, X_mat = customer_path)
+```
+
+> **Note on Datasets:** `kb_data_sample` is a fast-running, 20-subject subset intended for quick trials, unit tests, and interactive exploration. For full empirical analyses, use `data(kb_data)`, which contains the entire cohort of 1,000 subjects (12,852 person-period rows).
+
+---
+
+### 2. Secondary: Time-Invariant (Static) Covariates
+
+When covariates remain fixed throughout observation (such as baseline demographics), standard survival datasets (like `survival::veteran`) can be modeled directly:
 
 ```r
 library(G2Gcov)
 library(survival)
 
-#Estimate the static model
-fit <- G2G_static_MLE(
+# Estimate the static model
+fit_static <- G2G_static_MLE(
   Surv(time, status) ~ age + karno,
   data = veteran
 )
 
+# Inspect model summary
+print.G2Gcov(fit_static)
 
-#Print the coefficients
-print.G2Gcov(fit)
+# Plot baseline probability distribution
+plot_p0(fit_static)
 
-#Plot baseline propensity (without covariates) distribution
-plot_p0(fit)            
+# Predict survival over 10 periods for a specific baseline covariate profile
+profile <- data.frame(age = 60, karno = 70)
+G2G_static_survival(solution = fit_static, X_vect = profile, timeperiod = 10)
 
-#Extract the survival function with the impact of covariates at specific values
-X1 = veteran[6,c("age","karno")]
-G2G_static_survival(solution=fit, X_vect=X1, timeperiod=10)
-
-#Alternative ways of extracting the survival function
-G2G_static_survival(fit, data.frame(age = 60, karno = 70), 10)   # recommended
-G2G_static_survival(fit, c(karno = 70, age = 60), 10)            # named, order-safe
-
-#Extract the retention curve with the impact of covariates at specific values
-G2G_static_retention(solution=fit, X_vect=X1, timeperiod=10)
-```
-
-### Time-varying covariates
-
-```r
-library(G2Gcov)
-library(survival)
-
-kb_data <- G2Gcov::kb_data
-# 1 in the week a subject's event occurs, 0 in every other week
-kb_data$status <- as.integer(kb_data$week == kb_data$num_weeks &
-                               kb_data$censor == 0)
-
-fit <- G2G_varying_MLE(
-  fo      = Surv(week, status) ~ coupon + anyp,
-  data    = kb_data,
-  subject = "id"
-)
-
-print(fit$par)
-plot_p0(fit)
-
-# Actual vs. model survival and retention with train/test split
-out <- plot_insample_holdout_paper(
-  fo       = Surv(week, status) ~ coupon + anyp,
-  data     = kb_data,
-  subject  = "id",
-  split_at = 12L
-)
-print(out$p_survival)
-print(out$p_retention)
+# Predict retention over 10 periods
+G2G_static_retention(solution = fit_static, X_vect = profile, timeperiod = 10)
 ```
 
 ---
 
 ## Data Format
 
-Time-varying models require **person-period (long) format**: one row per
-subject per time period.
+* **Time-invariant models:** One row per subject.
+* **Time-varying models:** **Person-period (long) format**, with one row per subject per discrete time period:
 
-| Column    | Description |
-|-----------|-------------|
-| `id`      | Subject identifier (any type) |
-| `time`    | Period number (1, 2, 3, …) |
-| `status`  | 1 in the period the event occurred; 0 otherwise |
-| `x1, x2`  | Time-varying (or static) covariates |
-
-For time-invariant models, one row per subject is sufficient.
-
-A useful tutorial on constructing person-period datasets can be found at
-<https://github.com/Rensvandeschoot/Tutorials>.
+| Column | Type | Description |
+|---|---|---|
+| `id` | Identifier | Unique subject identifier (numeric or character) |
+| `week` (or `time`) | Integer | Sequential discrete period index (1, 2, 3, …) |
+| `status` | Binary (0/1) | 1 if the event occurred in that specific period; 0 otherwise |
+| `censor` | Binary (0/1) | 1 on the final row if the subject was censored before event occurred |
+| `coupon, anyp, ...` | Numeric | Time-varying or static covariates |
 
 ---
 
 ## Main Functions
 
-| Function | Description |
-|----------|-------------|
-| `G2G_static_MLE()` | MLE for G2G model with time-invariant covariates |
-| `G2G_varying_MLE()` | MLE for G2G model with time-varying covariates |
-| `plot_p0()` | Plot the distribution of the baseline per-period event probability |
+| Function | Purpose |
+|---|---|
+| `G2G_varying_MLE()` | Maximum likelihood estimation with time-varying covariates |
+| `G2G_static_MLE()` | Maximum likelihood estimation with time-invariant covariates |
+| `print.G2Gcov()` | Formatted display of parameter estimates, SEs, Wald CIs, and goodness-of-fit metrics |
+| `G2G_varying_survival()` | Compute discrete-time survival probabilities $S(t)$ along dynamic covariate paths |
+| `G2G_varying_retention()` | Compute period-to-period retention probabilities along dynamic covariate paths |
+| `G2G_static_survival()` | Compute discrete-time survival probabilities $S(t)$ under static covariates |
+| `G2G_static_retention()` | Compute period-to-period retention probabilities under static covariates |
+| `plot_p0()` | Plot baseline per-period event probability density $p_0$ |
 
 ---
 
 ## Vignettes
 
+To explore full mathematical derivations, likelihood formulations, and empirical comparisons, browse the package vignette:
+
 ```r
-vignette("time-invariant-introduction", package = "G2Gcov")
-vignette("time-varying-introduction",   package = "G2Gcov")
+vignette("G2Gcov", package = "G2Gcov")
 ```
 
 ---
 
 ## References
 
-Fader, P.S. and Hardie, B.G.S. (1997). How to project customer retention.
-*Journal of Interactive Marketing*, 11(1), 61–73.
-
-Fader, P.S. and Hardie, B.G.S. (2007). How to project customer retention
-revisited: The role of duration dependence.
-*Journal of Interactive Marketing*, 21(1), 76–90.
-
-Fader, P.S. and Hardie, B.G.S. (2020), “Incorporating Time-Varying Covariates in a Simple Mixture Model for Discrete-Time Duration Data.”
-<https://brucehardie.com/notes/037/>
-
-Lee, K.L., Fader, P.S. and Hardie, B.G.S. (2007). How to project patient
-persistency. *Foresight: The International Journal of Applied Forecasting*,
-Issue 8, 31–35.
+* Fader, P.S. and Hardie, B.G.S. (1997). *How to project customer retention*. **Journal of Interactive Marketing**, 11(1), 61–73.
+* Fader, P.S. and Hardie, B.G.S. (2007). *How to project customer retention revisited: The role of duration dependence*. **Journal of Interactive Marketing**, 21(1), 76–90.
+* Fader, P.S. and Hardie, B.G.S. (2020). *Incorporating Time-Varying Covariates in a Simple Mixture Model for Discrete-Time Duration Data*. [Research Note](https://brucehardie.com/notes/037/).
+* Lee, K.L., Fader, P.S. and Hardie, B.G.S. (2007). *How to project patient persistency*. **Foresight: The International Journal of Applied Forecasting**, Issue 8, 31–35.
 
 ---
 
-## Contact
+## License & Contact
 
-Questions or comments: kaloklee@gmail.com
+Licensed under the [Apache License 2.0](LICENSE).  
+Questions, issues, or contributions: Ka Lok Lee (<kaloklee@gmail.com>).
