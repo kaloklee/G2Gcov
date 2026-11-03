@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{plot_p0}
 \alias{plot_p0}
-\title{Plot the Baseline Churn Probability Distribution of a Fitted G2Gcov Model}
+\title{Plot the Baseline Per-Period Event Probability Distribution of a Fitted G2Gcov Model}
 \usage{
 plot_p0(solution)
 }
@@ -14,7 +14,7 @@ Invisibly returns a list with the \code{mean} and \code{median} of
   \eqn{p_0}.
 }
 \description{
-Plots the distribution of the baseline churn probability \eqn{p_0}, with all
+Plots the distribution of the baseline per-period event probability \eqn{p_0}, with all
 covariates equal to zero, implied by a model fitted with
 \code{\link{G2G_static_MLE}} (time-invariant covariates) or
 \code{\link{G2G_varying_MLE}} (time-varying covariates). The mean and median

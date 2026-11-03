@@ -100,10 +100,10 @@ print.G2Gcov <- function(x, digits = 4, ...) {
 }
 
 
-#' Plot the Baseline Churn Probability Distribution of a Fitted G2Gcov Model
+#' Plot the Baseline Per-Period Event Probability Distribution of a Fitted G2Gcov Model
 #'
 #' @description
-#' Plots the distribution of the baseline churn probability \eqn{p_0}, with all
+#' Plots the distribution of the baseline per-period event probability \eqn{p_0}, with all
 #' covariates equal to zero, implied by a model fitted with
 #' \code{\link{G2G_static_MLE}} (time-invariant covariates) or
 #' \code{\link{G2G_varying_MLE}} (time-varying covariates). The mean and median
@@ -150,8 +150,8 @@ plot_p0 <- function(solution) {
   median_p0 <- 1 - exp(-qgamma(0.5, shape = r, rate = alpha))
   
   curve(dp0, from = 0.001, to = 0.999, n = 1000, lwd = 2, col = "darkblue",
-        main = "Distribution of Baseline Churn Probability without Covariates (p0)",
-        xlab = "Baseline Churn Probability (p0)", ylab = "Density")
+        main = "Distribution of Baseline Per-Period Event Probability without Covariates",
+        xlab = "p0", ylab = "Density")
   abline(v = mean_p0,   col = "red3",       lwd = 2, lty = 2)
   abline(v = median_p0, col = "darkorange", lwd = 2, lty = 3)
   

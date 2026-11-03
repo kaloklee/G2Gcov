@@ -22,13 +22,13 @@ $$S(t) = \left(\frac{\alpha}{\alpha + C(t)}\right)^r, \quad C(t) = \sum_{j=1}^{t
 
 Install the released version from CRAN:
 
-``` r
+```r
 install.packages("G2Gcov")
 ```
 
 Or install the development version from GitHub:
 
-``` r
+```r
 # install.packages("remotes")
 remotes::install_github("kaloklee/G2Gcov")
 ```
@@ -43,7 +43,7 @@ For dynamic marketing interventions, subscription tracking, or clinical regimes 
 
 Here we demonstrate estimation using `kb_data_sample`, a 20-subject random sample included for rapid experimentation and testing:
 
-``` r
+```r
 library(G2Gcov)
 
 # Load the quick-start sample dataset (20 subjects)
@@ -51,7 +51,7 @@ kb_data_sample<-G2Gcov::kb_data_sample
 
 # Estimate the discrete-time model with dynamic marketing covariates
 fit_varying <- G2G_varying_MLE(
-  fo      = "Surv(week, status) ~ coupon + anyp",
+  Surv(week, status) ~ coupon + anyp,
   data    = kb_data_sample,
   subject = "id"
 )
@@ -66,9 +66,6 @@ plot_p0(fit_varying)
 # (Subject 24 is included in kb_data_sample)
 customer_path <- kb_data_sample[kb_data_sample$id == 24, c("coupon", "anyp")]
 G2G_varying_survival(solution = fit_varying, X_mat = customer_path)
-
-# Predict period-to-period retention r(t) along the same trajectory
-G2G_varying_retention(solution = fit_varying, X_mat = customer_path)
 ```
 
 > **Note on Datasets:** `kb_data_sample` is a fast-running, 20-subject subset intended for quick trials, unit tests, and interactive exploration. For full empirical analyses, use `data(kb_data)`, which contains the entire cohort of 1,499 subjects (34,506 person-period rows).
@@ -79,9 +76,12 @@ G2G_varying_retention(solution = fit_varying, X_mat = customer_path)
 
 When covariates remain fixed throughout observation (such as baseline demographics or treatment arms), standard survival datasets (like `survival::veteran`) can be modeled directly, including both numeric and categorical/factor variables:
 
-``` r
+```r
 library(G2Gcov)
 library(survival)
+
+# Load the Veteran dataset
+veteran<-survival::veteran
 
 # Estimate the static model with numeric (age) and factor (celltype) covariates
 fit_static <- G2G_static_MLE(
@@ -97,9 +97,6 @@ plot_p0(fit_static)
 
 # Predict survival over 10 periods for a specific baseline covariate profile
 G2G_static_survival(fit_static, data.frame(age = 49, celltype = "squamous"), 10)
-
-# Predict retention over 10 periods
-G2G_static_retention(fit_static, data.frame(age = 49, celltype = "squamous"), 10)
 ```
 
 ------------------------------------------------------------------------
@@ -110,11 +107,11 @@ G2G_static_retention(fit_static, data.frame(age = 49, celltype = "squamous"), 10
 - **Time-varying models:** **Person-period (long) format**, with one row per subject per discrete time period:
 
 | Column | Type | Description |
-|------------------------|------------------------|------------------------|
+|---|---|---|
 | `id` | Identifier | Unique subject identifier (numeric, character, or factor) |
-| `week` (or `time`) | Integer | Sequential discrete period index (1, 2, 3, …) |
-| `status` | Binary (0/1) | 1 if the event occurred in that specific period; 0 otherwise |
-| `coupon, anyp, ...` | Numeric / Factor / Character | Dynamic or static covariates (continuous, binary, or multi-level categories) |
+| `week` (or `time`) | Integer | Sequential discrete period index ($1, 2, 3, \dots$) |
+| `status` | Binary (0/1) | 1 if the event occurred in that specific period; 0 in the preceding periods; all 0s through the last observed period for censored subjects |
+| `coupon, anyp, ...` | Numeric / Factor | Dynamic or static covariates (continuous, binary, or multi-level categories) |
 
 ### Support for Categorical and Non-Numeric Variables
 
@@ -122,45 +119,28 @@ The package natively handles non-numeric variables (both `factor` and `character
 
 - **Automatic Dummy Encoding:** Multi-level factors are automatically expanded into binary dummy indicators using standard treatment contrasts (`contr.treatment`).
 - **Baseline Hazard Interpretation:** The first level is treated as the reference category and absorbed into the baseline frailty distribution parameterized by $r$ and $\alpha$ (which represents the hazard when all dummy variables equal zero).
-- **Profile Predictions:** When generating predictions with `G2G_static_survival()` or `G2G_static_retention()`, passing a `data.frame` with the original factor levels (e.g., `data.frame(age = 49, celltype = "squamous")`) ensures clean, automatic level mapping.
-
-------------------------------------------------------------------------
-
-## Main Functions
-
-| Function | Purpose |
-|------------------------------------|------------------------------------|
-| `G2G_varying_MLE()` | Maximum likelihood estimation with time-varying covariates |
-| `G2G_static_MLE()` | Maximum likelihood estimation with time-invariant covariates |
-| `print()` | S3 print method displaying estimates, SEs, Wald confidence intervals, and AIC |
-| `G2G_varying_survival()` | Compute discrete-time survival probabilities $S(t)$ along dynamic covariate paths |
-| `G2G_varying_retention()` | Compute period-to-period retention probabilities along dynamic covariate paths |
-| `G2G_static_survival()` | Compute discrete-time survival probabilities $S(t)$ under static covariates |
-| `G2G_static_retention()` | Compute period-to-period retention probabilities under static covariates |
-| `plot_p0()` | Plot baseline per-period event probability density $p_0$ |
+- **Profile Predictions:** When generating predictions with `G2G_static_survival()`, passing a `data.frame` with the original factor levels (e.g., `data.frame(age = 49, celltype = "squamous")`) ensures clean, automatic level mapping.
 
 ------------------------------------------------------------------------
 
 ## Vignettes
 
-To explore full mathematical derivations, likelihood formulations, and empirical comparisons, browse the package vignette:
+To explore full mathematical derivations, likelihood formulations, period-to-period retention projections, and empirical comparisons, browse the package vignette:
 
-``` r
-vignette("G2Gcov", package = "G2Gcov")
+```r
+vignette("introduction_to_g2gcov", package = "G2Gcov")
 ```
 
 ------------------------------------------------------------------------
 
 ## References
 
-- ## References
-
-* Fader, P. S., Hardie, B. G. S., McCarthy, D., & Vaidyanathan, R. (2019). Exploring the equivalence of two common mixture models for duration data. *The American Statistician*, 73(3), 288–295. https://doi.org/10.1080/00031305.2018.1543134
-* Fader, P. S. & Hardie, B.G.S. (2020). *Incorporating Time-Varying Covariates in a Simple Mixture Model for Discrete-Time Duration Data*. [Research Note](https://brucehardie.com/notes/037/).
+* Fader, P. S., Hardie, B. G. S., McCarthy, D., & Vaidyanathan, R. (2019). Exploring the equivalence of two common mixture models for duration data. *The American Statistician*, 73(3), 288–295.
+* Fader, P. S. & Hardie, B. G. S. (2020). *Incorporating Time-Varying Covariates in a Simple Mixture Model for Discrete-Time Duration Data*. [Research Note](https://brucehardie.com/notes/037/).
 
 ------------------------------------------------------------------------
 
 ## License & Contact
 
-Licensed under the [Apache License 2.0](LICENSE).\
-Questions, issues, or contributions: Ka Lok Lee ([kaloklee\@gmail.com](mailto:kaloklee@gmail.com){.email}).
+Licensed under the [Apache License 2.0](LICENSE).  
+Questions, issues, or contributions: Ka Lok Lee ([kaloklee@gmail.com](mailto:kaloklee@gmail.com)).

@@ -412,10 +412,7 @@ plot_p0(fit_varying)
 # Predict individual survival curve S(t) along a specific customer trajectory
 # (Subject 24 is included in kb_data_sample)
 customer_path &lt;- kb_data_sample[kb_data_sample$id == 24, c(&quot;coupon&quot;, &quot;anyp&quot;)]
-G2G_varying_survival(solution = fit_varying, X_mat = customer_path)
-
-# Predict period-to-period retention r(t) along the same trajectory
-G2G_varying_retention(solution = fit_varying, X_mat = customer_path)</code></pre>
+G2G_varying_survival(solution = fit_varying, X_mat = customer_path)</code></pre>
 <blockquote>
 <p><strong>Note on Datasets:</strong> <code>kb_data_sample</code> is a
 fast-running, 20-subject subset intended for quick trials, unit tests,
@@ -434,6 +431,9 @@ numeric and categorical/factor variables:</p>
 <pre class="r"><code>library(G2Gcov)
 library(survival)
 
+# Load the Veteran dataset
+veteran&lt;-survival::veteran
+
 # Estimate the static model with numeric (age) and factor (celltype) covariates
 fit_static &lt;- G2G_static_MLE(
   Surv(time, status) ~ age + celltype,
@@ -447,10 +447,7 @@ print(fit_static)
 plot_p0(fit_static)
 
 # Predict survival over 10 periods for a specific baseline covariate profile
-G2G_static_survival(fit_static, data.frame(age = 49, celltype = &quot;squamous&quot;), 10)
-
-# Predict retention over 10 periods
-G2G_static_retention(fit_static, data.frame(age = 49, celltype = &quot;squamous&quot;), 10)</code></pre>
+G2G_static_survival(fit_static, data.frame(age = 49, celltype = &quot;squamous&quot;), 10)</code></pre>
 <hr />
 </div>
 </div>
@@ -483,7 +480,8 @@ format</strong>, with one row per subject per discrete time period:</li>
 <tr class="even">
 <td><code>week</code> (or <code>time</code>)</td>
 <td>Integer</td>
-<td>Sequential discrete period index (1, 2, 3, …)</td>
+<td>Sequential discrete period index (<span class="math inline">\(1, 2,
+3, \dots\)</span>)</td>
 </tr>
 <tr class="odd">
 <td><code>status</code></td>
@@ -513,83 +511,29 @@ distribution parameterized by <span class="math inline">\(r\)</span> and
 <span class="math inline">\(\alpha\)</span> (which represents the hazard
 when all dummy variables equal zero).</li>
 <li><strong>Profile Predictions:</strong> When generating predictions
-with <code>G2G_static_survival()</code> or
-<code>G2G_static_retention()</code>, passing a <code>data.frame</code>
-with the original factor levels (e.g.,
+with <code>G2G_static_survival()</code>, passing a
+<code>data.frame</code> with the original factor levels (e.g.,
 <code>data.frame(age = 49, celltype = &quot;squamous&quot;)</code>) ensures clean,
 automatic level mapping.</li>
 </ul>
 <hr />
 </div>
 </div>
-<div id="main-functions" class="section level2">
-<h2>Main Functions</h2>
-<table>
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>Function</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>G2G_varying_MLE()</code></td>
-<td>Maximum likelihood estimation with time-varying covariates</td>
-</tr>
-<tr class="even">
-<td><code>G2G_static_MLE()</code></td>
-<td>Maximum likelihood estimation with time-invariant covariates</td>
-</tr>
-<tr class="odd">
-<td><code>print()</code></td>
-<td>S3 print method displaying estimates, SEs, Wald confidence
-intervals, and AIC</td>
-</tr>
-<tr class="even">
-<td><code>G2G_varying_survival()</code></td>
-<td>Compute discrete-time survival probabilities <span class="math inline">\(S(t)\)</span> along dynamic covariate paths</td>
-</tr>
-<tr class="odd">
-<td><code>G2G_varying_retention()</code></td>
-<td>Compute period-to-period retention probabilities along dynamic
-covariate paths</td>
-</tr>
-<tr class="even">
-<td><code>G2G_static_survival()</code></td>
-<td>Compute discrete-time survival probabilities <span class="math inline">\(S(t)\)</span> under static covariates</td>
-</tr>
-<tr class="odd">
-<td><code>G2G_static_retention()</code></td>
-<td>Compute period-to-period retention probabilities under static
-covariates</td>
-</tr>
-<tr class="even">
-<td><code>plot_p0()</code></td>
-<td>Plot baseline per-period event probability density <span class="math inline">\(p_0\)</span></td>
-</tr>
-</tbody>
-</table>
-<hr />
-</div>
 <div id="vignettes" class="section level2">
 <h2>Vignettes</h2>
 <p>To explore full mathematical derivations, likelihood formulations,
-and empirical comparisons, browse the package vignette:</p>
-<pre class="r"><code>vignette(&quot;G2Gcov&quot;, package = &quot;G2Gcov&quot;)</code></pre>
+period-to-period retention projections, and empirical comparisons,
+browse the package vignette:</p>
+<pre class="r"><code>vignette(&quot;introduction_to_g2gcov&quot;, package = &quot;G2Gcov&quot;)</code></pre>
 <hr />
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
 <ul>
-<li><h2 id="references-1">References</h2></li>
 <li>Fader, P. S., Hardie, B. G. S., McCarthy, D., &amp; Vaidyanathan, R.
 (2019). Exploring the equivalence of two common mixture models for
 duration data. <em>The American Statistician</em>, 73(3), 288–295. <a href="https://doi.org/10.1080/00031305.2018.1543134" class="uri">https://doi.org/10.1080/00031305.2018.1543134</a></li>
-<li>Fader, P. S. &amp; Hardie, B.G.S. (2020). <em>Incorporating
+<li>Fader, P. S. &amp; Hardie, B. G. S. (2020). <em>Incorporating
 Time-Varying Covariates in a Simple Mixture Model for Discrete-Time
 Duration Data</em>. <a href="https://brucehardie.com/notes/037/">Research Note</a>.</li>
 </ul>
@@ -598,7 +542,7 @@ Duration Data</em>. <a href="https://brucehardie.com/notes/037/">Research Note</
 <div id="license-contact" class="section level2">
 <h2>License &amp; Contact</h2>
 <p>Licensed under the <a href="LICENSE">Apache License 2.0</a>.<br />
-Questions, issues, or contributions: Ka Lok Lee (<a href="mailto:kaloklee@gmail.com" class="email">kaloklee@gmail.com</a>).</p>
+Questions, issues, or contributions: Ka Lok Lee (<a href="mailto:kaloklee@gmail.com">kaloklee@gmail.com</a>).</p>
 </div>
 </div>
 
