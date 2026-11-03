@@ -2,44 +2,47 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
-**G2Gcov** implements the Grassia(II)-Geometric (G2G) distribution for
-discrete-time survival analysis with both time-varying and time-invariant
-covariates, following the methodology of Fader and Hardie (1997, 2020).
+**G2Gcov** implements the Grassia(II)-Geometric (G2G) distribution for discrete-time survival analysis with both time-varying and time-invariant covariates, following the methodology of Fader and Hardie (1997, 2020).
 
-The G2G model accounts for unobserved heterogeneity across subjects through a
-Gamma-distributed frailty. Covariates enter through a log-linear link on the
-cumulative hazard, making it straightforward to assess whether dynamic factors
-— such as marketing interventions or clinical treatment changes — accelerate or
-delay events over time.
+The G2G model is a discrete-time duration model in which the individual-level
+per-period event probability is reparameterized as $\theta = 1 - e^{-\lambda}$,
+with $\lambda \sim \text{Gamma}(r, \alpha)$ across subjects. Time-varying
+covariates enter via a complementary log-log link,
 
----
+$$\theta_j = 1 - \exp\left(-\lambda e^{z(j)\beta'}\right),$$
+
+which yields the closed-form survivor function
+
+$$S(t) = \left(\frac{\alpha}{\alpha + C(t)}\right)^r, \quad C(t) = \sum_{j=1}^{t} e^{z(j)\beta'}.$$
+
+------------------------------------------------------------------------
 
 ## Installation
 
 Install the released version from CRAN:
 
-```r
+``` r
 install.packages("G2Gcov")
 ```
 
 Or install the development version from GitHub:
 
-```r
+``` r
 # install.packages("remotes")
 remotes::install_github("kaloklee/G2Gcov")
 ```
 
----
+------------------------------------------------------------------------
 
 ## Quick Start
 
 ### 1. Primary Focus: Time-Varying Covariates (`kb_data_sample`)
 
-For dynamic marketing interventions, subscription tracking, or clinical regimes where covariates evolve over time, data must be structured in **person-period (long) format**. 
+For dynamic marketing interventions, subscription tracking, or clinical regimes where covariates evolve over time, data must be structured in **person-period (long) format**.
 
 Here we demonstrate estimation using `kb_data_sample`, a 20-subject random sample included for rapid experimentation and testing:
 
-```r
+``` r
 library(G2Gcov)
 
 # Load the quick-start sample dataset (20 subjects)
@@ -69,13 +72,13 @@ G2G_varying_retention(solution = fit_varying, X_mat = customer_path)
 
 > **Note on Datasets:** `kb_data_sample` is a fast-running, 20-subject subset intended for quick trials, unit tests, and interactive exploration. For full empirical analyses, use `data(kb_data)`, which contains the entire cohort of 1,499 subjects (34,506 person-period rows).
 
----
+------------------------------------------------------------------------
 
 ### 2. Secondary: Time-Invariant (Static) Covariates
 
 When covariates remain fixed throughout observation (such as baseline demographics or treatment arms), standard survival datasets (like `survival::veteran`) can be modeled directly, including both numeric and categorical/factor variables:
 
-```r
+``` r
 library(G2Gcov)
 library(survival)
 
@@ -98,15 +101,15 @@ G2G_static_survival(fit_static, data.frame(age = 49, celltype = "squamous"), 10)
 G2G_static_retention(fit_static, data.frame(age = 49, celltype = "squamous"), 10)
 ```
 
----
+------------------------------------------------------------------------
 
 ## Data Format
 
-* **Time-invariant models:** One row per subject.
-* **Time-varying models:** **Person-period (long) format**, with one row per subject per discrete time period:
+- **Time-invariant models:** One row per subject.
+- **Time-varying models:** **Person-period (long) format**, with one row per subject per discrete time period:
 
 | Column | Type | Description |
-|---|---|---|
+|------------------------|------------------------|------------------------|
 | `id` | Identifier | Unique subject identifier (numeric, character, or factor) |
 | `week` (or `time`) | Integer | Sequential discrete period index (1, 2, 3, …) |
 | `status` | Binary (0/1) | 1 if the event occurred in that specific period; 0 otherwise |
@@ -116,16 +119,16 @@ G2G_static_retention(fit_static, data.frame(age = 49, celltype = "squamous"), 10
 
 The package natively handles non-numeric variables (both `factor` and `character` vectors) through standard R formula mechanics (`model.matrix`):
 
-* **Automatic Dummy Encoding:** Multi-level factors are automatically expanded into binary dummy indicators using standard treatment contrasts (`contr.treatment`).
-* **Baseline Hazard Interpretation:** The first level is treated as the reference category and absorbed into the baseline frailty distribution parameterized by $r$ and $\alpha$ (which represents the hazard when all dummy variables equal zero).
-* **Profile Predictions:** When generating predictions with `G2G_static_survival()` or `G2G_static_retention()`, passing a `data.frame` with the original factor levels (e.g., `data.frame(age = 49, celltype = "squamous")`) ensures clean, automatic level mapping.
+- **Automatic Dummy Encoding:** Multi-level factors are automatically expanded into binary dummy indicators using standard treatment contrasts (`contr.treatment`).
+- **Baseline Hazard Interpretation:** The first level is treated as the reference category and absorbed into the baseline frailty distribution parameterized by $r$ and $\alpha$ (which represents the hazard when all dummy variables equal zero).
+- **Profile Predictions:** When generating predictions with `G2G_static_survival()` or `G2G_static_retention()`, passing a `data.frame` with the original factor levels (e.g., `data.frame(age = 49, celltype = "squamous")`) ensures clean, automatic level mapping.
 
----
+------------------------------------------------------------------------
 
 ## Main Functions
 
 | Function | Purpose |
-|---|---|
+|------------------------------------|------------------------------------|
 | `G2G_varying_MLE()` | Maximum likelihood estimation with time-varying covariates |
 | `G2G_static_MLE()` | Maximum likelihood estimation with time-invariant covariates |
 | `print()` | S3 print method displaying estimates, SEs, Wald confidence intervals, and AIC |
@@ -135,26 +138,26 @@ The package natively handles non-numeric variables (both `factor` and `character
 | `G2G_static_retention()` | Compute period-to-period retention probabilities under static covariates |
 | `plot_p0()` | Plot baseline per-period event probability density $p_0$ |
 
----
+------------------------------------------------------------------------
 
 ## Vignettes
 
 To explore full mathematical derivations, likelihood formulations, and empirical comparisons, browse the package vignette:
 
-```r
+``` r
 vignette("G2Gcov", package = "G2Gcov")
 ```
 
----
+------------------------------------------------------------------------
 
 ## References
 
-* Fader, P.S. and Hardie, B.G.S. (1997). *How to project customer retention*. **Journal of Interactive Marketing**, 11(1), 61–73.
-* Fader, P.S. and Hardie, B.G.S. (2020). *Incorporating Time-Varying Covariates in a Simple Mixture Model for Discrete-Time Duration Data*. [Research Note](https://brucehardie.com/notes/037/).
+- Fader, P.S. and Hardie, B.G.S. (1997). *How to project customer retention*. **Journal of Interactive Marketing**, 11(1), 61–73.
+- Fader, P.S. and Hardie, B.G.S. (2020). *Incorporating Time-Varying Covariates in a Simple Mixture Model for Discrete-Time Duration Data*. [Research Note](https://brucehardie.com/notes/037/).
 
----
+------------------------------------------------------------------------
 
 ## License & Contact
 
-Licensed under the [Apache License 2.0](LICENSE).  
-Questions, issues, or contributions: Ka Lok Lee (<kaloklee@gmail.com>).
+Licensed under the [Apache License 2.0](LICENSE).\
+Questions, issues, or contributions: Ka Lok Lee ([kaloklee\@gmail.com](mailto:kaloklee@gmail.com){.email}).
