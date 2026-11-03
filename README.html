@@ -357,15 +357,14 @@ display: none;
 <p><a href="https://www.apache.org/licenses/LICENSE-2.0"><img role="img" aria-label="License: Apache 2.0" src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjQiIGhlaWdodD0iMjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iTGljZW5zZTogQXBhY2hlIDIuMCI+PHRpdGxlPkxpY2Vuc2U6IEFwYWNoZSAyLjA8L3RpdGxlPjxmaWx0ZXIgaWQ9ImJsdXIiPjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjE2Ii8+PC9maWx0ZXI+PGxpbmVhckdyYWRpZW50IGlkPSJzIiB4Mj0iMCIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2JiYiIgc3RvcC1vcGFjaXR5PSIuMSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPjwvbGluZWFyR3JhZGllbnQ+PGNsaXBQYXRoIGlkPSJyIj48cmVjdCB3aWR0aD0iMTI0IiBoZWlnaHQ9IjIwIiByeD0iMyIvPjwvY2xpcFBhdGg+PGcgY2xpcC1wYXRoPSJ1cmwoI3IpIj48cmVjdCB3aWR0aD0iNTEiIGhlaWdodD0iMjAiIGZpbGw9IiM1NTUiLz48cmVjdCB4PSI1MSIgd2lkdGg9IjczIiBoZWlnaHQ9IjIwIiBmaWxsPSIjMDA3ZWM2Ii8+PHJlY3Qgd2lkdGg9IjEyNCIgaGVpZ2h0PSIyMCIgZmlsbD0idXJsKCNzKSIvPjwvZz48ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iVmVyZGFuYSxHZW5ldmEsRGVqYVZ1IFNhbnMsc2Fucy1zZXJpZiIgdGV4dC1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiIgZm9udC1zaXplPSIxMTAiPjxnIHRyYW5zZm9ybT0ic2NhbGUoLjEpIj48ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZmlsbD0iIzAxMDEwMSI+PHRleHQgeD0iMjY1IiB5PSIxNTAiIGZpbGwtb3BhY2l0eT0iLjgiIGZpbHRlcj0idXJsKCNibHVyKSIgdGV4dExlbmd0aD0iNDEwIj5MaWNlbnNlPC90ZXh0Pjx0ZXh0IHg9IjI2NSIgeT0iMTUwIiBmaWxsLW9wYWNpdHk9Ii4zIiB0ZXh0TGVuZ3RoPSI0MTAiPkxpY2Vuc2U8L3RleHQ+PC9nPjx0ZXh0IHg9IjI2NSIgeT0iMTQwIiB0ZXh0TGVuZ3RoPSI0MTAiPkxpY2Vuc2U8L3RleHQ+PC9nPjxnIHRyYW5zZm9ybT0ic2NhbGUoLjEpIj48ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZmlsbD0iIzAxMDEwMSI+PHRleHQgeD0iODY1IiB5PSIxNTAiIGZpbGwtb3BhY2l0eT0iLjgiIGZpbHRlcj0idXJsKCNibHVyKSIgdGV4dExlbmd0aD0iNjMwIj5BcGFjaGUgMi4wPC90ZXh0Pjx0ZXh0IHg9Ijg2NSIgeT0iMTUwIiBmaWxsLW9wYWNpdHk9Ii4zIiB0ZXh0TGVuZ3RoPSI2MzAiPkFwYWNoZSAyLjA8L3RleHQ+PC9nPjx0ZXh0IHg9Ijg2NSIgeT0iMTQwIiB0ZXh0TGVuZ3RoPSI2MzAiPkFwYWNoZSAyLjA8L3RleHQ+PC9nPjwvZz48L3N2Zz4=" alt="License: Apache 2.0" /></a></p>
 <p><strong>G2Gcov</strong> implements the Grassia(II)-Geometric (G2G)
 distribution for discrete-time survival analysis with both time-varying
-and time-invariant covariates, following the methodology of Fader and
-Hardie (1997, 2020).</p>
+and time-invariant covariates, following the methodology of Fader et
+al. (2019) and Fader and Hardie (2020).</p>
 <p>The G2G model is a discrete-time duration model in which the
 individual-level per-period event probability is reparameterized as
-<span class="math inline">\(\theta = 1 - e^{-\lambda}\)</span>, with
-<span class="math inline">\(\lambda \sim \text{Gamma}(r,
-\alpha)\)</span> across subjects. Time-varying covariates enter via a
-complementary log-log link,</p>
-<p><span class="math display">\[\theta_j = 1 - \exp\left(-\lambda
+<span class="math inline">\(p = 1 - e^{-\lambda}\)</span>, with <span class="math inline">\(\lambda \sim \text{Gamma}(r, \alpha)\)</span>
+across subjects. Time-varying covariates in period <span class="math inline">\(z(j)\)</span> enter via a complementary log-log
+link,</p>
+<p><span class="math display">\[p_j = 1 - \exp\left(-\lambda
 e^{z(j)\beta&#39;}\right),\]</span></p>
 <p>which yields the closed-form survivor function</p>
 <p><span class="math display">\[S(t) = \left(\frac{\alpha}{\alpha +
@@ -395,7 +394,7 @@ testing:</p>
 <pre class="r"><code>library(G2Gcov)
 
 # Load the quick-start sample dataset (20 subjects)
-data(kb_data_sample)
+kb_data_sample&lt;-G2Gcov::kb_data_sample
 
 # Estimate the discrete-time model with dynamic marketing covariates
 fit_varying &lt;- G2G_varying_MLE(
@@ -586,10 +585,11 @@ and empirical comparisons, browse the package vignette:</p>
 <div id="references" class="section level2">
 <h2>References</h2>
 <ul>
-<li>Fader, P.S. and Hardie, B.G.S. (1997). <em>How to project customer
-retention</em>. <strong>Journal of Interactive Marketing</strong>,
-11(1), 61–73.</li>
-<li>Fader, P.S. and Hardie, B.G.S. (2020). <em>Incorporating
+<li><h2 id="references-1">References</h2></li>
+<li>Fader, P. S., Hardie, B. G. S., McCarthy, D., &amp; Vaidyanathan, R.
+(2019). Exploring the equivalence of two common mixture models for
+duration data. <em>The American Statistician</em>, 73(3), 288–295. <a href="https://doi.org/10.1080/00031305.2018.1543134" class="uri">https://doi.org/10.1080/00031305.2018.1543134</a></li>
+<li>Fader, P. S. &amp; Hardie, B.G.S. (2020). <em>Incorporating
 Time-Varying Covariates in a Simple Mixture Model for Discrete-Time
 Duration Data</em>. <a href="https://brucehardie.com/notes/037/">Research Note</a>.</li>
 </ul>

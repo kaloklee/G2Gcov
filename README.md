@@ -2,14 +2,14 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
-**G2Gcov** implements the Grassia(II)-Geometric (G2G) distribution for discrete-time survival analysis with both time-varying and time-invariant covariates, following the methodology of Fader and Hardie (1997, 2020).
+**G2Gcov** implements the Grassia(II)-Geometric (G2G) distribution for discrete-time survival analysis with both time-varying and time-invariant covariates, following the methodology of Fader et al. (2019) and Fader and Hardie (2020).
 
 The G2G model is a discrete-time duration model in which the individual-level
-per-period event probability is reparameterized as $\theta = 1 - e^{-\lambda}$,
+per-period event probability is reparameterized as $p = 1 - e^{-\lambda}$,
 with $\lambda \sim \text{Gamma}(r, \alpha)$ across subjects. Time-varying
-covariates enter via a complementary log-log link,
+covariates in period $z(j)$ enter via a complementary log-log link,
 
-$$\theta_j = 1 - \exp\left(-\lambda e^{z(j)\beta'}\right),$$
+$$p_j = 1 - \exp\left(-\lambda e^{z(j)\beta'}\right),$$
 
 which yields the closed-form survivor function
 
@@ -46,7 +46,7 @@ Here we demonstrate estimation using `kb_data_sample`, a 20-subject random sampl
 library(G2Gcov)
 
 # Load the quick-start sample dataset (20 subjects)
-data(kb_data_sample)
+kb_data_sample<-G2Gcov::kb_data_sample
 
 # Estimate the discrete-time model with dynamic marketing covariates
 fit_varying <- G2G_varying_MLE(
@@ -152,8 +152,10 @@ vignette("G2Gcov", package = "G2Gcov")
 
 ## References
 
-- Fader, P.S. and Hardie, B.G.S. (1997). *How to project customer retention*. **Journal of Interactive Marketing**, 11(1), 61–73.
-- Fader, P.S. and Hardie, B.G.S. (2020). *Incorporating Time-Varying Covariates in a Simple Mixture Model for Discrete-Time Duration Data*. [Research Note](https://brucehardie.com/notes/037/).
+- ## References
+
+* Fader, P. S., Hardie, B. G. S., McCarthy, D., & Vaidyanathan, R. (2019). Exploring the equivalence of two common mixture models for duration data. *The American Statistician*, 73(3), 288–295. https://doi.org/10.1080/00031305.2018.1543134
+* Fader, P. S. & Hardie, B.G.S. (2020). *Incorporating Time-Varying Covariates in a Simple Mixture Model for Discrete-Time Duration Data*. [Research Note](https://brucehardie.com/notes/037/).
 
 ------------------------------------------------------------------------
 
