@@ -398,7 +398,7 @@ kb_data_sample&lt;-G2Gcov::kb_data_sample
 
 # Estimate the discrete-time model with dynamic marketing covariates
 fit_varying &lt;- G2G_varying_MLE(
-  fo      = &quot;Surv(week, status) ~ coupon + anyp&quot;,
+  Surv(week, status) ~ coupon + anyp,
   data    = kb_data_sample,
   subject = &quot;id&quot;
 )
@@ -486,33 +486,44 @@ format</strong>, with one row per subject per discrete time period:</li>
 <tr class="odd">
 <td><code>status</code></td>
 <td>Binary (0/1)</td>
-<td>1 if the event occurred in that specific period; 0 otherwise</td>
+<td>1 if the event occurred in that specific period; 0 in the preceding
+periods; all 0s through the last observed period for censored
+subjects</td>
 </tr>
 <tr class="even">
 <td><code>coupon, anyp, ...</code></td>
-<td>Numeric / Factor / Character</td>
+<td>Numeric / Factor</td>
 <td>Dynamic or static covariates (continuous, binary, or multi-level
 categories)</td>
 </tr>
 </tbody>
 </table>
-<div id="support-for-categorical-and-non-numeric-variables" class="section level3">
-<h3>Support for Categorical and Non-Numeric Variables</h3>
-<p>The package natively handles non-numeric variables (both
+<div id="covariate-encoding-and-coefficient-interpretation" class="section level3">
+<h3>Covariate Encoding and Coefficient Interpretation</h3>
+<p>The package natively handles numeric and non-numeric variables (both
 <code>factor</code> and <code>character</code> vectors) through standard
 R formula mechanics (<code>model.matrix</code>):</p>
 <ul>
 <li><strong>Automatic Dummy Encoding:</strong> Multi-level factors are
 automatically expanded into binary dummy indicators using standard
 treatment contrasts (<code>contr.treatment</code>).</li>
-<li><strong>Baseline Hazard Interpretation:</strong> The first level is
-treated as the reference category and absorbed into the baseline frailty
-distribution parameterized by <span class="math inline">\(r\)</span> and
-<span class="math inline">\(\alpha\)</span> (which represents the hazard
-when all dummy variables equal zero).</li>
+<li><strong>Coefficient Interpretation:</strong> The first level of each
+factor is the reference category, and its dummy variables equal zero.
+For <code>character</code> vectors, R orders levels alphabetically, so
+the first level is the alphabetically first value; use
+<code>factor(x, levels = ...)</code> or <code>relevel()</code> to choose
+a different reference. The baseline per-period event probability, <span class="math inline">\(p_0 = 1 - e^{-\lambda}\)</span> with <span class="math inline">\(\lambda \sim \text{Gamma}(r, \alpha)\)</span>,
+describes subjects at the reference levels (and zero for numeric
+covariates). Each coefficient <span class="math inline">\(\beta_k\)</span> acts on the complementary log-log
+scale, so <span class="math inline">\(e^{\beta_k}\)</span> is a hazard
+ratio: a one-unit increase in a numeric covariate, or a switch from the
+reference level to a given factor level, multiplies <span class="math inline">\(\lambda\)</span> by <span class="math inline">\(e^{\beta_k}\)</span>. A positive <span class="math inline">\(\beta_k\)</span> raises the per-period event
+probability (shorter durations); a negative <span class="math inline">\(\beta_k\)</span> lowers it (longer
+durations).</li>
 <li><strong>Profile Predictions:</strong> When generating predictions
-with <code>G2G_static_survival()</code>, passing a
-<code>data.frame</code> with the original factor levels (e.g.,
+with <code>G2G_static_survival()</code> and
+<code>G2G_varying_survival()</code>, passing a <code>data.frame</code>
+with the original factor levels (e.g.,
 <code>data.frame(age = 49, celltype = &quot;squamous&quot;)</code>) ensures clean,
 automatic level mapping.</li>
 </ul>
@@ -532,7 +543,7 @@ browse the package vignette:</p>
 <ul>
 <li>Fader, P. S., Hardie, B. G. S., McCarthy, D., &amp; Vaidyanathan, R.
 (2019). Exploring the equivalence of two common mixture models for
-duration data. <em>The American Statistician</em>, 73(3), 288–295. <a href="https://doi.org/10.1080/00031305.2018.1543134" class="uri">https://doi.org/10.1080/00031305.2018.1543134</a></li>
+duration data. <em>The American Statistician</em>, 73(3), 288–295.</li>
 <li>Fader, P. S. &amp; Hardie, B. G. S. (2020). <em>Incorporating
 Time-Varying Covariates in a Simple Mixture Model for Discrete-Time
 Duration Data</em>. <a href="https://brucehardie.com/notes/037/">Research Note</a>.</li>

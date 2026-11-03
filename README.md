@@ -113,13 +113,13 @@ G2G_static_survival(fit_static, data.frame(age = 49, celltype = "squamous"), 10)
 | `status` | Binary (0/1) | 1 if the event occurred in that specific period; 0 in the preceding periods; all 0s through the last observed period for censored subjects |
 | `coupon, anyp, ...` | Numeric / Factor | Dynamic or static covariates (continuous, binary, or multi-level categories) |
 
-### Support for Categorical and Non-Numeric Variables
+### Covariate Encoding and Coefficient Interpretation
 
-The package natively handles non-numeric variables (both `factor` and `character` vectors) through standard R formula mechanics (`model.matrix`):
+The package natively handles numeric and non-numeric variables (both `factor` and `character` vectors) through standard R formula mechanics (`model.matrix`):
 
 - **Automatic Dummy Encoding:** Multi-level factors are automatically expanded into binary dummy indicators using standard treatment contrasts (`contr.treatment`).
-- **Baseline Hazard Interpretation:** The first level is treated as the reference category and absorbed into the baseline frailty distribution parameterized by $r$ and $\alpha$ (which represents the hazard when all dummy variables equal zero).
-- **Profile Predictions:** When generating predictions with `G2G_static_survival()`, passing a `data.frame` with the original factor levels (e.g., `data.frame(age = 49, celltype = "squamous")`) ensures clean, automatic level mapping.
+- **Coefficient Interpretation:** The first level of each factor is the reference category, and its dummy variables equal zero. For `character` vectors, R orders levels alphabetically, so the first level is the alphabetically first value; use `factor(x, levels = ...)` or `relevel()` to choose a different reference. The baseline per-period event probability, $p_0 = 1 - e^{-\lambda}$ with $\lambda \sim \text{Gamma}(r, \alpha)$, describes subjects at the reference levels (and zero for numeric covariates). Each coefficient $\beta_k$ acts on the complementary log-log scale, so $e^{\beta_k}$ is a hazard ratio: a one-unit increase in a numeric covariate, or a switch from the reference level to a given factor level, multiplies $\lambda$ by $e^{\beta_k}$. A positive $\beta_k$ raises the per-period event probability (shorter durations); a negative $\beta_k$ lowers it (longer durations).
+- **Profile Predictions:** When generating predictions with `G2G_static_survival()` and `G2G_varying_survival()`, passing a `data.frame` with the original factor levels (e.g., `data.frame(age = 49, celltype = "squamous")`) ensures clean, automatic level mapping.
 
 ------------------------------------------------------------------------
 
