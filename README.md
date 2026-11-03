@@ -4,20 +4,6 @@
 
 **G2Gcov** implements the Grassia(II)-Geometric (G2G) distribution for discrete-time survival analysis with both time-varying and time-invariant covariates, following the methodology of Fader et al. (2019) and Fader and Hardie (2020).
 
-The G2G model is a discrete-time duration model in which the individual-level
-per-period event probability is reparameterized as $p_0 = 1 - e^{-\lambda}$,
-with $\lambda \sim \text{Gamma}(r, \alpha)$ across subjects. Time-varying
-covariates in period $j$, $z(j)$, enter via a complementary log-log link
-with coefficients $\beta'$,
-
-$$p_j = 1 - \exp\left(-\lambda e^{z(j)\beta'}\right),$$
-
-which yields the closed-form survivor function
-
-$$S(t) = \left(\frac{\alpha}{\alpha + C(t)}\right)^r, \quad C(t) = \sum_{j=1}^{t} e^{z(j)\beta'}.$$
-
-------------------------------------------------------------------------
-
 ## Installation
 
 Install the released version from CRAN:
@@ -101,31 +87,9 @@ G2G_static_survival(fit_static, data.frame(age = 49, celltype = "squamous"), 10)
 
 ------------------------------------------------------------------------
 
-## Data Format
-
-- **Time-invariant models:** One row per subject.
-- **Time-varying models:** **Person-period (long) format**, with one row per subject per discrete time period:
-
-| Column | Type | Description |
-|---|---|---|
-| `id` | Identifier | Unique subject identifier (numeric, character, or factor) |
-| `week` (or `time`) | Integer | Sequential discrete period index ($1, 2, 3, \dots$) |
-| `status` | Binary (0/1) | 1 if the event occurred in that specific period; 0 in the preceding periods; all 0s through the last observed period for censored subjects |
-| `coupon, anyp, ...` | Numeric / Factor | Dynamic or static covariates (continuous, binary, or multi-level categories) |
-
-### Covariate Encoding and Coefficient Interpretation
-
-The package natively handles numeric and non-numeric variables (both `factor` and `character` vectors) through standard R formula mechanics (`model.matrix`):
-
-- **Automatic Dummy Encoding:** Multi-level factors are automatically expanded into binary dummy indicators using standard treatment contrasts (`contr.treatment`).
-- **Coefficient Interpretation:** The first level of each factor is the reference category, and its dummy variables equal zero. For `character` vectors, R orders levels alphabetically, so the first level is the alphabetically first value; use `factor(x, levels = ...)` or `relevel()` to choose a different reference. The baseline per-period event probability, $p_0 = 1 - e^{-\lambda}$ with $\lambda \sim \text{Gamma}(r, \alpha)$, describes subjects at the reference levels (and zero for numeric covariates). Each coefficient $\beta_k$ acts on the complementary log-log scale, so $e^{\beta_k}$ is a hazard ratio: a one-unit increase in a numeric covariate, or a switch from the reference level to a given factor level, multiplies $\lambda$ by $e^{\beta_k}$. A positive $\beta_k$ raises the per-period event probability (shorter durations); a negative $\beta_k$ lowers it (longer durations).
-- **Profile Predictions:** When generating predictions with `G2G_static_survival()` and `G2G_varying_survival()`, passing a `data.frame` with the original factor levels (e.g., `data.frame(age = 49, celltype = "squamous")`) ensures clean, automatic level mapping.
-
-------------------------------------------------------------------------
-
 ## Vignettes
 
-To explore full mathematical derivations, likelihood formulations, period-to-period retention projections, and empirical comparisons, browse the package vignette:
+For a more comprehensive demonstration of the package's functionality,browse the package vignette:
 
 ```r
 vignette("introduction_to_g2gcov", package = "G2Gcov")

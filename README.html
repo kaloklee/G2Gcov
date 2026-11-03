@@ -359,18 +359,6 @@ display: none;
 distribution for discrete-time survival analysis with both time-varying
 and time-invariant covariates, following the methodology of Fader et
 al. (2019) and Fader and Hardie (2020).</p>
-<p>The G2G model is a discrete-time duration model in which the
-individual-level per-period event probability is reparameterized as
-<span class="math inline">\(p_0 = 1 - e^{-\lambda}\)</span>, with <span class="math inline">\(\lambda \sim \text{Gamma}(r, \alpha)\)</span>
-across subjects. Time-varying covariates in period <span class="math inline">\(j\)</span>, <span class="math inline">\(z(j)\)</span>, enter via a complementary log-log
-link with coefficients <span class="math inline">\(\beta&#39;\)</span>,</p>
-<p><span class="math display">\[p_j = 1 - \exp\left(-\lambda
-e^{z(j)\beta&#39;}\right),\]</span></p>
-<p>which yields the closed-form survivor function</p>
-<p><span class="math display">\[S(t) = \left(\frac{\alpha}{\alpha +
-C(t)}\right)^r, \quad C(t) = \sum_{j=1}^{t}
-e^{z(j)\beta&#39;}.\]</span></p>
-<hr />
 <div id="installation" class="section level2">
 <h2>Installation</h2>
 <p>Install the released version from CRAN:</p>
@@ -451,90 +439,10 @@ G2G_static_survival(fit_static, data.frame(age = 49, celltype = &quot;squamous&q
 <hr />
 </div>
 </div>
-<div id="data-format" class="section level2">
-<h2>Data Format</h2>
-<ul>
-<li><strong>Time-invariant models:</strong> One row per subject.</li>
-<li><strong>Time-varying models:</strong> <strong>Person-period (long)
-format</strong>, with one row per subject per discrete time period:</li>
-</ul>
-<table>
-<colgroup>
-<col width="33%" />
-<col width="33%" />
-<col width="33%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>Column</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>id</code></td>
-<td>Identifier</td>
-<td>Unique subject identifier (numeric, character, or factor)</td>
-</tr>
-<tr class="even">
-<td><code>week</code> (or <code>time</code>)</td>
-<td>Integer</td>
-<td>Sequential discrete period index (<span class="math inline">\(1, 2,
-3, \dots\)</span>)</td>
-</tr>
-<tr class="odd">
-<td><code>status</code></td>
-<td>Binary (0/1)</td>
-<td>1 if the event occurred in that specific period; 0 in the preceding
-periods; all 0s through the last observed period for censored
-subjects</td>
-</tr>
-<tr class="even">
-<td><code>coupon, anyp, ...</code></td>
-<td>Numeric / Factor</td>
-<td>Dynamic or static covariates (continuous, binary, or multi-level
-categories)</td>
-</tr>
-</tbody>
-</table>
-<div id="covariate-encoding-and-coefficient-interpretation" class="section level3">
-<h3>Covariate Encoding and Coefficient Interpretation</h3>
-<p>The package natively handles numeric and non-numeric variables (both
-<code>factor</code> and <code>character</code> vectors) through standard
-R formula mechanics (<code>model.matrix</code>):</p>
-<ul>
-<li><strong>Automatic Dummy Encoding:</strong> Multi-level factors are
-automatically expanded into binary dummy indicators using standard
-treatment contrasts (<code>contr.treatment</code>).</li>
-<li><strong>Coefficient Interpretation:</strong> The first level of each
-factor is the reference category, and its dummy variables equal zero.
-For <code>character</code> vectors, R orders levels alphabetically, so
-the first level is the alphabetically first value; use
-<code>factor(x, levels = ...)</code> or <code>relevel()</code> to choose
-a different reference. The baseline per-period event probability, <span class="math inline">\(p_0 = 1 - e^{-\lambda}\)</span> with <span class="math inline">\(\lambda \sim \text{Gamma}(r, \alpha)\)</span>,
-describes subjects at the reference levels (and zero for numeric
-covariates). Each coefficient <span class="math inline">\(\beta_k\)</span> acts on the complementary log-log
-scale, so <span class="math inline">\(e^{\beta_k}\)</span> is a hazard
-ratio: a one-unit increase in a numeric covariate, or a switch from the
-reference level to a given factor level, multiplies <span class="math inline">\(\lambda\)</span> by <span class="math inline">\(e^{\beta_k}\)</span>. A positive <span class="math inline">\(\beta_k\)</span> raises the per-period event
-probability (shorter durations); a negative <span class="math inline">\(\beta_k\)</span> lowers it (longer
-durations).</li>
-<li><strong>Profile Predictions:</strong> When generating predictions
-with <code>G2G_static_survival()</code> and
-<code>G2G_varying_survival()</code>, passing a <code>data.frame</code>
-with the original factor levels (e.g.,
-<code>data.frame(age = 49, celltype = &quot;squamous&quot;)</code>) ensures clean,
-automatic level mapping.</li>
-</ul>
-<hr />
-</div>
-</div>
 <div id="vignettes" class="section level2">
 <h2>Vignettes</h2>
-<p>To explore full mathematical derivations, likelihood formulations,
-period-to-period retention projections, and empirical comparisons,
-browse the package vignette:</p>
+<p>For a more comprehensive demonstration of the package’s
+functionality,browse the package vignette:</p>
 <pre class="r"><code>vignette(&quot;introduction_to_g2gcov&quot;, package = &quot;G2Gcov&quot;)</code></pre>
 <hr />
 </div>
