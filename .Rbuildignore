@@ -28,3 +28,4 @@
 ^\.claude$
 ^vignettes/.*\.Rmd\.orig$
 ^vignettes/precompile\.R$
+^README\.html$
