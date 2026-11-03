@@ -350,13 +350,11 @@ Duration Models with Time-Varying Covariates</h1>
 <h2>Time-Varying Covariates in the G2G Model</h2>
 <p>The G2G model is a discrete-time duration model in which the
 individual-level per-period event probability is reparameterized as
-<span class="math inline">\(\theta = 1 - e^{-\lambda}\)</span>, with
-<span class="math inline">\(\lambda \sim \text{Gamma}(r,
-\alpha)\)</span> across subjects. Time-varying covariates in period
-<span class="math inline">\(z(j)\)</span> enter via a complementary
-log-log link,</p>
+<span class="math inline">\(p_0 = 1 - e^{-\lambda}\)</span>, with <span class="math inline">\(\lambda \sim \text{Gamma}(r, \alpha)\)</span>
+across subjects. Time-varying covariates in period <span class="math inline">\(z(j)\)</span> enter via a complementary log-log
+link,</p>
 <p><span class="math display">\[
-\theta_j = 1 - \exp\left(-\lambda e^{z(j)\beta&#39;}\right),
+p_j = 1 - \exp\left(-\lambda e^{z(j)\beta&#39;}\right),
 \]</span></p>
 <p>which yields the closed-form survivor function</p>
 <p><span class="math display">\[

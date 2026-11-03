@@ -5,7 +5,7 @@
 **G2Gcov** implements the Grassia(II)-Geometric (G2G) distribution for discrete-time survival analysis with both time-varying and time-invariant covariates, following the methodology of Fader et al. (2019) and Fader and Hardie (2020).
 
 The G2G model is a discrete-time duration model in which the individual-level
-per-period event probability is reparameterized as $p = 1 - e^{-\lambda}$,
+per-period event probability is reparameterized as $p_0 = 1 - e^{-\lambda}$,
 with $\lambda \sim \text{Gamma}(r, \alpha)$ across subjects. Time-varying
 covariates in period $z(j)$ enter via a complementary log-log link,
 
