@@ -7,7 +7,8 @@
 The G2G model is a discrete-time duration model in which the individual-level
 per-period event probability is reparameterized as $p_0 = 1 - e^{-\lambda}$,
 with $\lambda \sim \text{Gamma}(r, \alpha)$ across subjects. Time-varying
-covariates in period $z(j)$ enter via a complementary log-log link,
+covariates in period $j$, $z(j)$, enter via a complementary log-log link
+with coefficients $\beta'$,
 
 $$p_j = 1 - \exp\left(-\lambda e^{z(j)\beta'}\right),$$
 

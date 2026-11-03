@@ -26,7 +26,8 @@ knitr::opts_chunk$set(
 The G2G model is a discrete-time duration model in which the individual-level
 per-period event probability is reparameterized as $p_0 = 1 - e^{-\lambda}$,
 with $\lambda \sim \text{Gamma}(r, \alpha)$ across subjects. Time-varying
-covariates in period $z(j)$ enter via a complementary log-log link,
+covariates in period $j$, $z(j)$, enter via a complementary log-log link
+with coefficients $\beta'$,
 
 $$
 p_j = 1 - \exp\left(-\lambda e^{z(j)\beta'}\right),
@@ -38,7 +39,7 @@ $$
 S(t) = \left(\frac{\alpha}{\alpha + C(t)}\right)^r, \quad C(t) = \sum_{j=1}^{t} e^{z(j)\beta'}.
 $$
 
-### Required Data Format
+### Required Format for Time-Varying Covariates Data
 
 Data must be in **person-period (long) format**:
 
@@ -52,7 +53,7 @@ The package natively handles non-numeric variables (both `factor` and `character
 
 * **Automatic Dummy Encoding:** Multi-level factors are automatically expanded into binary dummy indicators using standard treatment contrasts (`contr.treatment`).
 * **Baseline Hazard Interpretation:** The first level is treated as the reference category and its effect is absorbed into the baseline frailty distribution parameterized by $r$ and $\alpha$.
-* **Profile Predictions:** When generating predictions with `G2G_static_survival()` or `G2G_varying_survival()`, passing a `data.frame` with the original factor levels ensures clean, automatic level mapping without needing manual dummy variable creation.
+* **Profile Predictions:** When generating predictions with `G2G_varying_survival()`, passing a `data.frame` with the original factor levels ensures clean, automatic level mapping without needing manual dummy variable creation.
 
 ## Example 1: Time-Varying Covariates (`kb_data`)
 
@@ -91,8 +92,8 @@ Internally, the `G2G_varying_MLE()` function applies several techniques to ensur
 
 * **Automatic Standardization:** To improve the numerical stability and convergence of the BFGS algorithm, all continuous covariates are automatically standardized (centered and scaled) prior to maximizing the likelihood. Upon convergence, the resulting coefficient estimates are dynamically rescaled back to their original metric, ensuring the output is immediately interpretable on the scale of the original data.
 * **Delta Method for Standard Errors:** The optimization routines estimate baseline parameters in an unconstrained space (e.g., using $\log(r)$ and $\log(\alpha)$ to enforce strict positivity constraints). The package computes the inverse Hessian matrix and applies the multivariate Delta method to derive the standard errors for the parameters on their original scale.
-* **Wald Confidence Limits:** Using these Delta method standard errors, the package automatically calculates and reports symmetric 95% Wald confidence intervals for all parameters, as shown in the `print()` output.
-* `G2G_static_MLE()` also uses these techniques to ensure robust numerical optimization
+* **Wald Confidence Limits:** Using these Delta method standard errors, the package automatically calculates and reports symmetric 95% Wald confidence intervals for all parameters, as shown in the `print()` output. By default, it reports 95% confidence limits, but users can easily adjust this by specifying the `level` argument (e.g., passing `level = 0.99` for 99% limits) depending on their desired statistical stringency.
+* `G2G_static_MLE()` also uses these techniques to ensure robust numerical optimization.
 
 ### Visualizations
 
@@ -138,14 +139,15 @@ vet$id <- seq_len(nrow(vet))
 ```{r fit-static}
 fit_static <- G2G_static_MLE(
   Surv(time, status) ~ age + celltype,
-  data = vet
+  data = vet,
+  level = .99
 )
 
 # View the parameter estimates and model convergence for the static baseline
 print(fit_static)
 ```
 
-Just like the time-varying model, we can project survival for a specific subject profile (passing original factor levels) using `G2G_static_survival()`.
+Just like the time-varying model, we can project survival for a specific subject profile (passing original factor levels) using `G2G_static_survival()` and even specify the length of the survival curve. 
 
 ```{r plot-survival-static}
 # Predict survival up to t = 150 days for a 49-year-old with squamous cell cancer

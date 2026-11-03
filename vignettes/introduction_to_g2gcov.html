@@ -351,8 +351,8 @@ Duration Models with Time-Varying Covariates</h1>
 <p>The G2G model is a discrete-time duration model in which the
 individual-level per-period event probability is reparameterized as
 <span class="math inline">\(p_0 = 1 - e^{-\lambda}\)</span>, with <span class="math inline">\(\lambda \sim \text{Gamma}(r, \alpha)\)</span>
-across subjects. Time-varying covariates in period <span class="math inline">\(z(j)\)</span> enter via a complementary log-log
-link,</p>
+across subjects. Time-varying covariates in period <span class="math inline">\(j\)</span>, <span class="math inline">\(z(j)\)</span>, enter via a complementary log-log
+link with coefficients <span class="math inline">\(\beta&#39;\)</span>,</p>
 <p><span class="math display">\[
 p_j = 1 - \exp\left(-\lambda e^{z(j)\beta&#39;}\right),
 \]</span></p>
@@ -361,8 +361,8 @@ p_j = 1 - \exp\left(-\lambda e^{z(j)\beta&#39;}\right),
 S(t) = \left(\frac{\alpha}{\alpha + C(t)}\right)^r, \quad C(t) =
 \sum_{j=1}^{t} e^{z(j)\beta&#39;}.
 \]</span></p>
-<div id="required-data-format" class="section level3">
-<h3>Required Data Format</h3>
+<div id="required-format-for-time-varying-covariates-data" class="section level3">
+<h3>Required Format for Time-Varying Covariates Data</h3>
 <p>Data must be in <strong>person-period (long) format</strong>:</p>
 <ul>
 <li>One row per subject per time period.</li>
@@ -385,10 +385,10 @@ treatment contrasts (<code>contr.treatment</code>).</li>
 treated as the reference category and its effect is absorbed into the
 baseline frailty distribution parameterized by <span class="math inline">\(r\)</span> and <span class="math inline">\(\alpha\)</span>.</li>
 <li><strong>Profile Predictions:</strong> When generating predictions
-with <code>G2G_static_survival()</code> or
-<code>G2G_varying_survival()</code>, passing a <code>data.frame</code>
-with the original factor levels ensures clean, automatic level mapping
-without needing manual dummy variable creation.</li>
+with <code>G2G_varying_survival()</code>, passing a
+<code>data.frame</code> with the original factor levels ensures clean,
+automatic level mapping without needing manual dummy variable
+creation.</li>
 </ul>
 </div>
 </div>
@@ -511,9 +511,12 @@ the parameters on their original scale.</li>
 <li><strong>Wald Confidence Limits:</strong> Using these Delta method
 standard errors, the package automatically calculates and reports
 symmetric 95% Wald confidence intervals for all parameters, as shown in
-the <code>print()</code> output.</li>
+the <code>print()</code> output. By default, it reports 95% confidence
+limits, but users can easily adjust this by specifying the
+<code>level</code> argument (e.g., passing <code>level = 0.99</code> for
+99% limits) depending on their desired statistical stringency.</li>
 <li><code>G2G_static_MLE()</code> also uses these techniques to ensure
-robust numerical optimization</li>
+robust numerical optimization.</li>
 </ul>
 </div>
 <div id="visualizations" class="section level3">
@@ -559,31 +562,33 @@ benchmark this using the <code>veteran</code> dataset.</p>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>vet<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(vet))</span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>fit_static <span class="ot">&lt;-</span> <span class="fu">G2G_static_MLE</span>(</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="fu">Surv</span>(time, status) <span class="sc">~</span> age <span class="sc">+</span> celltype,</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">data =</span> vet</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>)</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co"># View the parameter estimates and model convergence for the static baseline</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="fu">print</span>(fit_static)</span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; G2G Model Fit</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; ---------------------------------------------------- </span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; Convergence:       Converged (code 0)</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; Log-likelihood:    -733.1773</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; AIC:               1478.3546</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; Parameters:        6</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; Coefficients:</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Std.Error Lower.95     Upper.95</span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; r (shape)           24.4605    65.4850   0.1287    4648.1173</span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; alpha (rate)      8031.0071 23544.0705  25.6654 2512995.3205</span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; age                  0.0074     0.0097  -0.0115       0.0264</span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; celltypesmallcell    1.0711     0.2450   0.5910       1.5513</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; celltypeadeno        1.2015     0.2819   0.6489       1.7541</span></span>
-<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; celltypelarge        0.2415     0.2840  -0.3151       0.7981</span></span>
-<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; Warning: Extremely wide confidence intervals for baseline parameters suggest a flat likelihood ridge (common with small sample sizes or few observed events). Interpret estimates and limits with caution.</span></span></code></pre></div>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">data =</span> vet,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">level =</span> .<span class="dv">99</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co"># View the parameter estimates and model convergence for the static baseline</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">print</span>(fit_static)</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; G2G Model Fit</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; ---------------------------------------------------- </span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; Convergence:       Converged (code 0)</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; Log-likelihood:    -733.1773</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; AIC:               1478.3546</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; Parameters:        6</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Std.Error Lower.99     Upper.99</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; r (shape)           24.4605    65.4850   0.0248 2.417306e+04</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; alpha (rate)      8031.0071 23544.0705   4.2192 1.528657e+07</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; age                  0.0074     0.0097  -0.0175 3.230000e-02</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; celltypesmallcell    1.0711     0.2450   0.4401 1.702200e+00</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; celltypeadeno        1.2015     0.2819   0.4753 1.927800e+00</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; celltypelarge        0.2415     0.2840  -0.4900 9.730000e-01</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; Warning: Extremely wide confidence intervals for baseline parameters suggest a flat likelihood ridge (common with small sample sizes or few observed events). Interpret estimates and limits with caution.</span></span></code></pre></div>
 <p>Just like the time-varying model, we can project survival for a
 specific subject profile (passing original factor levels) using
-<code>G2G_static_survival()</code>.</p>
+<code>G2G_static_survival()</code> and even specify the length of the
+survival curve.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Predict survival up to t = 150 days for a 49-year-old with squamous cell cancer</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>surv_static <span class="ot">&lt;-</span> <span class="fu">G2G_static_survival</span>(</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  fit_static, </span>
