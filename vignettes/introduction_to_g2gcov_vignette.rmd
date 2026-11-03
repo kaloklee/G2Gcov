@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 
 ## Package Overview
 
-`G2Gcov` implements maximum likelihood estimation, diagnostic baseline plotting, and survival/retention trajectory forecasting for discrete-time duration data with time-varying covariates and unobserved cross-sectional heterogeneity:
+`G2Gcov` implements maximum likelihood estimation, diagnostic plotting, and survival/retention trajectory forecasting of the Grassia(II)-Geometric (G2G) distribution for discrete-time duration data with both time-varying and time-invariant covariates and unobserved cross-sectional heterogeneity, following the methodology of Fader et al. (2019) and Fader and Hardie (2020).
 
 | Function | Purpose |
 |:---|:---|
@@ -42,7 +42,7 @@ knitr::opts_chunk$set(
 
 The G2G model is a discrete-time duration model in which the individual-level
 per-period event probability is reparameterized as $p_0 = 1 - e^{-\lambda}$,
-with $\lambda \sim \text{Gamma}(r, \alpha)$ across subjects. Time-varying
+with $\lambda \sim \text{Gamma}(r, \alpha)$ across subjects to capture unobserved heterogeneity. Time-varying
 covariates in period $j$, $z(j)$, enter via a complementary log-log link
 with coefficients $\beta'$,
 
@@ -56,13 +56,21 @@ $$
 S(t) = \left(\frac{\alpha}{\alpha + C(t)}\right)^r, \quad C(t) = \sum_{j=1}^{t} e^{z(j)\beta'}.
 $$
 
+The probability mass function (PMF) is:
+
+$$
+P(t) = \left(\frac{\alpha}{\alpha + C(t-1)}\right)^r - \left(\frac{\alpha}{\alpha + C(t)}\right)^r
+$$
+
+The likelihood function simply consists of the PMF and $S(t)$ for uncensored and censored subjects, respectively.
+
 ### Required Format for Time-Varying Covariates Data
 
 Data must be in **person-period (long) format**:
 
 * One row per subject per time period.
 * A subject identifier column linking rows to the same individual.
-* An event indicator equaling 1 in the period the event occurred, and 0 in all preceding periods.
+* An event indicator equaling 1 in the period the event occurred, and 0 in all preceding periods. All 0s through the last observed period for censored subjects
 
 | Column | Type | Description |
 |:---|:---|:---|
@@ -71,12 +79,7 @@ Data must be in **person-period (long) format**:
 | `status` | Binary (0/1) | 1 if the event occurred in that specific period; 0 in the preceding periods;  all 0s through the last observed period for censored subjects |
 | `coupon, anyp, ...` | Numeric / Factor | Dynamic or static covariates (continuous, binary, or multi-level) |
 
-
-The package natively handles numeric and non-numeric variables (both `factor` and `character` vectors) through standard R formula mechanics (`model.matrix`):
-
-- **Automatic Dummy Encoding:** Multi-level factors are automatically expanded into binary dummy indicators using standard treatment contrasts (`contr.treatment`).
-- **Coefficient Interpretation:** The first level of each factor is the reference category, and its dummy variables equal zero. For `character` vectors, R orders levels alphabetically, so the first level is the alphabetically first value; use `factor(x, levels = ...)` or `relevel()` to choose a different reference. The baseline per-period event probability, $p_0 = 1 - e^{-\lambda}$ with $\lambda \sim \text{Gamma}(r, \alpha)$, describes subjects at the reference levels (and zero for numeric covariates). Each coefficient $\beta_k$ acts on the complementary log-log scale, so $e^{\beta_k}$ is a hazard ratio: a one-unit increase in a numeric covariate, or a switch from the reference level to a given factor level, multiplies $\lambda$ by $e^{\beta_k}$. A positive $\beta_k$ raises the per-period event probability (shorter durations); a negative $\beta_k$ lowers it (longer durations).
-- **Profile Predictions:** When generating predictions with `G2G_static_survival()` and `G2G_varying_survival()`, passing a `data.frame` with the original factor levels (e.g., `data.frame(age = 49, celltype = "squamous")`) ensures clean, automatic level mapping.
+Factor and character covariates are expanded into dummy variables through standard R formula mechanics (`model.matrix`, treatment contrasts).
 
 ---
 
@@ -111,13 +114,21 @@ fit_varying <- G2G_varying_MLE(
 print(fit_varying)
 ```
 
+### Interpreting the Coefficients
+
+Each coefficient $\beta_k$ acts on the complementary log-log scale, so $e^{\beta_k}$ is a hazard ratio: a one-unit increase in a numeric covariate, or a switch from the reference level to a given factor level, multiplies $\lambda$ by $e^{\beta_k}$. A positive $\beta_k$ raises the per-period event probability (shorter durations); a negative $\beta_k$ lowers it (longer durations).
+
+The baseline per-period event probability, $p_0 = 1 - e^{-\lambda}$ with $\lambda \sim \text{Gamma}(r, \alpha)$, describes subjects at zero for numeric covariates and at the reference level of each factor. 
+
+Hazard ratios are expressed per unit of each covariate, so raw coefficients are not comparable across covariates measured on different scales, such as `coupon` and `anyp`. To make an effect concrete, compute the hazard ratio for a meaningful change $\Delta$, $e^{\beta_k \Delta}$. An effect is distinguishable from zero when the confidence interval for $\beta_k$ excludes $0$ (equivalently, when the interval for the hazard ratio excludes $1$).
+
 ### Estimation Details
 
 Internally, `G2G_varying_MLE()` applies several techniques to ensure robust numerical optimization:
 
 * **Automatic Standardization:** To improve numerical stability and convergence of the BFGS algorithm, all continuous covariates are automatically standardized (centered and scaled) prior to maximizing the likelihood. Upon convergence, the resulting coefficient estimates are dynamically rescaled back to their original metric, ensuring the output is immediately interpretable on the scale of the original data.
 * **Delta Method for Standard Errors:** The optimization routines estimate baseline parameters in an unconstrained space (e.g., using $\log(r)$ and $\log(\alpha)$ to enforce strict positivity constraints). The package computes the inverse Hessian matrix and applies the multivariate Delta method to derive standard errors on their original scale.
-* **Wald Confidence Limits:** Using Delta method standard errors, the package automatically calculates and reports symmetric Wald confidence intervals for all parameters. By default, it reports 95% confidence limits, which can be modified via the `level` argument (e.g., `level = 0.99`).
+* **Wald Confidence Limits:** Using Delta method standard errors, the package automatically calculates and reports Wald confidence intervals: symmetric for the covariate coefficients, and computed on the log scale for $r$ and $\alpha$ so they remain strictly positive. By default, it reports 95% confidence limits, which can be modified via the `level` argument (e.g., `level = 0.99`).
 * `G2G_static_MLE()` applies these same optimization and standardization techniques.
 
 ### Visualizations and Projections
@@ -127,6 +138,8 @@ We can visualize the implied distribution of the baseline weekly event probabili
 ```{r plot-p0}
 plot_p0(fit_varying)
 ```
+
+> **A note on $r$ and $\alpha$:** The standard errors of $r$ and $\alpha$ can be as large as the estimates themselves, particularly in small samples. This is typical of a gamma mixing distribution and is not a sign of a problem: the two parameters are often highly correlated, because many $(r, \alpha)$ combinations imply very similar distributions of $p_0$. Interpret them jointly, for example through the implied distribution of $p_0$ shown by `plot_p0()`, rather than one at a time.
 
 Next, we extract the survival curve explicitly using `G2G_varying_survival()` by passing a specific customer's covariate path, and plot the predicted step-function. The length of the generated survival curve aligns with the length of the covariate path provided: 
 
@@ -152,10 +165,11 @@ plot(
 )
 ```
 
-We can also project conditional period-to-period retention function along that same dynamic customer path using `G2G_varying_retention()`:
+We can also project conditional period-to-period retention function, defined as $r(t) = S(t)/S(t-1)$,
+along that same dynamic customer path using `G2G_varying_retention()`:
 
 ```{r retention-varying}
-# Compute period-to-period retention r(t) = P(T > t | T > t - 1)
+# Compute period-to-period retention r(t) = S(t)/S(t-1)
 ret_est <- G2G_varying_retention(solution = fit_varying, X_mat = customer_path)
 
 # Display 
@@ -164,16 +178,16 @@ head(data.frame(Week = seq_along(ret_est), Retention = round(ret_est, 4)))
 
 ---
 
-## Example 2: Static Covariate Baseline (`veteran`)
+## Example 2: Static Covariate Baseline (`survival::veteran`)
 
-If covariates are fixed for each subject, the cumulative hazard simplifies. `G2G_static_MLE()` handles data in traditional cross-sectional format (one row per subject) and automatically manages factor variables like `celltype`. We demonstrate this using the `veteran` dataset.
+If covariates are fixed for each subject, the cumulative hazard simplifies. `G2G_static_MLE()` handles data in traditional cross-sectional format (one row per subject) and automatically manages factor variables like `celltype`. We demonstrate this using the `survival::veteran` dataset. 
 
 ```{r load-static}
 vet <- survival::veteran
-vet$id <- seq_len(nrow(vet))
 ```
 
 ```{r fit-static}
+# Using a 99% confidence limits in this example
 fit_static <- G2G_static_MLE(
   Surv(time, status) ~ age + celltype,
   data  = vet,
@@ -184,7 +198,7 @@ fit_static <- G2G_static_MLE(
 print(fit_static)
 ```
 
-We plot the baseline event probability distribution at reference covariate values (squamous cell type and age = 0):
+We plot the baseline event probability distribution at reference covariate values (squamous cell type and age = 0). The first level of a factor is its reference category (here `squamous`). For `character` vectors, the first level is the alphabetically first value; use `relevel()` or `factor(x, levels = ...)` to choose a different reference:
 
 ```{r plot-p0-static}
 plot_p0(fit_static)
@@ -228,7 +242,7 @@ data.frame(Day = seq_along(ret_static), Retention = round(ret_static, 4))
 
 ## References
 
-* Fader, P. S., Hardie, B. G. S., McCarthy, D., & Vaidyanathan, R. (2019). Exploring the equivalence of two common mixture models for duration data. *The American Statistician*, 73(3), 288–295. https://doi.org/10.1080/00031305.2018.1543134
+* Fader, P. S., Hardie, B. G. S., McCarthy, D., & Vaidyanathan, R. (2019). Exploring the equivalence of two common mixture models for duration data. *The American Statistician*, 73(3), 288–295. 
 * Fader, P. S., & Hardie, B. G. S. (2020). *Incorporating time-varying covariates in a simple mixture model for discrete-time duration data* (Research Note No. 037). https://brucehardie.com/notes/037/time-varying_covariates_in_BG.pdf
 
 ---
