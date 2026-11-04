@@ -100,7 +100,7 @@ kb_data_sample<-G2Gcov::kb_data_sample
 round(head(kb_data_sample, 50), 2)
 ```
 
-We estimate the model by directly supplying the formula and the subject identifier.
+We estimate the model by directly supplying the formula and the subject identifier. Please note that both estimation functions require at least one covariate on the right-hand side of the formula.
 
 ```{r fit-varying}
 # Estimate the discrete-time model with dynamic marketing covariates
