@@ -175,7 +175,7 @@ print(fit_varying)
 #> Coefficients:
 #>              Estimate Std.Error Lower.95   Upper.95
 #> r (shape)      0.0611    0.1047   0.0021     1.7580
-#> alpha (rate)   6.3229   31.1821   0.0004 99709.9104
+#> alpha (rate)   6.3229   31.1821   0.0004 99709.9092
 #> coupon        24.9515   22.4348 -19.0199    68.9230
 #> anyp          -0.0159    0.0554  -0.1246     0.0927
 #> 
@@ -341,8 +341,8 @@ print(fit_static)
 #> 
 #> Coefficients:
 #>                    Estimate  Std.Error Lower.99     Upper.99
-#> r (shape)           24.4605    65.4851   0.0248 2.417343e+04
-#> alpha (rate)      8031.0071 23544.1149   4.2191 1.528679e+07
+#> r (shape)           24.4605    65.4850   0.0248 2.417306e+04
+#> alpha (rate)      8031.0071 23544.0705   4.2192 1.528657e+07
 #> age                  0.0074     0.0097  -0.0175 3.230000e-02
 #> celltypesmallcell    1.0711     0.2450   0.4401 1.702200e+00
 #> celltypeadeno        1.2015     0.2819   0.4753 1.927800e+00

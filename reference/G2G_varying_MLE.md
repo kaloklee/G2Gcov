@@ -123,23 +123,20 @@ parameterization):
     data    = kb_data,
     subject = "id"
   )
-#> Warning: The Hessian at the solution is not positive definite (or could not be inverted), so standard errors and confidence intervals are NA.
   print(fit)
 #> G2G Model Fit
 #> ---------------------------------------------------- 
 #> Convergence:       Converged (code 0)
-#> Log-likelihood:    -5612.1808
-#> AIC:               11232.3616
+#> Log-likelihood:    -5612.181
+#> AIC:               11232.3619
 #> Parameters:        4
 #> 
 #> Coefficients:
-#>                Estimate Std.Error Lower.95 Upper.95
-#> r (shape)     2996.6875        NA       NA       NA
-#> alpha (rate) 40722.0679        NA       NA       NA
-#> coupon         -78.2544        NA       NA       NA
-#> anyp             0.0020        NA       NA       NA
-#> 
-#> Note: some standard errors are NA (the Hessian at the optimum is singular or not positive definite).
+#>                Estimate  Std.Error  Lower.95    Upper.95
+#> r (shape)     2994.7624  3725.7011  261.4605  34301.9392
+#> alpha (rate) 40695.9287 50674.4945 3545.1645 467159.8788
+#> coupon         -78.2543     4.2463  -86.5769    -69.9318
+#> anyp             0.0020     0.0012   -0.0002      0.0043
 
   # 90% confidence intervals instead of the default 95%
   fit90 <- G2G_varying_MLE(
@@ -148,6 +145,5 @@ parameterization):
     subject = "id",
     level   = 0.90
   )
-#> Warning: The Hessian at the solution is not positive definite (or could not be inverted), so standard errors and confidence intervals are NA.
 # }
 ```

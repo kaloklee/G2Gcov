@@ -109,11 +109,14 @@ G2G_static_survival(fit_static, data.frame(age = 49, celltype = "squamous"), 10)
 ## Vignettes
 
 For a more comprehensive demonstration of the package’s
-functionality,browse the package vignette:
+functionality,browse the package vignette [introductory
+vignette](https://kaloklee.github.io/G2Gcov/articles/introduction_to_g2gcov_vignette.html)
+online, or build it locally:
 
 ``` r
 
-vignette("introduction_to_g2gcov", package = "G2Gcov")
+remotes::install_github("kaloklee/G2Gcov", build_vignettes = TRUE)
+vignette("introduction_to_g2gcov_vignette", package = "G2Gcov")
 ```
 
 ------------------------------------------------------------------------
