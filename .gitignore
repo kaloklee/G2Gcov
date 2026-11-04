@@ -16,3 +16,5 @@ Rplots.pdf
 *.pdf
 .positai
 README.html
+vignettes/*.html
+docs
