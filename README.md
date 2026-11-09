@@ -107,7 +107,7 @@ G2G_static_cond_survival(fit_static, data.frame(age = 49, celltype = "squamous")
                          hist = 30, future = 10)
 ```
 
-> **Note on the posterior functions:** with time-varying covariates, `G2G_varying_posterior_p0()` returns the *baseline* probability (absent covariates), so it can be combined with any planned covariate path. With time-invariant covariates there is no later choice of covariates, so `G2G_static_posterior_p()` returns the subject's *own* probability, hence the name without the `0`. The vignette explains the difference.
+> **Note on the posterior functions:** with time-varying covariates, `G2G_varying_posterior_p0()` returns the *baseline* probability (before applying covariates), so it can be combined with any planned covariate path. With time-invariant covariates there is no later choice of covariates, so `G2G_static_posterior_p()` returns the subject's *own* probability, hence the name without the `0`. The vignette explains the difference.
 
 ------------------------------------------------------------------------
 

@@ -324,7 +324,7 @@ The two cases ask the same question but not the same quantity, and the names ref
 | | Time-varying | Time-invariant |
 |:---|:---|:---|
 | Posterior mean function | `G2G_varying_posterior_p0()` | `G2G_static_posterior_p()` |
-| Probability returned | Baseline $p_0$ (covariates at zero) | The subject's own $p$ |
+| Probability returned | Baseline $p_0$ (before applying covariates) | The subject's own $p$ |
 | Value of $m$ in Step 3 | $1$ | $c = e^{x'\beta}$ |
 | History input | Covariate path, one row per survived period | Number of survived periods, `hist` |
 | Conditional survival function | `G2G_varying_cond_survival()` | `G2G_static_cond_survival()` |
