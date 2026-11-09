@@ -10,6 +10,8 @@ Useful links:
 
 - <https://github.com/kaloklee/G2G_cov>
 
+- <https://kaloklee.github.io/G2Gcov/>
+
 - Report bugs at <https://github.com/kaloklee/G2G_cov/issues>
 
 ## Author
