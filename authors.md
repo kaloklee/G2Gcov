@@ -11,7 +11,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/kaloklee/G2G_cov/blob/ka_manualQC/inst/CITATION)
+[`inst/CITATION`](https://github.com/kaloklee/G2G_cov/blob/HEAD/inst/CITATION)
 
 Lee K, Ramsey A, Park N (2026). *G2Gcov: Grassia(II)-Geometric
 Distribution with Time-Varying Covariates*. R package version 0.1.0,
