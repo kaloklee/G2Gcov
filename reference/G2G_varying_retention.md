@@ -47,6 +47,7 @@ S(1)/S(0), S(2)/S(1), ..., S(T)/S(T-1).
     data    = kb_data,
     subject = "id"
   )
+#> Warning: The Hessian at the solution is not positive definite (or could not be inverted), so standard errors and confidence intervals are NA.
   path <- kb_data[kb_data$id == kb_data$id[1], c("coupon", "anyp")]
   G2G_varying_retention(fit, path)
 #>           r (shape) 

@@ -24,22 +24,22 @@ G2G_varying_LL(par, data_df)
 
   id
 
-  : Subject identifier
+  :   Subject identifier
 
   time
 
-  : Time point for each observation. Within each subject, rows must be
-    ordered by time, with time running 1, 2, 3, ... and no gaps
+  :   Time point for each observation. Within each subject, rows must be
+      ordered by time, with time running 1, 2, 3, ... and no gaps
 
   status
 
-  : Event indicator (0 = no occurrence, 1 = event occurred). A subject
-    counts as having had an event if status is 1 on any of their rows,
-    and the event is placed in the subject's last period
+  :   Event indicator (0 = no occurrence, 1 = event occurred). A subject
+      counts as having had an event if status is 1 on any of their rows,
+      and the event is placed in the subject's last period
 
   ...
 
-  : Time-varying covariates (remaining columns)
+  :   Time-varying covariates (remaining columns)
 
 ## Value
 

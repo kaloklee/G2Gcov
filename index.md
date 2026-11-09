@@ -169,5 +169,5 @@ vignette("introduction_to_g2gcov_vignette", package = "G2Gcov")
 ## License & Contact
 
 Licensed under the [Apache License
-2.0](https://kaloklee.github.io/G2Gcov/LICENSE).\
+2.0](https://kaloklee.github.io/G2Gcov/LICENSE).  
 Questions, issues, or contributions: Ka Lok Lee (<kaloklee@gmail.com>).

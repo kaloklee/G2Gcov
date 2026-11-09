@@ -181,7 +181,7 @@ print(fit_varying)
 #> Coefficients:
 #>              Estimate Std.Error Lower.95   Upper.95
 #> r (shape)      0.0611    0.1047   0.0021     1.7580
-#> alpha (rate)   6.3229   31.1821   0.0004 99709.9092
+#> alpha (rate)   6.3229   31.1821   0.0004 99709.9104
 #> coupon        24.9515   22.4348 -19.0199    68.9230
 #> anyp          -0.0159    0.0554  -0.1246     0.0927
 #> 
@@ -347,8 +347,8 @@ print(fit_static)
 #> 
 #> Coefficients:
 #>                    Estimate  Std.Error Lower.99     Upper.99
-#> r (shape)           24.4605    65.4850   0.0248 2.417306e+04
-#> alpha (rate)      8031.0071 23544.0705   4.2192 1.528657e+07
+#> r (shape)           24.4605    65.4851   0.0248 2.417343e+04
+#> alpha (rate)      8031.0071 23544.1149   4.2191 1.528679e+07
 #> age                  0.0074     0.0097  -0.0175 3.230000e-02
 #> celltypesmallcell    1.0711     0.2450   0.4401 1.702200e+00
 #> celltypeadeno        1.2015     0.2819   0.4753 1.927800e+00
@@ -687,21 +687,19 @@ all.equal(G2G_static_posterior_p(fit_static, patient, hist = 30),
 sessionInfo()
 #> R version 4.6.2 (2026-10-29)
 #> Platform: x86_64-pc-linux-gnu
-#> Running under: LMDE 7 (gigi)
+#> Running under: Ubuntu 26.04.1 LTS
 #> 
 #> Matrix products: default
 #> BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
-#> LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.29.so;  LAPACK version 3.12.0
+#> LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so;  LAPACK version 3.12.0
 #> 
 #> locale:
-#>  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
-#>  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
-#>  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
-#>  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
-#>  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-#> [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+#>  [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8       
+#>  [4] LC_COLLATE=C.UTF-8     LC_MONETARY=C.UTF-8    LC_MESSAGES=C.UTF-8   
+#>  [7] LC_PAPER=C.UTF-8       LC_NAME=C              LC_ADDRESS=C          
+#> [10] LC_TELEPHONE=C         LC_MEASUREMENT=C.UTF-8 LC_IDENTIFICATION=C   
 #> 
-#> time zone: America/Kentucky/Louisville
+#> time zone: UTC
 #> tzcode source: system (glibc)
 #> 
 #> attached base packages:
@@ -712,11 +710,11 @@ sessionInfo()
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] cli_3.6.6         knitr_1.52        rlang_1.3.0       xfun_0.62        
-#>  [5] otel_0.2.0        textshaping_1.0.5 jsonlite_2.0.0    htmltools_0.5.9  
+#>  [5] otel_0.3.0        textshaping_1.0.5 jsonlite_2.0.0    htmltools_0.5.9  
 #>  [9] ragg_1.5.2        sass_0.4.10       rmarkdown_2.32    grid_4.6.2       
 #> [13] evaluate_1.0.5    jquerylib_0.1.4   fastmap_1.2.0     yaml_2.3.12      
-#> [17] lifecycle_1.0.5   compiler_4.6.2    fs_2.1.0          htmlwidgets_1.6.4
-#> [21] rstudioapi_0.19.0 lattice_0.23-1    systemfonts_1.3.2 digest_0.6.39    
-#> [25] R6_2.6.1          splines_4.6.2     Matrix_1.7-6      bslib_0.12.0     
-#> [29] tools_4.6.2       pkgdown_2.2.1     cachem_1.1.0      desc_1.4.3
+#> [17] lifecycle_1.0.5   compiler_4.6.2    fs_2.1.0          lattice_0.23-1   
+#> [21] systemfonts_1.3.2 digest_0.6.39     R6_2.6.1          splines_4.6.2    
+#> [25] bslib_0.12.0      Matrix_1.7-6      tools_4.6.2       pkgdown_2.2.1    
+#> [29] cachem_1.1.0      desc_1.4.3
 ```
