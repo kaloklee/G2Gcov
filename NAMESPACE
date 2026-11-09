@@ -2,9 +2,13 @@
 
 S3method(print,G2Gcov)
 export(G2G_static_MLE)
+export(G2G_static_cond_survival)
+export(G2G_static_posterior_p)
 export(G2G_static_retention)
 export(G2G_static_survival)
 export(G2G_varying_MLE)
+export(G2G_varying_cond_survival)
+export(G2G_varying_posterior_p0)
 export(G2G_varying_retention)
 export(G2G_varying_survival)
 export(plot_p0)

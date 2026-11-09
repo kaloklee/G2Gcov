@@ -14,6 +14,7 @@ estimation.
 Useful links:
 \itemize{
   \item \url{https://github.com/kaloklee/G2G_cov}
+  \item \url{https://kaloklee.github.io/G2Gcov/}
   \item Report bugs at \url{https://github.com/kaloklee/G2G_cov/issues}
 }
 

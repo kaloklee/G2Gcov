@@ -4,6 +4,8 @@
 
 **G2Gcov** implements the Grassia(II)-Geometric (G2G) distribution for discrete-time survival analysis with both time-varying and time-invariant covariates, following the methodology of Fader et al. (2019) and Fader and Hardie (2020).
 
+It also updates a customer's estimates given how long they have survived: posterior event probabilities and conditional survival forecasts.
+
 ## Installation
 
 Install the released version from CRAN:
@@ -52,6 +54,19 @@ plot_p0(fit_varying)
 # (Subject 24 is included in kb_data_sample)
 customer_path <- kb_data_sample[kb_data_sample$id == 24, c("coupon", "anyp")]
 G2G_varying_survival(solution = fit_varying, X_mat = customer_path)
+
+# Update for a customer who has survived part of their path:
+# first half = survived history, second half = planned covariates for the periods ahead
+n_hist      <- max(1L, floor(nrow(customer_path) / 2))
+hist_path   <- customer_path[seq_len(n_hist), ]
+future_path <- customer_path[-seq_len(n_hist), ]
+
+# Posterior mean of the baseline per-period event probability (p0) given the history
+G2G_varying_posterior_p0(fit_varying, hist_path)
+
+# Probability of surviving each of the next periods under the planned covariates,
+# given survival through the history
+G2G_varying_cond_survival(fit_varying, hist_path, future_path)
 ```
 
 > **Note on Datasets:** `kb_data_sample` is a fast-running, 20-subject subset intended for quick trials, unit tests, and interactive exploration. For full empirical analyses, use `data(kb_data)`, which contains the entire cohort of 1,499 subjects (34,506 person-period rows).
@@ -83,13 +98,22 @@ plot_p0(fit_static)
 
 # Predict survival over 10 periods for a specific baseline covariate profile
 G2G_static_survival(fit_static, data.frame(age = 49, celltype = "squamous"), 10)
+
+# Update for a patient who has survived 30 days (hist = number of survived periods)
+G2G_static_posterior_p(fit_static, data.frame(age = 49, celltype = "squamous"), hist = 30)
+
+# Probability of surviving each of the next 10 days, given survival through day 30
+G2G_static_cond_survival(fit_static, data.frame(age = 49, celltype = "squamous"),
+                         hist = 30, future = 10)
 ```
+
+> **Note on the posterior functions:** with time-varying covariates, `G2G_varying_posterior_p0()` returns the *baseline* probability (absent covariates), so it can be combined with any planned covariate path. With time-invariant covariates there is no later choice of covariates, so `G2G_static_posterior_p()` returns the subject's *own* probability, hence the name without the `0`. The vignette explains the difference.
 
 ------------------------------------------------------------------------
 
 ## Vignettes
 
-For a more comprehensive demonstration of the package's functionality,browse the package vignette [introductory vignette](https://kaloklee.github.io/G2Gcov/articles/introduction_to_g2gcov_vignette.html) online, or build it locally:
+For a more comprehensive demonstration of the package's functionality, including the underlying model and the derivation of the posterior quantities, read the [introductory vignette](https://kaloklee.github.io/G2Gcov/articles/introduction_to_g2gcov_vignette.html) online, or build it locally:
 
 ```r
 remotes::install_github("kaloklee/G2Gcov", build_vignettes = TRUE)

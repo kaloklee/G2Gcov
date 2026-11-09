@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 
 ## Package Overview
 
-`G2Gcov` implements maximum likelihood estimation, diagnostic plotting, and survival/retention trajectory forecasting of the Grassia(II)-Geometric (G2G) distribution for discrete-time duration data with both time-varying and time-invariant covariates and unobserved cross-sectional heterogeneity, following the methodology of Fader et al. (2019) and Fader and Hardie (2020).
+`G2Gcov` implements maximum likelihood estimation, diagnostic plotting, and survival/retention trajectory forecasting of the Grassia(II)-Geometric (G2G) distribution for discrete-time duration data with both time-varying and time-invariant covariates and unobserved cross-sectional heterogeneity, following the methodology of Fader et al. (2019) and Fader and Hardie (2020). It also provides posterior updating given a customer's survival history, with posterior mean event probabilities and conditional survival forecasts.
 
 | Function | Purpose |
 |:---|:---|
@@ -35,6 +35,10 @@ knitr::opts_chunk$set(
 | `G2G_varying_retention()` | Compute period-to-period retention function $r(t)$ along dynamic covariate paths |
 | `G2G_static_survival()` | Compute discrete-time survival function $S(t)$ under static covariates |
 | `G2G_static_retention()` | Compute period-to-period retention function $r(t)$ under static covariates |
+| `G2G_varying_posterior_p0()` | Posterior mean of the baseline per-period event probability $p_0$ given a customer's survived covariate history |
+| `G2G_varying_cond_survival()` | Conditional survival over planned future periods given a survived covariate history |
+| `G2G_static_posterior_p()` | Posterior mean of a subject's per-period event probability given `hist` survived periods |
+| `G2G_static_cond_survival()` | Conditional survival over `future` periods given `hist` survived periods |
 
 ---
 
@@ -236,6 +240,154 @@ ret_static <- G2G_static_retention(
 )
 
 data.frame(Day = seq_along(ret_static), Retention = round(ret_static, 4))
+```
+
+---
+
+## Posterior Quantities Given Survival History
+
+A customer who has gone several periods without the event has told us something about their own baseline rate $\lambda$: customers with a high $\lambda$ are less likely to still be around. `G2Gcov` turns this into two kinds of answers, for both the time-varying and the time-invariant model:
+
+* the **posterior mean of the per-period event probability** after the observed survival history, and
+* the **conditional survival probabilities** for the periods ahead, given survival through the history.
+
+Throughout, the customer has survived (no event) through period $t$ with covariates $z(1), \dots, z(t)$, and $C(t) = \sum_{j=1}^{t} e^{z(j)\beta'}$ as before. The fitted $r$, $\alpha$ and $\beta$ are treated as known, and the covariates are assumed to be exogenous. The history supplied to the functions must therefore contain only event-free periods.
+
+### Step 1: The posterior of $\lambda$
+
+Given $\lambda$, the periods are independent, and the probability of surviving period $j$ is $\exp\{-\lambda e^{z(j)\beta'}\}$. Surviving the whole history therefore has probability
+
+$$
+P(T > t \mid \lambda, Z(t)) = \prod_{j=1}^{t} \exp\left\{-\lambda e^{z(j)\beta'}\right\} = e^{-\lambda C(t)}.
+$$
+
+Multiplying by the gamma prior density and dropping constants, the posterior of $\lambda$ satisfies
+
+$$
+\pi\big(\lambda \mid T > t, Z(t)\big) \;\propto\; \lambda^{r-1} e^{-\alpha\lambda} \cdot e^{-\lambda C(t)} \;=\; \lambda^{r-1} e^{-b\lambda}, \qquad b = \alpha + C(t),
+$$
+
+which is the kernel of a gamma density. Hence
+
+$$
+\lambda \mid T > t, Z(t) \;\sim\; \text{Gamma}\big(r,\; b\big), \qquad b = \alpha + C(t).
+$$
+
+The shape stays at $r$ and only the rate moves. The whole covariate history enters through the single number $C(t)$: a longer history, or a history under higher-hazard covariates, raises $b$ and shifts the posterior toward smaller values of $\lambda$.
+
+### Step 2: A Laplace transform
+
+For $\lambda \sim \text{Gamma}(r, b)$ and any $u > -b$,
+
+$$
+E\left[e^{-u\lambda}\right] = \int_0^\infty e^{-u\lambda}\,\frac{b^r}{\Gamma(r)}\,\lambda^{r-1} e^{-b\lambda}\, d\lambda = \frac{b^r}{\Gamma(r)} \int_0^\infty \lambda^{r-1} e^{-(b+u)\lambda}\, d\lambda = \left(\frac{b}{b+u}\right)^r .
+$$
+
+Both posterior quantities below are this expression evaluated at different values of $u$.
+
+### Step 3: Posterior mean of the per-period event probability
+
+If a covariate effect $m$ multiplies $\lambda$, the per-period event probability is $p = 1 - e^{-\lambda m}$. Its posterior mean is $1 - E[e^{-m\lambda}\mid \cdot\,]$, which is Step 2 with $u = m$:
+
+$$
+E\left[p \mid T > t, Z(t)\right] = 1 - \left(\frac{\alpha + C(t)}{\alpha + C(t) + m}\right)^r .
+$$
+
+For the **baseline** probability $p_0 = 1 - e^{-\lambda}$, the probability at covariate value zero, $m = 1$:
+
+$$
+E\left[p_0 \mid T > t, Z(t)\right] = 1 - \left(\frac{\alpha + C(t)}{\alpha + C(t) + 1}\right)^r .
+$$
+
+Two checks. With no history, $C(0) = 0$ and this reduces to the prior mean $1 - \left(\alpha/(1+\alpha)\right)^r$, the mean marked by `plot_p0()`. And the estimate falls as $C(t)$ grows, because surviving longer, or surviving under higher-hazard covariates, is evidence of a lower baseline rate.
+
+### Step 4: Conditional survival over the periods ahead
+
+Suppose the planned covariates for the next $s$ periods are $z(t+1), \dots, z(t+s)$, and let
+
+$$
+\Delta_k = C(t+k) - C(t) = \sum_{j=t+1}^{t+k} e^{z(j)\beta'}, \qquad k = 1, \dots, s.
+$$
+
+Given $\lambda$, surviving the next $k$ periods has probability $e^{-\lambda \Delta_k}$. Averaging over the posterior of Step 1 and using Step 2 with $u = \Delta_k$,
+
+$$
+P(T > t+k \mid T > t) = E\left[e^{-\Delta_k \lambda} \mid \cdot\,\right] = \left(\frac{\alpha + C(t)}{\alpha + C(t+k)}\right)^r, \qquad k = 1, \dots, s.
+$$
+
+This equals $S(t+k)/S(t)$ computed from the unconditional survival function, as it must. Taking $k = 1$ shows how the two quantities are related: one minus the first step is the posterior mean of the event probability in period $t+1$, namely Step 3 with $m = e^{z(t+1)\beta'}$.
+
+### Why the Function Names Differ Between the Varying and Static Cases
+
+The two cases ask the same question but not the same quantity, and the names reflect that.
+
+| | Time-varying | Time-invariant |
+|:---|:---|:---|
+| Posterior mean function | `G2G_varying_posterior_p0()` | `G2G_static_posterior_p()` |
+| Probability returned | Baseline $p_0$ (covariates at zero) | The subject's own $p$ |
+| Value of $m$ in Step 3 | $1$ | $c = e^{x'\beta}$ |
+| History input | Covariate path, one row per survived period | Number of survived periods, `hist` |
+| Conditional survival function | `G2G_varying_cond_survival()` | `G2G_static_cond_survival()` |
+
+**Time-varying case.** The covariates keep changing, and the covariates in force in the next period are a planning choice. The function therefore returns the baseline probability $p_0$, which is the same $p_0$ that `plot_p0()` draws and which does not depend on what happens next. It can be combined with any planned covariate path afterwards (this is what the conditional survival function does). The history still matters: it shapes the posterior of $\lambda$ through $C(t)$, but the probability returned carries no covariate effect for the periods ahead. The `0` in `p0` marks this.
+
+**Time-invariant case.** The covariates are fixed, so there is no later choice of covariate values to leave open. A probability with the covariate effect stripped out would describe a subject who does not exist, and it could not be combined with anything else. The function therefore returns the subject's own per-period probability, $1 - e^{-\lambda c}$ with $c = e^{x'\beta}$. Because it is not a baseline quantity, the name drops the `0`. For a subject whose covariates are all zero ($c = 1$) the two coincide, and the static function returns the baseline probability. With a static history, $C(\texttt{hist}) = \texttt{hist}\cdot c$, so the posterior mean is
+
+$$
+E\left[p \mid T > h\right] = 1 - \left(\frac{\alpha + h c}{\alpha + (h+1) c}\right)^r, \qquad h = \texttt{hist}.
+$$
+
+This is also the probability that the subject has the event in the next period given survival through $h$ periods, which is one minus the first step of `G2G_static_cond_survival()`.
+
+> **Note:** The functions condition on the fitted $r$, $\alpha$ and $\beta$ and ignore the uncertainty in those estimates. The values should be read as updates of the fitted model for one customer, not as intervals.
+
+### Example: Time-Varying Covariates
+
+We reuse `fit_varying` and `customer_path` from Example 1. Treating the first half of the customer's observed path as the survived history and the second half as the planned covariates for the periods ahead:
+
+```{r posterior-varying}
+# First half of the observed path = survived history; second half = planned path
+n_hist      <- max(1L, floor(nrow(customer_path) / 2))
+hist_path   <- customer_path[seq_len(n_hist), ]
+future_path <- customer_path[-seq_len(n_hist), ]
+
+# Posterior mean of the baseline p0 after the history, versus the prior mean
+c(prior     = G2G_varying_posterior_p0(fit_varying),
+  posterior = G2G_varying_posterior_p0(fit_varying, hist_path))
+```
+
+The posterior mean of $p_0$ is below the prior mean because the customer has survived. The conditional survival function then gives the probability of surviving each of the next periods under the planned covariates, given survival through the history:
+
+```{r cond-survival-varying}
+cond_surv <- G2G_varying_cond_survival(fit_varying, hist_path, future_path)
+
+data.frame(AdditionalWeeks = seq_along(cond_surv) - 1,
+           Probability     = round(cond_surv, 4))
+```
+
+### Example: Time-Invariant Covariates
+
+We reuse `fit_static` from Example 2 for a 49-year-old patient with squamous cell cancer who has survived the first 30 days:
+
+```{r posterior-static}
+patient <- data.frame(age = 49, celltype = "squamous")
+
+# Posterior mean of the patient's own per-period event probability
+c(prior     = G2G_static_posterior_p(fit_static, patient, hist = 0),
+  posterior = G2G_static_posterior_p(fit_static, patient, hist = 30))
+```
+
+Probability of surviving each of the next 10 days, given survival through day 30:
+
+```{r cond-survival-static}
+cond_static <- G2G_static_cond_survival(fit_static, patient, hist = 30, future = 10)
+
+data.frame(AdditionalDays = seq_along(cond_static) - 1,
+           Probability    = round(cond_static, 4))
+
+# One minus the first step is the posterior mean event probability for day 31
+all.equal(G2G_static_posterior_p(fit_static, patient, hist = 30),
+          1 - cond_static[2])
 ```
 
 ---

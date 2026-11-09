@@ -515,7 +515,6 @@ G2G_varying_optim <- function(model_data) {
 #' @return Numeric vector of length T + 1 with the survival probabilities
 #'   S(0) = 1, S(1), ..., S(T).
 #' @export
-#' @importFrom stats model.frame model.matrix na.fail
 #' @examples
 #' \donttest{
 #'   data(kb_data)
@@ -534,35 +533,11 @@ G2G_varying_survival <- function(solution, X_mat) {
   # Fitted parameters (original covariate scale).
   r     <- solution$par[1]
   alpha <- solution$par[2]
-  beta  <- solution$par[-(1:2)]
-  
-  # Build the covariate matrix X (one row per period).
-  if (is.data.frame(X_mat)) {
-    # Original variable names; factors and dummies coded as in the fit.
-    # na.fail so a missing value cannot silently drop a period.
-    mf <- model.frame(solution$terms, X_mat,
-                      xlev = solution$xlevels, na.action = na.fail)
-    X  <- model.matrix(solution$terms, mf)[, -1, drop = FALSE]
-  } else {
-    # Matrix input: use as given, after checking that it lines up with the
-    # coefficients.
-    X <- as.matrix(X_mat)
-    # Named columns must match the coefficient names (any order, reordered below).
-    if (!is.null(colnames(X))) {
-      if (!setequal(colnames(X), names(beta)))
-        stop("Column names of 'X_mat' must be: ",
-             paste(names(beta), collapse = ", "), call. = FALSE)
-      X <- X[, names(beta), drop = FALSE]      # reorder to match beta
-    } else if (ncol(X) != length(beta)) {
-      # Unnamed columns: only the number of columns can be checked, so they must
-      # already be in the coefficient order.
-      stop("'X_mat' must have ", length(beta), " columns.", call. = FALSE)
-    }
-  }
-  
-  # Per-period covariate effect exp(x_t' * beta); c() turns the one-column
-  # matrix into a vector.
-  Ct       <- c(exp(X %*% beta))
+
+  # Per-period covariate effect exp(x_t' * beta), one value per row of X_mat.
+  # The covariate coding and input checks are shared with the posterior and
+  # conditional-survival functions (see G2G_varying_effects).
+  Ct       <- G2G_varying_effects(solution, X_mat)
   # Cumulative effect C(t).
   cumsumCt <- cumsum(Ct)
   # S(0) = 1 followed by S(1..T) = exp(-r * log(1 + C(t) / alpha)).
