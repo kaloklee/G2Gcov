@@ -126,7 +126,7 @@ print.G2Gcov <- function(x, digits = 4, ...) {
 #' @return Invisibly returns a list with the \code{mean} and \code{median} of
 #'   \eqn{p_0}.
 #'
-#' @seealso \code{\link{G2G_static_MLE}}, \code{\link{G2G_varying_MLE}}
+#' @seealso \code{\link{plot_lambda0}}, \code{\link{G2G_static_MLE}}, \code{\link{G2G_varying_MLE}}
 #' @importFrom graphics curve abline mtext
 #' @importFrom stats dgamma qgamma
 #' @examples
@@ -161,4 +161,71 @@ plot_p0 <- function(solution) {
         side = 3, line = 0.4, cex = 0.9)
   
   invisible(list(mean = mean_p0, median = median_p0))
+}
+
+
+#' Plot the Baseline Rate Distribution of a Fitted G2Gcov Model
+#'
+#' @description
+#' Plots the Gamma mixing distribution of the latent baseline rate \eqn{\lambda_0},
+#' with all covariates equal to zero, implied by a model fitted with
+#' \code{\link{G2G_static_MLE}} (time-invariant covariates) or
+#' \code{\link{G2G_varying_MLE}} (time-varying covariates). The mean and median
+#' of \eqn{\lambda_0} are marked with vertical lines and shown in a second title.
+#'
+#' @details
+#' In the G2G model, \eqn{p_0 = 1 - e^{-\lambda_0}}, where \eqn{\lambda_0} follows
+#' a Gamma distribution with shape \eqn{r} and rate \eqn{\alpha}. The fitted
+#' \code{r} and \code{alpha} are on the original covariate scale, so the curve
+#' describes a subject whose covariates are all zero, which can lie outside the
+#' range of the data. The mean and median have closed forms: \eqn{r / \alpha}
+#' and \code{qgamma(0.5, shape = r, rate = alpha)}. When \eqn{r < 1} the density
+#' is unbounded at 0, so the curve rises steeply there and the mean lies above
+#' the median.
+#'
+#' @param solution A fitted model object of class \code{"G2Gcov"}.
+#' @param upper_q Numeric quantile in \code{(0, 1)} used to set the upper x-axis
+#'   limit. Default \code{0.95}.
+#'
+#' @return Invisibly returns a list with the \code{mean} and \code{median} of
+#'   \eqn{\lambda_0}.
+#'
+#' @seealso \code{\link{plot_p0}}, \code{\link{G2G_static_MLE}}, \code{\link{G2G_varying_MLE}}
+#' @importFrom graphics curve abline mtext
+#' @importFrom stats dgamma qgamma
+#' @examples
+#' \donttest{
+#'   data(kb_data)
+#'   kb_data$status <- 1L - kb_data$censor
+#'   fit <- G2G_varying_MLE(Surv(week, status) ~ coupon + anyp,
+#'                          data = kb_data, subject = "id")
+#'   plot_lambda0(fit)
+#' }
+#' @export
+plot_lambda0 <- function(solution, upper_q = 0.95) {
+  r     <- unname(solution$par[1])
+  alpha <- unname(solution$par[2])
+  
+  # Closed-form mean and median of lambda0 ~ Gamma(shape = r, rate = alpha)
+  mean_lam   <- r / alpha
+  median_lam <- qgamma(0.5, shape = r, rate = alpha)
+  
+  # Set x-axis bounds cleanly (avoid x = 0 when r < 1 where density -> Inf)
+  x_max <- max(qgamma(upper_q, shape = r, rate = alpha), mean_lam * 2, 1e-3)
+  x_min <- if (r < 1) x_max * 1e-3 else 0
+  
+  dlam <- function(x) dgamma(x, shape = r, rate = alpha)
+  
+  curve(dlam, from = x_min, to = x_max, n = 1000, lwd = 2, col = "darkblue",
+        main = "Distribution of Baseline Rate (lambda0)",
+        cex.main = 1.05,
+        xlab = expression(lambda[0]), ylab = "Density")
+  abline(v = mean_lam,   col = "red3",       lwd = 2, lty = 2)
+  abline(v = median_lam, col = "darkorange", lwd = 2, lty = 3)
+  
+  # Second title: mean and median (line styles match the vertical lines)
+  mtext(sprintf("Mean (dashed) = %.3f   |   Median (dotted) = %.3f", mean_lam, median_lam),
+        side = 3, line = 0.4, cex = 0.9)
+  
+  invisible(list(mean = mean_lam, median = median_lam))
 }

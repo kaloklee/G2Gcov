@@ -42,5 +42,5 @@ there and the mean lies above the median.
 }
 }
 \seealso{
-\code{\link{G2G_static_MLE}}, \code{\link{G2G_varying_MLE}}
+\code{\link{plot_lambda0}}, \code{\link{G2G_static_MLE}}, \code{\link{G2G_varying_MLE}}
 }

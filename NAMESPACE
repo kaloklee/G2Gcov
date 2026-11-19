@@ -11,6 +11,7 @@ export(G2G_varying_cond_survival)
 export(G2G_varying_posterior_p0)
 export(G2G_varying_retention)
 export(G2G_varying_survival)
+export(plot_lambda0)
 export(plot_p0)
 importFrom(graphics,
   abline,

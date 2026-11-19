@@ -31,6 +31,7 @@ knitr::opts_chunk$set(
 | `G2G_static_MLE()` | Maximum likelihood estimation with time-invariant covariates |
 | `print()` | S3 print method displaying estimates, SEs, Wald confidence intervals, and AIC |
 | `plot_p0()` | Plot baseline per-period event probability density $p_0$ across the cohort |
+| `plot_lambda0()` | Plot baseline rate density $\lambda_0$ across the cohort |
 | `G2G_varying_survival()` | Compute discrete-time survival function $S(t)$ along dynamic covariate paths |
 | `G2G_varying_retention()` | Compute period-to-period retention function $r(t)$ along dynamic covariate paths |
 | `G2G_static_survival()` | Compute discrete-time survival function $S(t)$ under static covariates |
@@ -137,13 +138,17 @@ Internally, `G2G_varying_MLE()` applies several techniques to ensure robust nume
 
 ### Visualizations and Projections
 
-We can visualize the implied distribution of the baseline weekly event probability across the population:
+We can visualize the implied population heterogeneity either on the baseline weekly event probability scale ($p_0$) or directly on the underlying Gamma baseline rate scale ($\lambda_0$):
 
 ```{r plot-p0}
 plot_p0(fit_varying)
 ```
 
-> **A note on $r$ and $\alpha$:** The standard errors of $r$ and $\alpha$ can be as large as the estimates themselves, particularly in small samples. This is typical of a gamma mixing distribution and is not a sign of a problem: the two parameters are often highly correlated, because many $(r, \alpha)$ combinations imply very similar distributions of $p_0$. Interpret them jointly, for example through the implied distribution of $p_0$ shown by `plot_p0()`, rather than one at a time.
+```{r plot-lambda0}
+plot_lambda0(fit_varying)
+```
+
+> **A note on $r$ and $\alpha$:** The standard errors of $r$ and $\alpha$ can be as large as the estimates themselves, particularly in small samples. This is typical of a gamma mixing distribution and is not a sign of a problem: the two parameters are often highly correlated, because many $(r, \alpha)$ combinations imply very similar mixing distributions. Interpret them jointly, for example through the implied distributions shown by `plot_p0()` and `plot_lambda0()`, rather than one at a time.
 
 Next, we extract the survival curve explicitly using `G2G_varying_survival()` by passing a specific customer's covariate path, and plot the predicted step-function. The length of the generated survival curve aligns with the length of the covariate path provided: 
 
@@ -202,10 +207,14 @@ fit_static <- G2G_static_MLE(
 print(fit_static)
 ```
 
-We plot the baseline event probability distribution at reference covariate values (squamous cell type and age = 0). The first level of a factor is its reference category (here `squamous`). For `character` vectors, the first level is the alphabetically first value; use `relevel()` or `factor(x, levels = ...)` to choose a different reference:
+We plot the baseline event probability and baseline rate distributions at reference covariate values (squamous cell type and age = 0). The first level of a factor is its reference category (here `squamous`). For `character` vectors, the first level is the alphabetically first value; use `relevel()` or `factor(x, levels = ...)` to choose a different reference:
 
 ```{r plot-p0-static}
 plot_p0(fit_static)
+```
+
+```{r plot-lambda0-static}
+plot_lambda0(fit_static)
 ```
 
 Just like the time-varying model, we can project survival and period retention for a specific profile (passing original factor levels) using `G2G_static_survival()` and `G2G_static_retention()`. In this situation, we can also specify the length of these functions to be generated:
