@@ -207,6 +207,8 @@ Questions, issues, or contributions: Ka Lok Lee (<kaloklee@gmail.com>).
   KB Dataset
 - [`kb_data_sample`](https://kaloklee.github.io/G2Gcov/reference/kb_data_sample.md)
   : KB Sample Dataset
+- [`plot_lambda0()`](https://kaloklee.github.io/G2Gcov/reference/plot_lambda0.md)
+  : Plot the Baseline Rate Distribution of a Fitted G2Gcov Model
 - [`plot_p0()`](https://kaloklee.github.io/G2Gcov/reference/plot_p0.md)
   : Plot the Baseline Per-Period Event Probability Distribution of a
   Fitted G2Gcov Model

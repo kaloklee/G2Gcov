@@ -40,6 +40,7 @@ the median.
 
 ## See also
 
+[`plot_lambda0`](https://kaloklee.github.io/G2Gcov/reference/plot_lambda0.md),
 [`G2G_static_MLE`](https://kaloklee.github.io/G2Gcov/reference/G2G_static_MLE.md),
 [`G2G_varying_MLE`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_MLE.md)
 

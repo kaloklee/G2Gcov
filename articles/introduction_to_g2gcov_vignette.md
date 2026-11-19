@@ -17,6 +17,7 @@ probabilities and conditional survival forecasts.
 | [`G2G_static_MLE()`](https://kaloklee.github.io/G2Gcov/reference/G2G_static_MLE.md) | Maximum likelihood estimation with time-invariant covariates |
 | [`print()`](https://rdrr.io/r/base/print.html) | S3 print method displaying estimates, SEs, Wald confidence intervals, and AIC |
 | [`plot_p0()`](https://kaloklee.github.io/G2Gcov/reference/plot_p0.md) | Plot baseline per-period event probability density $`p_0`$ across the cohort |
+| [`plot_lambda0()`](https://kaloklee.github.io/G2Gcov/reference/plot_lambda0.md) | Plot baseline rate density $`\lambda_0`$ across the cohort |
 | [`G2G_varying_survival()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_survival.md) | Compute discrete-time survival function $`S(t)`$ along dynamic covariate paths |
 | [`G2G_varying_retention()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_retention.md) | Compute period-to-period retention function $`r(t)`$ along dynamic covariate paths |
 | [`G2G_static_survival()`](https://kaloklee.github.io/G2Gcov/reference/G2G_static_survival.md) | Compute discrete-time survival function $`S(t)`$ under static covariates |
@@ -238,8 +239,9 @@ applies several techniques to ensure robust numerical optimization:
 
 ### Visualizations and Projections
 
-We can visualize the implied distribution of the baseline weekly event
-probability across the population:
+We can visualize the implied population heterogeneity either on the
+baseline weekly event probability scale ($`p_0`$) or directly on the
+underlying Gamma baseline rate scale ($`\lambda_0`$):
 
 ``` r
 
@@ -248,14 +250,23 @@ plot_p0(fit_varying)
 
 ![](introduction_to_g2gcov_vignette_files/figure-html/plot-p0-1.png)
 
+``` r
+
+plot_lambda0(fit_varying)
+```
+
+![](introduction_to_g2gcov_vignette_files/figure-html/plot-lambda0-1.png)
+
 > **A note on $`r`$ and $`\alpha`$:** The standard errors of $`r`$ and
 > $`\alpha`$ can be as large as the estimates themselves, particularly
 > in small samples. This is typical of a gamma mixing distribution and
 > is not a sign of a problem: the two parameters are often highly
 > correlated, because many $`(r, \alpha)`$ combinations imply very
-> similar distributions of $`p_0`$. Interpret them jointly, for example
-> through the implied distribution of $`p_0`$ shown by
-> [`plot_p0()`](https://kaloklee.github.io/G2Gcov/reference/plot_p0.md),
+> similar mixing distributions. Interpret them jointly, for example
+> through the implied distributions shown by
+> [`plot_p0()`](https://kaloklee.github.io/G2Gcov/reference/plot_p0.md)
+> and
+> [`plot_lambda0()`](https://kaloklee.github.io/G2Gcov/reference/plot_lambda0.md),
 > rather than one at a time.
 
 Next, we extract the survival curve explicitly using
@@ -357,11 +368,11 @@ print(fit_static)
 #> Warning: Extremely wide confidence intervals for baseline parameters suggest a flat likelihood ridge (common with small sample sizes or few observed events). Interpret estimates and limits with caution.
 ```
 
-We plot the baseline event probability distribution at reference
-covariate values (squamous cell type and age = 0). The first level of a
-factor is its reference category (here `squamous`). For `character`
-vectors, the first level is the alphabetically first value; use
-[`relevel()`](https://rdrr.io/r/stats/relevel.html) or
+We plot the baseline event probability and baseline rate distributions
+at reference covariate values (squamous cell type and age = 0). The
+first level of a factor is its reference category (here `squamous`). For
+`character` vectors, the first level is the alphabetically first value;
+use [`relevel()`](https://rdrr.io/r/stats/relevel.html) or
 `factor(x, levels = ...)` to choose a different reference:
 
 ``` r
@@ -370,6 +381,13 @@ plot_p0(fit_static)
 ```
 
 ![](introduction_to_g2gcov_vignette_files/figure-html/plot-p0-static-1.png)
+
+``` r
+
+plot_lambda0(fit_static)
+```
+
+![](introduction_to_g2gcov_vignette_files/figure-html/plot-lambda0-static-1.png)
 
 Just like the time-varying model, we can project survival and period
 retention for a specific profile (passing original factor levels) using
