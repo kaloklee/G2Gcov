@@ -150,7 +150,8 @@ plot_p0 <- function(solution) {
   median_p0 <- 1 - exp(-qgamma(0.5, shape = r, rate = alpha))
   
   curve(dp0, from = 0.001, to = 0.999, n = 1000, lwd = 2, col = "darkblue",
-        main = "Distribution of Baseline Per-Period Event Probability without Covariates",
+        main = "Distribution of Baseline Event Probability (p0)",
+        cex.main = 1.05,
         xlab = "p0", ylab = "Density")
   abline(v = mean_p0,   col = "red3",       lwd = 2, lty = 2)
   abline(v = median_p0, col = "darkorange", lwd = 2, lty = 3)
