@@ -29,6 +29,7 @@ LazyDataCompression: xz
 Depends: R (>= 3.5.0)
 VignetteBuilder: knitr
 Imports:
+    graphics,
     stats
 Suggests:
     survival,
