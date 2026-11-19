@@ -54,6 +54,7 @@ where \\C(t) = \sum\_{j=1}^{t} e^{z(j)\beta'}\\. The posterior mean of
     data    = kb_data,
     subject = "id"
   )
+#> Warning: The Hessian at the solution is not positive definite (or could not be inverted), so standard errors and confidence intervals are NA.
   # A customer who has survived the first 8 weeks
   hist <- kb_data[kb_data$id == kb_data$id[1], c("coupon", "anyp")][1:8, ]
   G2G_varying_posterior_p0(fit, hist)

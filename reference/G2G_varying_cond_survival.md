@@ -64,6 +64,7 @@ are taken from the number of rows of `X_hist` and `X_future`.
     data    = kb_data,
     subject = "id"
   )
+#> Warning: The Hessian at the solution is not positive definite (or could not be inverted), so standard errors and confidence intervals are NA.
   # Survived 8 weeks; plan 4 more weeks with a coupon and no other promotion
   hist   <- kb_data[kb_data$id == kb_data$id[1], c("coupon", "anyp")][1:8, ]
   future <- data.frame(coupon = rep(1, 4), anyp = rep(0, 4))
