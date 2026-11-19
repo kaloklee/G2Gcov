@@ -51,7 +51,6 @@ the median.
   kb_data$status <- 1L - kb_data$censor
   fit <- G2G_varying_MLE("Surv(week, status) ~ coupon + anyp",
                           data = kb_data, subject = "id")
-#> Warning: The Hessian at the solution is not positive definite (or could not be inverted), so standard errors and confidence intervals are NA.
   plot_p0(fit)
 
 # }
