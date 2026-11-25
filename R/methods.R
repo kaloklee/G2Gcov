@@ -91,9 +91,10 @@ print.G2Gcov <- function(x, digits = 4, ...) {
     cat("\nNote: some standard errors are NA (the Hessian at the optimum is",
         "singular or not positive definite).\n")
   } else if (length(x$par) >= 2L && !is.na(x$par[2]) && x$par[2] > 0 && (se[2] / x$par[2] > 2)) {
-    cat("\nWarning: Extremely wide confidence intervals for baseline parameters",
-        "suggest a flat likelihood ridge (common with small sample sizes or few",
-        "observed events). Interpret estimates and limits with caution.\n")
+    cat("\nNote: Wide confidence intervals for r and alpha reflect a flat",
+        "likelihood ridge (common with small samples, few observed events, or",
+        "very low unobserved heterogeneity). Interpret r and alpha jointly",
+        "(e.g., via plot_p0() or plot_lambda0()).\n")
   }
   
   invisible(x)
