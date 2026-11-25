@@ -19,9 +19,9 @@ probabilities and conditional survival forecasts.
 | [`plot_p0()`](https://kaloklee.github.io/G2Gcov/reference/plot_p0.md) | Plot baseline per-period event probability density $`p_0`$ across the cohort |
 | [`plot_lambda0()`](https://kaloklee.github.io/G2Gcov/reference/plot_lambda0.md) | Plot baseline rate density $`\lambda_0`$ across the cohort |
 | [`G2G_varying_survival()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_survival.md) | Compute discrete-time survival function $`S(t)`$ along dynamic covariate paths |
-| [`G2G_varying_retention()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_retention.md) | Compute period-to-period retention function $`r(t)`$ along dynamic covariate paths |
+| [`G2G_varying_retention()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_retention.md) | Compute period-to-period retention function $`R(t)`$ along dynamic covariate paths |
 | [`G2G_static_survival()`](https://kaloklee.github.io/G2Gcov/reference/G2G_static_survival.md) | Compute discrete-time survival function $`S(t)`$ under static covariates |
-| [`G2G_static_retention()`](https://kaloklee.github.io/G2Gcov/reference/G2G_static_retention.md) | Compute period-to-period retention function $`r(t)`$ under static covariates |
+| [`G2G_static_retention()`](https://kaloklee.github.io/G2Gcov/reference/G2G_static_retention.md) | Compute period-to-period retention function $`R(t)`$ under static covariates |
 | [`G2G_varying_posterior_p0()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_posterior_p0.md) | Posterior mean of the baseline per-period event probability $`p_0`$ given a customer’s survived covariate history |
 | [`G2G_varying_cond_survival()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_cond_survival.md) | Conditional survival over planned future periods given a survived covariate history |
 | [`G2G_static_posterior_p()`](https://kaloklee.github.io/G2Gcov/reference/G2G_static_posterior_p.md) | Posterior mean of a subject’s per-period event probability given `hist` survived periods |
@@ -37,16 +37,16 @@ $`p_0 = 1 - e^{-\lambda}`$, with
 $`\lambda \sim \text{Gamma}(r, \alpha)`$ across subjects to capture
 unobserved heterogeneity. Time-varying covariates in period $`j`$,
 $`z(j)`$, enter via a complementary log-log link with coefficients
-$`\beta'`$,
+$`\beta`$,
 
 ``` math
-p_j = 1 - \exp\left(-\lambda e^{z(j)\beta'}\right),
+p_j = 1 - \exp\left(-\lambda e^{z(j)'\beta}\right),
 ```
 
 which yields the closed-form survivor function
 
 ``` math
-S(t) = \left(\frac{\alpha}{\alpha + C(t)}\right)^r, \quad C(t) = \sum_{j=1}^{t} e^{z(j)\beta'}.
+S(t) = \left(\frac{\alpha}{\alpha + C(t)}\right)^r, \quad C(t) = \sum_{j=1}^{t} e^{z(j)'\beta}.
 ```
 
 The probability mass function (PMF) is:
@@ -64,14 +64,18 @@ Data must be in **person-period (long) format**:
 
 - One row per subject per time period.
 - A subject identifier column linking rows to the same individual.
+- A duration-time index (`week` or `time`) measuring periods since the
+  subject started observation. Every subject must begin at period `1`
+  and run sequentially (`1, 2, 3, ...`) with no gaps or duplicates; late
+  entry (left truncation) is not supported.
 - An event indicator equaling 1 in the period the event occurred, and 0
   in all preceding periods. All 0s through the last observed period for
-  censored subjects
+  censored subjects.
 
 | Column | Type | Description |
 |:---|:---|:---|
 | `id` | Identifier | Unique subject identifier (numeric, character, or factor) |
-| `week` (or `time`) | Integer | Sequential discrete period index ($`1, 2, 3, \dots`$) |
+| `week` (or `time`) | Integer | Sequential discrete duration-time index starting at 1 ($`1, 2, 3, \dots`$) with no gaps |
 | `status` | Binary (0/1) | 1 if the event occurred in that specific period; 0 in the preceding periods; all 0s through the last observed period for censored subjects |
 | `coupon, anyp, ...` | Numeric / Factor | Dynamic or static covariates (continuous, binary, or multi-level) |
 
@@ -87,12 +91,14 @@ contrasts).
 > CRAN limits, we evaluate the models using `kb_data_sample`, a
 > 20-subject subset of the package’s full data intended for quick trials
 > and interactive exploration. For full empirical analyses, simply use
-> the entire cohort of 1,499 subjects via `kb_data<-G2Gcov::kb_data`.
+> the entire cohort of 1,499 subjects via `kb_data <- G2Gcov::kb_data`.
 > The syntax remains identical.
 
-Each row in the data represents one customer-week. We print the first 50
-rows to illustrate the person-period structure required for time-varying
-modeling.
+Each row in the data represents one customer-week. The covariates are
+`coupon` (aggregate coupon stock) and `anyp`, the standard scanner-data
+measure of promotional activity (%ACV with any promotion). We print the
+first two subjects (11 rows) to illustrate the person-period structure
+required for time-varying modeling.
 
 ``` r
 
@@ -100,61 +106,22 @@ library(G2Gcov)
 library(survival)
 
 # Load the quick-start sample dataset
-kb_data_sample<-G2Gcov::kb_data_sample
+kb_data_sample <- G2Gcov::kb_data_sample
 
-# Inspect the person-period data structure
-round(head(kb_data_sample, 50), 2)
-#>     id week num_weeks censor coupon  anyp status
-#> 1   24    1         4      0   0.00 55.61      0
-#> 2   24    2         4      0   0.00 55.82      0
-#> 3   24    3         4      0   0.02 55.65      0
-#> 4   24    4         4      0   0.13 81.17      1
-#> 5   49    1         7      0   0.00 55.61      0
-#> 6   49    2         7      0   0.00 55.82      0
-#> 7   49    3         7      0   0.02 55.65      0
-#> 8   49    4         7      0   0.13 81.17      0
-#> 9   49    5         7      0   0.08 74.45      0
-#> 10  49    6         7      0   0.04 73.82      0
-#> 11  49    7         7      0   0.02 46.83      1
-#> 12 165    1        24      0   0.00 55.61      0
-#> 13 165    2        24      0   0.00 55.82      0
-#> 14 165    3        24      0   0.02 55.65      0
-#> 15 165    4        24      0   0.13 81.17      0
-#> 16 165    5        24      0   0.08 74.45      0
-#> 17 165    6        24      0   0.04 73.82      0
-#> 18 165    7        24      0   0.02 46.83      0
-#> 19 165    8        24      0   0.01  0.00      0
-#> 20 165    9        24      0   0.00 72.41      0
-#> 21 165   10        24      0   0.02 71.52      0
-#> 22 165   11        24      0   0.11 89.32      0
-#> 23 165   12        24      0   0.07 56.05      0
-#> 24 165   13        24      0   0.04 12.58      0
-#> 25 165   14        24      0   0.02 13.33      0
-#> 26 165   15        24      0   0.01 43.31      0
-#> 27 165   16        24      0   0.00 41.46      0
-#> 28 165   17        24      0   0.00 41.95      0
-#> 29 165   18        24      0   0.00 44.47      0
-#> 30 165   19        24      0   0.00 22.90      0
-#> 31 165   20        24      0   0.00  8.82      0
-#> 32 165   21        24      0   0.00  0.00      0
-#> 33 165   22        24      0   0.00  0.00      0
-#> 34 165   23        24      0   0.00 32.20      0
-#> 35 165   24        24      1   0.00 33.40      0
-#> 36 321    1        24      0   0.00 55.61      0
-#> 37 321    2        24      0   0.00 55.82      0
-#> 38 321    3        24      0   0.02 55.65      0
-#> 39 321    4        24      0   0.13 81.17      0
-#> 40 321    5        24      0   0.08 74.45      0
-#> 41 321    6        24      0   0.04 73.82      0
-#> 42 321    7        24      0   0.02 46.83      0
-#> 43 321    8        24      0   0.01  0.00      0
-#> 44 321    9        24      0   0.00 72.41      0
-#> 45 321   10        24      0   0.02 71.52      0
-#> 46 321   11        24      0   0.11 89.32      0
-#> 47 321   12        24      0   0.07 56.05      0
-#> 48 321   13        24      0   0.04 12.58      0
-#> 49 321   14        24      0   0.02 13.33      0
-#> 50 321   15        24      0   0.01 43.31      0
+# Inspect the person-period data structure (first two subjects)
+round(head(kb_data_sample, 11), 2)
+#>    id week num_weeks censor coupon  anyp status
+#> 1  24    1         4      0   0.00 55.61      0
+#> 2  24    2         4      0   0.00 55.82      0
+#> 3  24    3         4      0   0.02 55.65      0
+#> 4  24    4         4      0   0.13 81.17      1
+#> 5  49    1         7      0   0.00 55.61      0
+#> 6  49    2         7      0   0.00 55.82      0
+#> 7  49    3         7      0   0.02 55.65      0
+#> 8  49    4         7      0   0.13 81.17      0
+#> 9  49    5         7      0   0.08 74.45      0
+#> 10 49    6         7      0   0.04 73.82      0
+#> 11 49    7         7      0   0.02 46.83      1
 ```
 
 We estimate the model by directly supplying the formula and the subject
@@ -182,21 +149,27 @@ print(fit_varying)
 #> Coefficients:
 #>              Estimate Std.Error Lower.95   Upper.95
 #> r (shape)      0.0611    0.1047   0.0021     1.7580
-#> alpha (rate)   6.3229   31.1821   0.0004 99709.9104
+#> alpha (rate)   6.3229   31.1821   0.0004 99709.9092
 #> coupon        24.9515   22.4348 -19.0199    68.9230
 #> anyp          -0.0159    0.0554  -0.1246     0.0927
 #> 
-#> Warning: Extremely wide confidence intervals for baseline parameters suggest a flat likelihood ridge (common with small sample sizes or few observed events). Interpret estimates and limits with caution.
+#> Note: Wide confidence intervals for r and alpha reflect a flat likelihood ridge (common with small samples, few observed events, or very low unobserved heterogeneity). Interpret r and alpha jointly (e.g., via plot_p0() or plot_lambda0()).
 ```
+
+Because `kb_data_sample` contains only 20 subjects (and just 2 observed
+events), the point estimates above — such as `coupon = 24.95`, whose
+confidence interval spans zero — are purely illustrative and not
+substantively meaningful.
 
 ### Interpreting the Coefficients
 
 Each coefficient $`\beta_k`$ acts on the complementary log-log scale, so
 $`e^{\beta_k}`$ is a hazard ratio: a one-unit increase in a numeric
 covariate, or a switch from the reference level to a given factor level,
-multiplies $`\lambda`$ by $`e^{\beta_k}`$. A positive $`\beta_k`$ raises
-the per-period event probability (shorter durations); a negative
-$`\beta_k`$ lowers it (longer durations).
+multiplies the latent per-period rate $`\lambda`$ by $`e^{\beta_k}`$ (it
+does not multiply the per-period event probability $`p`$ directly). A
+positive $`\beta_k`$ raises the per-period event probability (shorter
+durations); a negative $`\beta_k`$ lowers it (longer durations).
 
 The baseline per-period event probability, $`p_0 = 1 - e^{-\lambda}`$
 with $`\lambda \sim \text{Gamma}(r, \alpha)`$, describes subjects at
@@ -217,11 +190,13 @@ Internally,
 applies several techniques to ensure robust numerical optimization:
 
 - **Automatic Standardization:** To improve numerical stability and
-  convergence of the BFGS algorithm, all continuous covariates are
-  automatically standardized (centered and scaled) prior to maximizing
-  the likelihood. Upon convergence, the resulting coefficient estimates
-  are dynamically rescaled back to their original metric, ensuring the
-  output is immediately interpretable on the scale of the original data.
+  convergence of the BFGS algorithm, all covariates are automatically
+  standardized (centered and scaled) prior to maximizing the likelihood.
+  Upon convergence, both the covariate coefficients and the baseline
+  rate parameter $`\alpha`$ (along with its Delta-method standard error,
+  accounting for covariances with $`\beta`$) are rescaled back to the
+  original covariate metric, ensuring the output is immediately
+  interpretable on the scale of the original data.
 - **Delta Method for Standard Errors:** The optimization routines
   estimate baseline parameters in an unconstrained space (e.g., using
   $`\log(r)`$ and $`\log(\alpha)`$ to enforce strict positivity
@@ -258,71 +233,80 @@ plot_lambda0(fit_varying)
 ![](introduction_to_g2gcov_vignette_files/figure-html/plot-lambda0-1.png)
 
 > **A note on $`r`$ and $`\alpha`$:** The standard errors of $`r`$ and
-> $`\alpha`$ can be as large as the estimates themselves, particularly
-> in small samples. This is typical of a gamma mixing distribution and
-> is not a sign of a problem: the two parameters are often highly
-> correlated, because many $`(r, \alpha)`$ combinations imply very
-> similar mixing distributions. Interpret them jointly, for example
-> through the implied distributions shown by
+> $`\alpha`$ can be several times larger than the estimates themselves
+> (as flagged by the note from
+> [`print()`](https://rdrr.io/r/base/print.html)), particularly in small
+> samples or when unobserved heterogeneity is low. This reflects a flat
+> likelihood ridge where $`r`$ and $`\alpha`$ trade off — many
+> $`(r, \alpha)`$ combinations imply very similar mixing distributions.
+> Interpret them jointly through the implied distributions shown by
 > [`plot_p0()`](https://kaloklee.github.io/G2Gcov/reference/plot_p0.md)
 > and
 > [`plot_lambda0()`](https://kaloklee.github.io/G2Gcov/reference/plot_lambda0.md),
-> rather than one at a time.
+> rather than one at a time. (In Example 2 below, large $`r`$ and
+> $`\alpha`$ similarly reflect very little unobserved heterogeneity,
+> meaning the model is close to a homogeneous geometric model.)
 
 Next, we extract the survival curve explicitly using
 [`G2G_varying_survival()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_survival.md)
 by passing a specific customer’s covariate path, and plot the predicted
-step-function. The length of the generated survival curve aligns with
-the length of the covariate path provided:
+step-function. The returned vector has length $`T + 1`$ (where $`T`$ is
+the number of rows in the covariate path), starting at $`t = 0`$ with
+$`S(0) = 1`$, followed by $`S(1), \dots, S(T)`$:
 
 ``` r
 
 # Predict individual survival curve S(t) along a specific customer trajectory
-# (Subject 24 is included in our sample)
-customer_path <- kb_data_sample[kb_data_sample$id == 24, c("coupon", "anyp")]
+# (Subject 165 is a censored subject observed for all 24 weeks)
+customer_path <- kb_data_sample[kb_data_sample$id == 165, c("coupon", "anyp")]
 
-# Compute the survival curve predictions explicitly
+# Compute the survival curve predictions explicitly (t = 0, 1, ..., T)
 surv_est <- G2G_varying_survival(solution = fit_varying, X_mat = customer_path)
 
 # Plot the predicted survival curve using base R graphics
 plot(
-  seq_along(surv_est), 
-  surv_est, 
+  seq_along(surv_est) - 1,
+  surv_est,
   type = "s",  # Step function for discrete time
-  col  = "blue", 
+  col  = "blue",
   lwd  = 2,
-  xlab = "Week", 
+  xlab = "Week",
   ylab = "Survival Probability",
-  main = "G2G Predicted Survival Curve (Subject 24)",
+  main = "G2G Predicted Survival Curve (Subject 165)",
   ylim = c(0, 1)
 )
 ```
 
 ![](introduction_to_g2gcov_vignette_files/figure-html/plot-survival-varying-1.png)
 
-We can also project conditional period-to-period retention function,
-defined as $`r(t) = S(t)/S(t-1)`$, along that same dynamic customer path
-using
-[`G2G_varying_retention()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_retention.md):
+We can also project the conditional period-to-period retention function,
+defined as $`R(t) = S(t)/S(t-1)`$ for $`t = 1, \dots, T`$, along that
+same dynamic customer path using
+[`G2G_varying_retention()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_retention.md).
+Like
+[`G2G_varying_survival()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_survival.md),
+it returns a vector of length $`T + 1`$ with a leading `1` at $`t = 0`$
+so the two vectors align:
 
 ``` r
 
-# Compute period-to-period retention r(t) = S(t)/S(t-1)
+# Compute period-to-period retention R(t) = S(t)/S(t-1) (t = 0, 1, ..., T)
 ret_est <- G2G_varying_retention(solution = fit_varying, X_mat = customer_path)
 
-# Display 
-head(data.frame(Week = seq_along(ret_est), Retention = round(ret_est, 4)))
+# Display the first few periods
+head(data.frame(Week = seq_along(ret_est) - 1, Retention = round(ret_est, 4)))
 #>   Week Retention
-#> 1    1    1.0000
-#> 2    2    0.9961
-#> 3    3    0.9964
-#> 4    4    0.9947
-#> 5    5    0.9640
+#> 1    0    1.0000
+#> 2    1    0.9961
+#> 3    2    0.9964
+#> 4    3    0.9947
+#> 5    4    0.9640
+#> 6    5    0.9913
 ```
 
 ------------------------------------------------------------------------
 
-## Example 2: Static Covariate Baseline (`survival::veteran`)
+## Example 2: Time-Invariant Covariates (`survival::veteran`)
 
 If covariates are fixed for each subject, the cumulative hazard
 simplifies.
@@ -340,7 +324,7 @@ vet <- survival::veteran
 
 ``` r
 
-# Using a 99% confidence limits in this example
+# Using 99% confidence limits in this example
 fit_static <- G2G_static_MLE(
   Surv(time, status) ~ age + celltype,
   data  = vet,
@@ -358,22 +342,26 @@ print(fit_static)
 #> 
 #> Coefficients:
 #>                    Estimate  Std.Error Lower.99     Upper.99
-#> r (shape)           24.4605    65.4851   0.0248 2.417343e+04
-#> alpha (rate)      8031.0071 23544.1149   4.2191 1.528679e+07
+#> r (shape)           24.4605    65.4850   0.0248 2.417306e+04
+#> alpha (rate)      8031.0071 23544.0705   4.2192 1.528657e+07
 #> age                  0.0074     0.0097  -0.0175 3.230000e-02
 #> celltypesmallcell    1.0711     0.2450   0.4401 1.702200e+00
 #> celltypeadeno        1.2015     0.2819   0.4753 1.927800e+00
 #> celltypelarge        0.2415     0.2840  -0.4900 9.730000e-01
 #> 
-#> Warning: Extremely wide confidence intervals for baseline parameters suggest a flat likelihood ridge (common with small sample sizes or few observed events). Interpret estimates and limits with caution.
+#> Note: Wide confidence intervals for r and alpha reflect a flat likelihood ridge (common with small samples, few observed events, or very low unobserved heterogeneity). Interpret r and alpha jointly (e.g., via plot_p0() or plot_lambda0()).
 ```
 
 We plot the baseline event probability and baseline rate distributions
-at reference covariate values (squamous cell type and age = 0). The
+at reference covariate values (squamous cell type and `age = 0`). The
 first level of a factor is its reference category (here `squamous`). For
-`character` vectors, the first level is the alphabetically first value;
+`character` vectors, the first level is the first value in sorted order;
 use [`relevel()`](https://rdrr.io/r/stats/relevel.html) or
-`factor(x, levels = ...)` to choose a different reference:
+`factor(x, levels = ...)` to choose a different reference. Note that
+`age = 0` is an extrapolation outside the observed age range of
+`veteran`; centering `age` (for example, using `I(age - 60)` in
+[`G2G_static_MLE()`](https://kaloklee.github.io/G2Gcov/reference/G2G_static_MLE.md))
+can provide a more substantively meaningful baseline:
 
 ``` r
 
@@ -394,20 +382,21 @@ retention for a specific profile (passing original factor levels) using
 [`G2G_static_survival()`](https://kaloklee.github.io/G2Gcov/reference/G2G_static_survival.md)
 and
 [`G2G_static_retention()`](https://kaloklee.github.io/G2Gcov/reference/G2G_static_retention.md).
-In this situation, we can also specify the length of these functions to
-be generated:
+Here we specify the forecast horizon `timeperiod` ($`T`$), and each
+function returns a vector of length $`T + 1`$ covering
+$`t = 0, 1, \dots, T`$:
 
 ``` r
 
 # Predict survival up to t = 150 days for a 49-year-old with squamous cell cancer
 surv_static <- G2G_static_survival(
-  fit_static, 
-  data.frame(age = 49, celltype = "squamous"), 
+  fit_static,
+  data.frame(age = 49, celltype = "squamous"),
   150
 )
 
 plot(
-  seq_along(surv_static),
+  seq_along(surv_static) - 1,
   surv_static,
   type = "s",
   col  = "red",
@@ -423,26 +412,26 @@ plot(
 
 ``` r
 
-# Predict period-to-period retention across the first 10 days
+# Predict period-to-period retention across the first 10 days (t = 0 to 10)
 ret_static <- G2G_static_retention(
-  fit_static, 
-  data.frame(age = 49, celltype = "squamous"), 
+  fit_static,
+  data.frame(age = 49, celltype = "squamous"),
   10
 )
 
-data.frame(Day = seq_along(ret_static), Retention = round(ret_static, 4))
+data.frame(Day = seq_along(ret_static) - 1, Retention = round(ret_static, 4))
 #>    Day Retention
-#> 1    1    1.0000
-#> 2    2    0.9956
-#> 3    3    0.9956
-#> 4    4    0.9956
-#> 5    5    0.9956
-#> 6    6    0.9956
-#> 7    7    0.9956
-#> 8    8    0.9956
-#> 9    9    0.9956
-#> 10  10    0.9956
-#> 11  11    0.9956
+#> 1    0    1.0000
+#> 2    1    0.9956
+#> 3    2    0.9956
+#> 4    3    0.9956
+#> 5    4    0.9956
+#> 6    5    0.9956
+#> 7    6    0.9956
+#> 8    7    0.9956
+#> 9    8    0.9956
+#> 10   9    0.9956
+#> 11  10    0.9956
 ```
 
 ------------------------------------------------------------------------
@@ -462,7 +451,7 @@ time-invariant model:
 
 Throughout, the customer has survived (no event) through period $`t`$
 with covariates $`z(1), \dots, z(t)`$, and
-$`C(t) = \sum_{j=1}^{t} e^{z(j)\beta'}`$ as before. The fitted $`r`$,
+$`C(t) = \sum_{j=1}^{t} e^{z(j)'\beta}`$ as before. The fitted $`r`$,
 $`\alpha`$ and $`\beta`$ are treated as known, and the covariates are
 assumed to be exogenous. The history supplied to the functions must
 therefore contain only event-free periods.
@@ -470,11 +459,11 @@ therefore contain only event-free periods.
 ### Step 1: The posterior of $`\lambda`$
 
 Given $`\lambda`$, the periods are independent, and the probability of
-surviving period $`j`$ is $`\exp\{-\lambda e^{z(j)\beta'}\}`$. Surviving
+surviving period $`j`$ is $`\exp\{-\lambda e^{z(j)'\beta}\}`$. Surviving
 the whole history therefore has probability
 
 ``` math
-P(T > t \mid \lambda, Z(t)) = \prod_{j=1}^{t} \exp\left\{-\lambda e^{z(j)\beta'}\right\} = e^{-\lambda C(t)}.
+P(T > t \mid \lambda, Z(t)) = \prod_{j=1}^{t} \exp\left\{-\lambda e^{z(j)'\beta}\right\} = e^{-\lambda C(t)}.
 ```
 
 Multiplying by the gamma prior density and dropping constants, the
@@ -536,7 +525,7 @@ Suppose the planned covariates for the next $`s`$ periods are
 $`z(t+1), \dots, z(t+s)`$, and let
 
 ``` math
-\Delta_k = C(t+k) - C(t) = \sum_{j=t+1}^{t+k} e^{z(j)\beta'}, \qquad k = 1, \dots, s.
+\Delta_k = C(t+k) - C(t) = \sum_{j=t+1}^{t+k} e^{z(j)'\beta}, \qquad k = 1, \dots, s.
 ```
 
 Given $`\lambda`$, surviving the next $`k`$ periods has probability
@@ -551,7 +540,7 @@ This equals $`S(t+k)/S(t)`$ computed from the unconditional survival
 function, as it must. Taking $`k = 1`$ shows how the two quantities are
 related: one minus the first step is the posterior mean of the event
 probability in period $`t+1`$, namely Step 3 with
-$`m = e^{z(t+1)\beta'}`$.
+$`m = e^{z(t+1)'\beta}`$.
 
 ### Why the Function Names Differ Between the Varying and Static Cases
 
@@ -562,7 +551,7 @@ names reflect that.
 |:---|:---|:---|
 | Posterior mean function | [`G2G_varying_posterior_p0()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_posterior_p0.md) | [`G2G_static_posterior_p()`](https://kaloklee.github.io/G2Gcov/reference/G2G_static_posterior_p.md) |
 | Probability returned | Baseline $`p_0`$ (before applying covariates) | The subject’s own $`p`$ |
-| Value of $`m`$ in Step 3 | $`1`$ | $`c = e^{x'\beta}`$ |
+| Value of $`m`$ in Step 3 | $`1`$ | $`c = e^{z'\beta}`$ |
 | History input | Covariate path, one row per survived period | Number of survived periods, `hist` |
 | Conditional survival function | [`G2G_varying_cond_survival()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_cond_survival.md) | [`G2G_static_cond_survival()`](https://kaloklee.github.io/G2Gcov/reference/G2G_static_cond_survival.md) |
 
@@ -571,19 +560,21 @@ in force in the next period are a planning choice. The function
 therefore returns the baseline probability $`p_0`$, which is the same
 $`p_0`$ that
 [`plot_p0()`](https://kaloklee.github.io/G2Gcov/reference/plot_p0.md)
-draws and which does not depend on what happens next. It can be combined
-with any planned covariate path afterwards (this is what the conditional
-survival function does). The history still matters: it shapes the
-posterior of $`\lambda`$ through $`C(t)`$, but the probability returned
-carries no covariate effect for the periods ahead. The `0` in `p0` marks
-this.
+draws and which does not depend on what happens next. Forecasting ahead
+under a planned covariate path requires the full posterior distribution
+of $`\lambda`$, $`\text{Gamma}(r, \alpha + C(t))`$, rather than just the
+posterior mean of $`p_0`$ — which is what
+[`G2G_varying_cond_survival()`](https://kaloklee.github.io/G2Gcov/reference/G2G_varying_cond_survival.md)
+uses. The history still matters: it shapes the posterior of $`\lambda`$
+through $`C(t)`$, but the probability returned carries no covariate
+effect for the periods ahead. The `0` in `p0` marks this.
 
 **Time-invariant case.** The covariates are fixed, so there is no later
 choice of covariate values to leave open. A probability with the
 covariate effect stripped out would describe a subject who does not
 exist, and it could not be combined with anything else. The function
 therefore returns the subject’s own per-period probability,
-$`1 - e^{-\lambda c}`$ with $`c = e^{x'\beta}`$. Because it is not a
+$`1 - e^{-\lambda c}`$ with $`c = e^{z'\beta}`$. Because it is not a
 baseline quantity, the name drops the `0`. For a subject whose
 covariates are all zero ($`c = 1`$) the two coincide, and the static
 function returns the baseline probability. With a static history,
@@ -605,22 +596,24 @@ first step of
 
 ### Example: Time-Varying Covariates
 
-We reuse `fit_varying` and `customer_path` from Example 1. Treating the
-first half of the customer’s observed path as the survived history and
-the second half as the planned covariates for the periods ahead:
+We reuse `fit_varying` and `customer_path` (Subject 165, observed
+event-free for 24 weeks) from Example 1. Treating the first half of the
+customer’s observed path (weeks 1–12) as the survived history and the
+second half (weeks 13–24) as the planned covariates for the periods
+ahead:
 
 ``` r
 
 # First half of the observed path = survived history; second half = planned path
 n_hist      <- max(1L, floor(nrow(customer_path) / 2))
-hist_path   <- customer_path[seq_len(n_hist), ]
-future_path <- customer_path[-seq_len(n_hist), ]
+hist_path   <- customer_path[seq_len(n_hist), , drop = FALSE]
+future_path <- customer_path[-seq_len(n_hist), , drop = FALSE]
 
 # Posterior mean of the baseline p0 after the history, versus the prior mean
 c(prior     = G2G_varying_posterior_p0(fit_varying),
   posterior = G2G_varying_posterior_p0(fit_varying, hist_path))
 #>       prior   posterior 
-#> 0.008924056 0.007963411
+#> 0.008924056 0.002335981
 ```
 
 The posterior mean of $`p_0`$ is below the prior mean because the
@@ -634,10 +627,20 @@ cond_surv <- G2G_varying_cond_survival(fit_varying, hist_path, future_path)
 
 data.frame(AdditionalWeeks = seq_along(cond_surv) - 1,
            Probability     = round(cond_surv, 4))
-#>   AdditionalWeeks Probability
-#> 1               0      1.0000
-#> 2               1      0.9947
-#> 3               2      0.9589
+#>    AdditionalWeeks Probability
+#> 1                0      1.0000
+#> 2                1      0.9953
+#> 3                2      0.9926
+#> 4                3      0.9914
+#> 5                4      0.9903
+#> 6                5      0.9892
+#> 7                6      0.9883
+#> 8                7      0.9869
+#> 9                8      0.9853
+#> 10               9      0.9835
+#> 11              10      0.9817
+#> 12              11      0.9807
+#> 13              12      0.9797
 ```
 
 ### Example: Time-Invariant Covariates
@@ -728,11 +731,11 @@ sessionInfo()
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] cli_3.6.6         knitr_1.52        rlang_1.3.0       xfun_0.62        
-#>  [5] otel_0.3.0        textshaping_1.0.5 jsonlite_2.0.0    htmltools_0.5.9  
-#>  [9] ragg_1.5.2        sass_0.4.10       rmarkdown_2.32    grid_4.6.2       
+#>  [5] otel_0.3.0        textshaping_1.1.0 jsonlite_2.0.0    htmltools_0.5.9  
+#>  [9] ragg_1.5.2        sass_0.5.0        rmarkdown_2.32    grid_4.6.2       
 #> [13] evaluate_1.0.5    jquerylib_0.1.4   fastmap_1.2.0     yaml_2.3.12      
 #> [17] lifecycle_1.0.5   compiler_4.6.2    fs_2.1.0          lattice_0.23-1   
-#> [21] systemfonts_1.3.3 digest_0.6.39     R6_2.6.1          splines_4.6.2    
+#> [21] systemfonts_1.3.4 digest_0.6.39     R6_2.6.1          splines_4.6.2    
 #> [25] bslib_0.12.0      Matrix_1.7-6      tools_4.6.2       pkgdown_2.2.1    
 #> [29] cachem_1.1.0      desc_1.4.3
 ```

@@ -59,7 +59,7 @@
                         <h4 data-toc-skip class="author">Ka Lok Lee,
 Aaron Ramsey, and Noah Park</h4>
             
-            <h4 data-toc-skip class="date">2026-11-19</h4>
+            <h4 data-toc-skip class="date">2026-11-25</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/kaloklee/G2G_cov/blob/ka_manualQC/vignettes/introduction_to_g2gcov_vignette.rmd" class="external-link"><code>vignettes/introduction_to_g2gcov_vignette.rmd</code></a></small>
       <div class="d-none name"><code>introduction_to_g2gcov_vignette.rmd</code></div>
@@ -124,7 +124,7 @@ along dynamic covariate paths</td>
 <tr class="odd">
 <td align="left"><code><a href="../reference/G2G_varying_retention.html">G2G_varying_retention()</a></code></td>
 <td align="left">Compute period-to-period retention function
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">r(t)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(t)</annotation></semantics></math>
 along dynamic covariate paths</td>
 </tr>
 <tr class="even">
@@ -136,7 +136,7 @@ under static covariates</td>
 <tr class="odd">
 <td align="left"><code><a href="../reference/G2G_static_retention.html">G2G_static_retention()</a></code></td>
 <td align="left">Compute period-to-period retention function
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">r(t)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(t)</annotation></semantics></math>
 under static covariates</td>
 </tr>
 <tr class="even">
@@ -178,13 +178,13 @@ covariates in period
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">z(j)</annotation></semantics></math>,
 enter via a complementary log-log link with coefficients
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>β</mi><mo>′</mo></msup><annotation encoding="application/x-tex">\beta'</annotation></semantics></math>,</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><mn>1</mn><mo>−</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><mi>λ</mi><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo><msup><mi>β</mi><mo>′</mo></msup></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
-p_j = 1 - \exp\left(-\lambda e^{z(j)\beta'}\right),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>,</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>j</mi></msub><mo>=</mo><mn>1</mn><mo>−</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><mi>λ</mi><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><msup><mo stretchy="false" form="postfix">)</mo><mo>′</mo></msup><mi>β</mi></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
+p_j = 1 - \exp\left(-\lambda e^{z(j)'\beta}\right),
 </annotation></semantics></math></p>
 <p>which yields the closed-form survivor function</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>α</mi><mrow><mi>α</mi><mo>+</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>r</mi></msup><mo>,</mo><mspace width="1.0em"></mspace><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>t</mi></munderover><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo><msup><mi>β</mi><mo>′</mo></msup></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
-S(t) = \left(\frac{\alpha}{\alpha + C(t)}\right)^r, \quad C(t) = \sum_{j=1}^{t} e^{z(j)\beta'}.
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>α</mi><mrow><mi>α</mi><mo>+</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>r</mi></msup><mo>,</mo><mspace width="1.0em"></mspace><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>t</mi></munderover><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><msup><mo stretchy="false" form="postfix">)</mo><mo>′</mo></msup><mi>β</mi></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+S(t) = \left(\frac{\alpha}{\alpha + C(t)}\right)^r, \quad C(t) = \sum_{j=1}^{t} e^{z(j)'\beta}.
 </annotation></semantics></math></p>
 <p>The probability mass function (PMF) is:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>α</mi><mrow><mi>α</mi><mo>+</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>r</mi></msup><mo>−</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>α</mi><mrow><mi>α</mi><mo>+</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>r</mi></msup></mrow><annotation encoding="application/x-tex">
@@ -201,9 +201,14 @@ for uncensored and censored subjects, respectively.</p>
 <li>One row per subject per time period.</li>
 <li>A subject identifier column linking rows to the same
 individual.</li>
+<li>A duration-time index (<code>week</code> or <code>time</code>)
+measuring periods since the subject started observation. Every subject
+must begin at period <code>1</code> and run sequentially
+(<code>1, 2, 3, ...</code>) with no gaps or duplicates; late entry (left
+truncation) is not supported.</li>
 <li>An event indicator equaling 1 in the period the event occurred, and
 0 in all preceding periods. All 0s through the last observed period for
-censored subjects</li>
+censored subjects.</li>
 </ul>
 <table class="table">
 <colgroup>
@@ -227,8 +232,9 @@ factor)</td>
 <td align="left">
 <code>week</code> (or <code>time</code>)</td>
 <td align="left">Integer</td>
-<td align="left">Sequential discrete period index
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">1, 2, 3, \dots</annotation></semantics></math>)</td>
+<td align="left">Sequential discrete duration-time index starting at 1
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">1, 2, 3, \dots</annotation></semantics></math>)
+with no gaps</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>status</code></td>
@@ -260,72 +266,35 @@ rapidly within CRAN limits, we evaluate the models using
 <code>kb_data_sample</code>, a 20-subject subset of the package’s full
 data intended for quick trials and interactive exploration. For full
 empirical analyses, simply use the entire cohort of 1,499 subjects via
-<code>kb_data&lt;-G2Gcov::kb_data</code>. The syntax remains
+<code>kb_data &lt;- G2Gcov::kb_data</code>. The syntax remains
 identical.</p>
 </blockquote>
-<p>Each row in the data represents one customer-week. We print the first
-50 rows to illustrate the person-period structure required for
-time-varying modeling.</p>
+<p>Each row in the data represents one customer-week. The covariates are
+<code>coupon</code> (aggregate coupon stock) and <code>anyp</code>, the
+standard scanner-data measure of promotional activity (%ACV with any
+promotion). We print the first two subjects (11 rows) to illustrate the
+person-period structure required for time-varying modeling.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/kaloklee/G2G_cov" class="external-link">G2Gcov</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Load the quick-start sample dataset</span></span>
-<span><span class="va">kb_data_sample</span><span class="op">&lt;-</span><span class="fu">G2Gcov</span><span class="fu">::</span><span class="va"><a href="../reference/kb_data_sample.html">kb_data_sample</a></span></span>
+<span><span class="va">kb_data_sample</span> <span class="op">&lt;-</span> <span class="fu">G2Gcov</span><span class="fu">::</span><span class="va"><a href="../reference/kb_data_sample.html">kb_data_sample</a></span></span>
 <span></span>
-<span><span class="co"># Inspect the person-period data structure</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">kb_data_sample</span>, <span class="fl">50</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     id week num_weeks censor coupon  anyp status</span></span>
-<span><span class="co">#&gt; 1   24    1         4      0   0.00 55.61      0</span></span>
-<span><span class="co">#&gt; 2   24    2         4      0   0.00 55.82      0</span></span>
-<span><span class="co">#&gt; 3   24    3         4      0   0.02 55.65      0</span></span>
-<span><span class="co">#&gt; 4   24    4         4      0   0.13 81.17      1</span></span>
-<span><span class="co">#&gt; 5   49    1         7      0   0.00 55.61      0</span></span>
-<span><span class="co">#&gt; 6   49    2         7      0   0.00 55.82      0</span></span>
-<span><span class="co">#&gt; 7   49    3         7      0   0.02 55.65      0</span></span>
-<span><span class="co">#&gt; 8   49    4         7      0   0.13 81.17      0</span></span>
-<span><span class="co">#&gt; 9   49    5         7      0   0.08 74.45      0</span></span>
-<span><span class="co">#&gt; 10  49    6         7      0   0.04 73.82      0</span></span>
-<span><span class="co">#&gt; 11  49    7         7      0   0.02 46.83      1</span></span>
-<span><span class="co">#&gt; 12 165    1        24      0   0.00 55.61      0</span></span>
-<span><span class="co">#&gt; 13 165    2        24      0   0.00 55.82      0</span></span>
-<span><span class="co">#&gt; 14 165    3        24      0   0.02 55.65      0</span></span>
-<span><span class="co">#&gt; 15 165    4        24      0   0.13 81.17      0</span></span>
-<span><span class="co">#&gt; 16 165    5        24      0   0.08 74.45      0</span></span>
-<span><span class="co">#&gt; 17 165    6        24      0   0.04 73.82      0</span></span>
-<span><span class="co">#&gt; 18 165    7        24      0   0.02 46.83      0</span></span>
-<span><span class="co">#&gt; 19 165    8        24      0   0.01  0.00      0</span></span>
-<span><span class="co">#&gt; 20 165    9        24      0   0.00 72.41      0</span></span>
-<span><span class="co">#&gt; 21 165   10        24      0   0.02 71.52      0</span></span>
-<span><span class="co">#&gt; 22 165   11        24      0   0.11 89.32      0</span></span>
-<span><span class="co">#&gt; 23 165   12        24      0   0.07 56.05      0</span></span>
-<span><span class="co">#&gt; 24 165   13        24      0   0.04 12.58      0</span></span>
-<span><span class="co">#&gt; 25 165   14        24      0   0.02 13.33      0</span></span>
-<span><span class="co">#&gt; 26 165   15        24      0   0.01 43.31      0</span></span>
-<span><span class="co">#&gt; 27 165   16        24      0   0.00 41.46      0</span></span>
-<span><span class="co">#&gt; 28 165   17        24      0   0.00 41.95      0</span></span>
-<span><span class="co">#&gt; 29 165   18        24      0   0.00 44.47      0</span></span>
-<span><span class="co">#&gt; 30 165   19        24      0   0.00 22.90      0</span></span>
-<span><span class="co">#&gt; 31 165   20        24      0   0.00  8.82      0</span></span>
-<span><span class="co">#&gt; 32 165   21        24      0   0.00  0.00      0</span></span>
-<span><span class="co">#&gt; 33 165   22        24      0   0.00  0.00      0</span></span>
-<span><span class="co">#&gt; 34 165   23        24      0   0.00 32.20      0</span></span>
-<span><span class="co">#&gt; 35 165   24        24      1   0.00 33.40      0</span></span>
-<span><span class="co">#&gt; 36 321    1        24      0   0.00 55.61      0</span></span>
-<span><span class="co">#&gt; 37 321    2        24      0   0.00 55.82      0</span></span>
-<span><span class="co">#&gt; 38 321    3        24      0   0.02 55.65      0</span></span>
-<span><span class="co">#&gt; 39 321    4        24      0   0.13 81.17      0</span></span>
-<span><span class="co">#&gt; 40 321    5        24      0   0.08 74.45      0</span></span>
-<span><span class="co">#&gt; 41 321    6        24      0   0.04 73.82      0</span></span>
-<span><span class="co">#&gt; 42 321    7        24      0   0.02 46.83      0</span></span>
-<span><span class="co">#&gt; 43 321    8        24      0   0.01  0.00      0</span></span>
-<span><span class="co">#&gt; 44 321    9        24      0   0.00 72.41      0</span></span>
-<span><span class="co">#&gt; 45 321   10        24      0   0.02 71.52      0</span></span>
-<span><span class="co">#&gt; 46 321   11        24      0   0.11 89.32      0</span></span>
-<span><span class="co">#&gt; 47 321   12        24      0   0.07 56.05      0</span></span>
-<span><span class="co">#&gt; 48 321   13        24      0   0.04 12.58      0</span></span>
-<span><span class="co">#&gt; 49 321   14        24      0   0.02 13.33      0</span></span>
-<span><span class="co">#&gt; 50 321   15        24      0   0.01 43.31      0</span></span></code></pre></div>
+<span><span class="co"># Inspect the person-period data structure (first two subjects)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">kb_data_sample</span>, <span class="fl">11</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    id week num_weeks censor coupon  anyp status</span></span>
+<span><span class="co">#&gt; 1  24    1         4      0   0.00 55.61      0</span></span>
+<span><span class="co">#&gt; 2  24    2         4      0   0.00 55.82      0</span></span>
+<span><span class="co">#&gt; 3  24    3         4      0   0.02 55.65      0</span></span>
+<span><span class="co">#&gt; 4  24    4         4      0   0.13 81.17      1</span></span>
+<span><span class="co">#&gt; 5  49    1         7      0   0.00 55.61      0</span></span>
+<span><span class="co">#&gt; 6  49    2         7      0   0.00 55.82      0</span></span>
+<span><span class="co">#&gt; 7  49    3         7      0   0.02 55.65      0</span></span>
+<span><span class="co">#&gt; 8  49    4         7      0   0.13 81.17      0</span></span>
+<span><span class="co">#&gt; 9  49    5         7      0   0.08 74.45      0</span></span>
+<span><span class="co">#&gt; 10 49    6         7      0   0.04 73.82      0</span></span>
+<span><span class="co">#&gt; 11 49    7         7      0   0.02 46.83      1</span></span></code></pre></div>
 <p>We estimate the model by directly supplying the formula and the
 subject identifier. Please note that both estimation functions require
 at least one covariate on the right-hand side of the formula.</p>
@@ -349,11 +318,15 @@ at least one covariate on the right-hand side of the formula.</p>
 <span><span class="co">#&gt; Coefficients:</span></span>
 <span><span class="co">#&gt;              Estimate Std.Error Lower.95   Upper.95</span></span>
 <span><span class="co">#&gt; r (shape)      0.0611    0.1047   0.0021     1.7580</span></span>
-<span><span class="co">#&gt; alpha (rate)   6.3229   31.1821   0.0004 99709.9104</span></span>
+<span><span class="co">#&gt; alpha (rate)   6.3229   31.1821   0.0004 99709.9092</span></span>
 <span><span class="co">#&gt; coupon        24.9515   22.4348 -19.0199    68.9230</span></span>
 <span><span class="co">#&gt; anyp          -0.0159    0.0554  -0.1246     0.0927</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Warning: Extremely wide confidence intervals for baseline parameters suggest a flat likelihood ridge (common with small sample sizes or few observed events). Interpret estimates and limits with caution.</span></span></code></pre></div>
+<span><span class="co">#&gt; Note: Wide confidence intervals for r and alpha reflect a flat likelihood ridge (common with small samples, few observed events, or very low unobserved heterogeneity). Interpret r and alpha jointly (e.g., via plot_p0() or plot_lambda0()).</span></span></code></pre></div>
+<p>Because <code>kb_data_sample</code> contains only 20 subjects (and
+just 2 observed events), the point estimates above — such as
+<code>coupon = 24.95</code>, whose confidence interval spans zero — are
+purely illustrative and not substantively meaningful.</p>
 <div class="section level3">
 <h3 id="interpreting-the-coefficients">Interpreting the Coefficients<a class="anchor" aria-label="anchor" href="#interpreting-the-coefficients"></a>
 </h3>
@@ -362,11 +335,14 @@ at least one covariate on the right-hand side of the formula.</p>
 acts on the complementary log-log scale, so
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><msub><mi>β</mi><mi>k</mi></msub></msup><annotation encoding="application/x-tex">e^{\beta_k}</annotation></semantics></math>
 is a hazard ratio: a one-unit increase in a numeric covariate, or a
-switch from the reference level to a given factor level, multiplies
+switch from the reference level to a given factor level, multiplies the
+latent per-period rate
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
 by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><msub><mi>β</mi><mi>k</mi></msub></msup><annotation encoding="application/x-tex">e^{\beta_k}</annotation></semantics></math>.
-A positive
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><msub><mi>β</mi><mi>k</mi></msub></msup><annotation encoding="application/x-tex">e^{\beta_k}</annotation></semantics></math>
+(it does not multiply the per-period event probability
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+directly). A positive
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mi>k</mi></msub><annotation encoding="application/x-tex">\beta_k</annotation></semantics></math>
 raises the per-period event probability (shorter durations); a negative
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mi>k</mi></msub><annotation encoding="application/x-tex">\beta_k</annotation></semantics></math>
@@ -398,12 +374,16 @@ to ensure robust numerical optimization:</p>
 <ul>
 <li>
 <strong>Automatic Standardization:</strong> To improve numerical
-stability and convergence of the BFGS algorithm, all continuous
-covariates are automatically standardized (centered and scaled) prior to
-maximizing the likelihood. Upon convergence, the resulting coefficient
-estimates are dynamically rescaled back to their original metric,
-ensuring the output is immediately interpretable on the scale of the
-original data.</li>
+stability and convergence of the BFGS algorithm, all covariates are
+automatically standardized (centered and scaled) prior to maximizing the
+likelihood. Upon convergence, both the covariate coefficients and the
+baseline rate parameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+(along with its Delta-method standard error, accounting for covariances
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>)
+are rescaled back to the original covariate metric, ensuring the output
+is immediately interpretable on the scale of the original data.</li>
 <li>
 <strong>Delta Method for Standard Errors:</strong> The optimization
 routines estimate baseline parameters in an unconstrained space (e.g.,
@@ -453,65 +433,90 @@ The standard errors of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
-can be as large as the estimates themselves, particularly in small
-samples. This is typical of a gamma mixing distribution and is not a
-sign of a problem: the two parameters are often highly correlated,
-because many
+can be several times larger than the estimates themselves (as flagged by
+the note from <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>), particularly in small samples or
+when unobserved heterogeneity is low. This reflects a flat likelihood
+ridge where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+trade off — many
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>r</mi><mo>,</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(r, \alpha)</annotation></semantics></math>
 combinations imply very similar mixing distributions. Interpret them
-jointly, for example through the implied distributions shown by
+jointly through the implied distributions shown by
 <code><a href="../reference/plot_p0.html">plot_p0()</a></code> and <code><a href="../reference/plot_lambda0.html">plot_lambda0()</a></code>, rather than one
-at a time.</p>
+at a time. (In Example 2 below, large
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+similarly reflect very little unobserved heterogeneity, meaning the
+model is close to a homogeneous geometric model.)</p>
 </blockquote>
 <p>Next, we extract the survival curve explicitly using
 <code><a href="../reference/G2G_varying_survival.html">G2G_varying_survival()</a></code> by passing a specific customer’s
-covariate path, and plot the predicted step-function. The length of the
-generated survival curve aligns with the length of the covariate path
-provided:</p>
+covariate path, and plot the predicted step-function. The returned
+vector has length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T + 1</annotation></semantics></math>
+(where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+is the number of rows in the covariate path), starting at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">t = 0</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">S(0) = 1</annotation></semantics></math>,
+followed by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>…</mi><mo>,</mo><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>T</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">S(1), \dots, S(T)</annotation></semantics></math>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Predict individual survival curve S(t) along a specific customer trajectory</span></span>
-<span><span class="co"># (Subject 24 is included in our sample)</span></span>
-<span><span class="va">customer_path</span> <span class="op">&lt;-</span> <span class="va">kb_data_sample</span><span class="op">[</span><span class="va">kb_data_sample</span><span class="op">$</span><span class="va">id</span> <span class="op">==</span> <span class="fl">24</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coupon"</span>, <span class="st">"anyp"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co"># (Subject 165 is a censored subject observed for all 24 weeks)</span></span>
+<span><span class="va">customer_path</span> <span class="op">&lt;-</span> <span class="va">kb_data_sample</span><span class="op">[</span><span class="va">kb_data_sample</span><span class="op">$</span><span class="va">id</span> <span class="op">==</span> <span class="fl">165</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coupon"</span>, <span class="st">"anyp"</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
-<span><span class="co"># Compute the survival curve predictions explicitly</span></span>
+<span><span class="co"># Compute the survival curve predictions explicitly (t = 0, 1, ..., T)</span></span>
 <span><span class="va">surv_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/G2G_varying_survival.html">G2G_varying_survival</a></span><span class="op">(</span>solution <span class="op">=</span> <span class="va">fit_varying</span>, X_mat <span class="op">=</span> <span class="va">customer_path</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Plot the predicted survival curve using base R graphics</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">surv_est</span><span class="op">)</span>, </span>
-<span>  <span class="va">surv_est</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">surv_est</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
+<span>  <span class="va">surv_est</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"s"</span>,  <span class="co"># Step function for discrete time</span></span>
-<span>  col  <span class="op">=</span> <span class="st">"blue"</span>, </span>
+<span>  col  <span class="op">=</span> <span class="st">"blue"</span>,</span>
 <span>  lwd  <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  xlab <span class="op">=</span> <span class="st">"Week"</span>, </span>
+<span>  xlab <span class="op">=</span> <span class="st">"Week"</span>,</span>
 <span>  ylab <span class="op">=</span> <span class="st">"Survival Probability"</span>,</span>
-<span>  main <span class="op">=</span> <span class="st">"G2G Predicted Survival Curve (Subject 24)"</span>,</span>
+<span>  main <span class="op">=</span> <span class="st">"G2G Predicted Survival Curve (Subject 165)"</span>,</span>
 <span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="introduction_to_g2gcov_vignette_files/figure-html/plot-survival-varying-1.png" class="r-plt" alt="" width="672"></p>
-<p>We can also project conditional period-to-period retention function,
-defined as
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">r(t) = S(t)/S(t-1)</annotation></semantics></math>,
+<p>We can also project the conditional period-to-period retention
+function, defined as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R(t) = S(t)/S(t-1)</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">t = 1, \dots, T</annotation></semantics></math>,
 along that same dynamic customer path using
-<code><a href="../reference/G2G_varying_retention.html">G2G_varying_retention()</a></code>:</p>
+<code><a href="../reference/G2G_varying_retention.html">G2G_varying_retention()</a></code>. Like
+<code><a href="../reference/G2G_varying_survival.html">G2G_varying_survival()</a></code>, it returns a vector of length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T + 1</annotation></semantics></math>
+with a leading <code>1</code> at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">t = 0</annotation></semantics></math>
+so the two vectors align:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Compute period-to-period retention r(t) = S(t)/S(t-1)</span></span>
+<code class="sourceCode R"><span><span class="co"># Compute period-to-period retention R(t) = S(t)/S(t-1) (t = 0, 1, ..., T)</span></span>
 <span><span class="va">ret_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/G2G_varying_retention.html">G2G_varying_retention</a></span><span class="op">(</span>solution <span class="op">=</span> <span class="va">fit_varying</span>, X_mat <span class="op">=</span> <span class="va">customer_path</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Display </span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Week <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">ret_est</span><span class="op">)</span>, Retention <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ret_est</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># Display the first few periods</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Week <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">ret_est</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>, Retention <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ret_est</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   Week Retention</span></span>
-<span><span class="co">#&gt; 1    1    1.0000</span></span>
-<span><span class="co">#&gt; 2    2    0.9961</span></span>
-<span><span class="co">#&gt; 3    3    0.9964</span></span>
-<span><span class="co">#&gt; 4    4    0.9947</span></span>
-<span><span class="co">#&gt; 5    5    0.9640</span></span></code></pre></div>
+<span><span class="co">#&gt; 1    0    1.0000</span></span>
+<span><span class="co">#&gt; 2    1    0.9961</span></span>
+<span><span class="co">#&gt; 3    2    0.9964</span></span>
+<span><span class="co">#&gt; 4    3    0.9947</span></span>
+<span><span class="co">#&gt; 5    4    0.9640</span></span>
+<span><span class="co">#&gt; 6    5    0.9913</span></span></code></pre></div>
 <hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="example-2-static-covariate-baseline-survivalveteran">Example 2: Static Covariate Baseline
-(<code>survival::veteran</code>)<a class="anchor" aria-label="anchor" href="#example-2-static-covariate-baseline-survivalveteran"></a>
+<h2 id="example-2-time-invariant-covariates-survivalveteran">Example 2: Time-Invariant Covariates
+(<code>survival::veteran</code>)<a class="anchor" aria-label="anchor" href="#example-2-time-invariant-covariates-survivalveteran"></a>
 </h2>
 <p>If covariates are fixed for each subject, the cumulative hazard
 simplifies. <code><a href="../reference/G2G_static_MLE.html">G2G_static_MLE()</a></code> handles data in traditional
@@ -521,7 +526,7 @@ the <code><a href="https://rdrr.io/pkg/survival/man/veteran.html" class="externa
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vet</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/veteran.html" class="external-link">veteran</a></span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Using a 99% confidence limits in this example</span></span>
+<code class="sourceCode R"><span><span class="co"># Using 99% confidence limits in this example</span></span>
 <span><span class="va">fit_static</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/G2G_static_MLE.html">G2G_static_MLE</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">celltype</span>,</span>
 <span>  data  <span class="op">=</span> <span class="va">vet</span>,</span>
@@ -539,21 +544,25 @@ the <code><a href="https://rdrr.io/pkg/survival/man/veteran.html" class="externa
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients:</span></span>
 <span><span class="co">#&gt;                    Estimate  Std.Error Lower.99     Upper.99</span></span>
-<span><span class="co">#&gt; r (shape)           24.4605    65.4851   0.0248 2.417343e+04</span></span>
-<span><span class="co">#&gt; alpha (rate)      8031.0071 23544.1149   4.2191 1.528679e+07</span></span>
+<span><span class="co">#&gt; r (shape)           24.4605    65.4850   0.0248 2.417306e+04</span></span>
+<span><span class="co">#&gt; alpha (rate)      8031.0071 23544.0705   4.2192 1.528657e+07</span></span>
 <span><span class="co">#&gt; age                  0.0074     0.0097  -0.0175 3.230000e-02</span></span>
 <span><span class="co">#&gt; celltypesmallcell    1.0711     0.2450   0.4401 1.702200e+00</span></span>
 <span><span class="co">#&gt; celltypeadeno        1.2015     0.2819   0.4753 1.927800e+00</span></span>
 <span><span class="co">#&gt; celltypelarge        0.2415     0.2840  -0.4900 9.730000e-01</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Warning: Extremely wide confidence intervals for baseline parameters suggest a flat likelihood ridge (common with small sample sizes or few observed events). Interpret estimates and limits with caution.</span></span></code></pre></div>
+<span><span class="co">#&gt; Note: Wide confidence intervals for r and alpha reflect a flat likelihood ridge (common with small samples, few observed events, or very low unobserved heterogeneity). Interpret r and alpha jointly (e.g., via plot_p0() or plot_lambda0()).</span></span></code></pre></div>
 <p>We plot the baseline event probability and baseline rate
-distributions at reference covariate values (squamous cell type and age
-= 0). The first level of a factor is its reference category (here
-<code>squamous</code>). For <code>character</code> vectors, the first
-level is the alphabetically first value; use <code><a href="https://rdrr.io/r/stats/relevel.html" class="external-link">relevel()</a></code> or
-<code>factor(x, levels = ...)</code> to choose a different
-reference:</p>
+distributions at reference covariate values (squamous cell type and
+<code>age = 0</code>). The first level of a factor is its reference
+category (here <code>squamous</code>). For <code>character</code>
+vectors, the first level is the first value in sorted order; use
+<code><a href="https://rdrr.io/r/stats/relevel.html" class="external-link">relevel()</a></code> or <code>factor(x, levels = ...)</code> to choose
+a different reference. Note that <code>age = 0</code> is an
+extrapolation outside the observed age range of <code>veteran</code>;
+centering <code>age</code> (for example, using <code>I(age - 60)</code>
+in <code><a href="../reference/G2G_static_MLE.html">G2G_static_MLE()</a></code>) can provide a more substantively
+meaningful baseline:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_p0.html">plot_p0</a></span><span class="op">(</span><span class="va">fit_static</span><span class="op">)</span></span></code></pre></div>
 <p><img src="introduction_to_g2gcov_vignette_files/figure-html/plot-p0-static-1.png" class="r-plt" alt="" width="672"></p>
@@ -563,18 +572,23 @@ reference:</p>
 <p>Just like the time-varying model, we can project survival and period
 retention for a specific profile (passing original factor levels) using
 <code><a href="../reference/G2G_static_survival.html">G2G_static_survival()</a></code> and
-<code><a href="../reference/G2G_static_retention.html">G2G_static_retention()</a></code>. In this situation, we can also
-specify the length of these functions to be generated:</p>
+<code><a href="../reference/G2G_static_retention.html">G2G_static_retention()</a></code>. Here we specify the forecast
+horizon <code>timeperiod</code>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>),
+and each function returns a vector of length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T + 1</annotation></semantics></math>
+covering
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">t = 0, 1, \dots, T</annotation></semantics></math>:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Predict survival up to t = 150 days for a 49-year-old with squamous cell cancer</span></span>
 <span><span class="va">surv_static</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/G2G_static_survival.html">G2G_static_survival</a></span><span class="op">(</span></span>
-<span>  <span class="va">fit_static</span>, </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>age <span class="op">=</span> <span class="fl">49</span>, celltype <span class="op">=</span> <span class="st">"squamous"</span><span class="op">)</span>, </span>
+<span>  <span class="va">fit_static</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>age <span class="op">=</span> <span class="fl">49</span>, celltype <span class="op">=</span> <span class="st">"squamous"</span><span class="op">)</span>,</span>
 <span>  <span class="fl">150</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">surv_static</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">surv_static</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
 <span>  <span class="va">surv_static</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"s"</span>,</span>
 <span>  col  <span class="op">=</span> <span class="st">"red"</span>,</span>
@@ -586,26 +600,26 @@ specify the length of these functions to be generated:</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="introduction_to_g2gcov_vignette_files/figure-html/plot-survival-static-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Predict period-to-period retention across the first 10 days</span></span>
+<code class="sourceCode R"><span><span class="co"># Predict period-to-period retention across the first 10 days (t = 0 to 10)</span></span>
 <span><span class="va">ret_static</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/G2G_static_retention.html">G2G_static_retention</a></span><span class="op">(</span></span>
-<span>  <span class="va">fit_static</span>, </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>age <span class="op">=</span> <span class="fl">49</span>, celltype <span class="op">=</span> <span class="st">"squamous"</span><span class="op">)</span>, </span>
+<span>  <span class="va">fit_static</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>age <span class="op">=</span> <span class="fl">49</span>, celltype <span class="op">=</span> <span class="st">"squamous"</span><span class="op">)</span>,</span>
 <span>  <span class="fl">10</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Day <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">ret_static</span><span class="op">)</span>, Retention <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ret_static</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Day <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">ret_static</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>, Retention <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ret_static</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Day Retention</span></span>
-<span><span class="co">#&gt; 1    1    1.0000</span></span>
-<span><span class="co">#&gt; 2    2    0.9956</span></span>
-<span><span class="co">#&gt; 3    3    0.9956</span></span>
-<span><span class="co">#&gt; 4    4    0.9956</span></span>
-<span><span class="co">#&gt; 5    5    0.9956</span></span>
-<span><span class="co">#&gt; 6    6    0.9956</span></span>
-<span><span class="co">#&gt; 7    7    0.9956</span></span>
-<span><span class="co">#&gt; 8    8    0.9956</span></span>
-<span><span class="co">#&gt; 9    9    0.9956</span></span>
-<span><span class="co">#&gt; 10  10    0.9956</span></span>
-<span><span class="co">#&gt; 11  11    0.9956</span></span></code></pre></div>
+<span><span class="co">#&gt; 1    0    1.0000</span></span>
+<span><span class="co">#&gt; 2    1    0.9956</span></span>
+<span><span class="co">#&gt; 3    2    0.9956</span></span>
+<span><span class="co">#&gt; 4    3    0.9956</span></span>
+<span><span class="co">#&gt; 5    4    0.9956</span></span>
+<span><span class="co">#&gt; 6    5    0.9956</span></span>
+<span><span class="co">#&gt; 7    6    0.9956</span></span>
+<span><span class="co">#&gt; 8    7    0.9956</span></span>
+<span><span class="co">#&gt; 9    8    0.9956</span></span>
+<span><span class="co">#&gt; 10   9    0.9956</span></span>
+<span><span class="co">#&gt; 11  10    0.9956</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -630,7 +644,7 @@ periods ahead, given survival through the history.</li>
 with covariates
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>…</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">z(1), \dots, z(t)</annotation></semantics></math>,
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>t</mi></msubsup><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo><msup><mi>β</mi><mo>′</mo></msup></mrow></msup></mrow><annotation encoding="application/x-tex">C(t) = \sum_{j=1}^{t} e^{z(j)\beta'}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>t</mi></msubsup><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><msup><mo stretchy="false" form="postfix">)</mo><mo>′</mo></msup><mi>β</mi></mrow></msup></mrow><annotation encoding="application/x-tex">C(t) = \sum_{j=1}^{t} e^{z(j)'\beta}</annotation></semantics></math>
 as before. The fitted
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
@@ -648,10 +662,10 @@ event-free periods.</p>
 the periods are independent, and the probability of surviving period
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
 is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">{</mo><mi>−</mi><mi>λ</mi><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo><msup><mi>β</mi><mo>′</mo></msup></mrow></msup><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\exp\{-\lambda e^{z(j)\beta'}\}</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">{</mo><mi>−</mi><mi>λ</mi><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><msup><mo stretchy="false" form="postfix">)</mo><mo>′</mo></msup><mi>β</mi></mrow></msup><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\exp\{-\lambda e^{z(j)'\beta}\}</annotation></semantics></math>.
 Surviving the whole history therefore has probability</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>T</mi><mo>&gt;</mo><mi>t</mi><mo>∣</mo><mi>λ</mi><mo>,</mo><mi>Z</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>t</mi></munderover><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">{</mo><mi>−</mi><mi>λ</mi><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo><msup><mi>β</mi><mo>′</mo></msup></mrow></msup><mo stretchy="true" form="postfix">}</mo></mrow><mo>=</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>λ</mi><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
-P(T &gt; t \mid \lambda, Z(t)) = \prod_{j=1}^{t} \exp\left\{-\lambda e^{z(j)\beta'}\right\} = e^{-\lambda C(t)}.
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>T</mi><mo>&gt;</mo><mi>t</mi><mo>∣</mo><mi>λ</mi><mo>,</mo><mi>Z</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>t</mi></munderover><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">{</mo><mi>−</mi><mi>λ</mi><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><msup><mo stretchy="false" form="postfix">)</mo><mo>′</mo></msup><mi>β</mi></mrow></msup><mo stretchy="true" form="postfix">}</mo></mrow><mo>=</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>λ</mi><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+P(T &gt; t \mid \lambda, Z(t)) = \prod_{j=1}^{t} \exp\left\{-\lambda e^{z(j)'\beta}\right\} = e^{-\lambda C(t)}.
 </annotation></semantics></math></p>
 <p>Multiplying by the gamma prior density and dropping constants, the
 posterior of
@@ -728,8 +742,8 @@ covariates, is evidence of a lower baseline rate.</p>
 periods are
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>…</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">z(t+1), \dots, z(t+s)</annotation></semantics></math>,
 and let</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Δ</mi><mi>k</mi></msub><mo>=</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mi>t</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>t</mi><mo>+</mo><mi>k</mi></mrow></munderover><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo><msup><mi>β</mi><mo>′</mo></msup></mrow></msup><mo>,</mo><mspace width="2.0em"></mspace><mi>k</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>s</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
-\Delta_k = C(t+k) - C(t) = \sum_{j=t+1}^{t+k} e^{z(j)\beta'}, \qquad k = 1, \dots, s.
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Δ</mi><mi>k</mi></msub><mo>=</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mi>t</mi><mo>+</mo><mn>1</mn></mrow><mrow><mi>t</mi><mo>+</mo><mi>k</mi></mrow></munderover><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>j</mi><msup><mo stretchy="false" form="postfix">)</mo><mo>′</mo></msup><mi>β</mi></mrow></msup><mo>,</mo><mspace width="2.0em"></mspace><mi>k</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>s</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\Delta_k = C(t+k) - C(t) = \sum_{j=t+1}^{t+k} e^{z(j)'\beta}, \qquad k = 1, \dots, s.
 </annotation></semantics></math></p>
 <p>Given
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>,
@@ -750,7 +764,7 @@ shows how the two quantities are related: one minus the first step is
 the posterior mean of the event probability in period
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t+1</annotation></semantics></math>,
 namely Step 3 with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msup><mi>β</mi><mo>′</mo></msup></mrow></msup></mrow><annotation encoding="application/x-tex">m = e^{z(t+1)\beta'}</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><msup><mi>e</mi><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>+</mo><mn>1</mn><msup><mo stretchy="false" form="postfix">)</mo><mo>′</mo></msup><mi>β</mi></mrow></msup></mrow><annotation encoding="application/x-tex">m = e^{z(t+1)'\beta}</annotation></semantics></math>.</p>
 </div>
 <div class="section level3">
 <h3 id="why-the-function-names-differ-between-the-varying-and-static-cases">Why the Function Names Differ Between the Varying and Static
@@ -789,7 +803,7 @@ the names reflect that.</p>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
 in Step 3</td>
 <td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math></td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>=</mo><msup><mi>e</mi><mrow><msup><mi>x</mi><mo>′</mo></msup><mi>β</mi></mrow></msup></mrow><annotation encoding="application/x-tex">c = e^{x'\beta}</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>=</mo><msup><mi>e</mi><mrow><msup><mi>z</mi><mo>′</mo></msup><mi>β</mi></mrow></msup></mrow><annotation encoding="application/x-tex">c = e^{z'\beta}</annotation></semantics></math></td>
 </tr>
 <tr class="even">
 <td align="left">History input</td>
@@ -811,8 +825,13 @@ function therefore returns the baseline probability
 which is the same
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>0</mn></msub><annotation encoding="application/x-tex">p_0</annotation></semantics></math>
 that <code><a href="../reference/plot_p0.html">plot_p0()</a></code> draws and which does not depend on what
-happens next. It can be combined with any planned covariate path
-afterwards (this is what the conditional survival function does). The
+happens next. Forecasting ahead under a planned covariate path requires
+the full posterior distribution of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Gamma</mtext><mo stretchy="false" form="prefix">(</mo><mi>r</mi><mo>,</mo><mi>α</mi><mo>+</mo><mi>C</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Gamma}(r, \alpha + C(t))</annotation></semantics></math>,
+rather than just the posterior mean of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>0</mn></msub><annotation encoding="application/x-tex">p_0</annotation></semantics></math>
+— which is what <code><a href="../reference/G2G_varying_cond_survival.html">G2G_varying_cond_survival()</a></code> uses. The
 history still matters: it shapes the posterior of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
 through
@@ -827,7 +846,7 @@ else. The function therefore returns the subject’s own per-period
 probability,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>λ</mi><mi>c</mi></mrow></msup></mrow><annotation encoding="application/x-tex">1 - e^{-\lambda c}</annotation></semantics></math>
 with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>=</mo><msup><mi>e</mi><mrow><msup><mi>x</mi><mo>′</mo></msup><mi>β</mi></mrow></msup></mrow><annotation encoding="application/x-tex">c = e^{x'\beta}</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>=</mo><msup><mi>e</mi><mrow><msup><mi>z</mi><mo>′</mo></msup><mi>β</mi></mrow></msup></mrow><annotation encoding="application/x-tex">c = e^{z'\beta}</annotation></semantics></math>.
 Because it is not a baseline quantity, the name drops the
 <code>0</code>. For a subject whose covariates are all zero
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">c = 1</annotation></semantics></math>)
@@ -856,21 +875,22 @@ as updates of the fitted model for one customer, not as intervals.</p>
 <div class="section level3">
 <h3 id="example-time-varying-covariates">Example: Time-Varying Covariates<a class="anchor" aria-label="anchor" href="#example-time-varying-covariates"></a>
 </h3>
-<p>We reuse <code>fit_varying</code> and <code>customer_path</code> from
-Example 1. Treating the first half of the customer’s observed path as
-the survived history and the second half as the planned covariates for
-the periods ahead:</p>
+<p>We reuse <code>fit_varying</code> and <code>customer_path</code>
+(Subject 165, observed event-free for 24 weeks) from Example 1. Treating
+the first half of the customer’s observed path (weeks 1–12) as the
+survived history and the second half (weeks 13–24) as the planned
+covariates for the periods ahead:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># First half of the observed path = survived history; second half = planned path</span></span>
 <span><span class="va">n_hist</span>      <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">customer_path</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">hist_path</span>   <span class="op">&lt;-</span> <span class="va">customer_path</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_hist</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="va">future_path</span> <span class="op">&lt;-</span> <span class="va">customer_path</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_hist</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">hist_path</span>   <span class="op">&lt;-</span> <span class="va">customer_path</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_hist</span><span class="op">)</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span><span class="va">future_path</span> <span class="op">&lt;-</span> <span class="va">customer_path</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">n_hist</span><span class="op">)</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
 <span></span>
 <span><span class="co"># Posterior mean of the baseline p0 after the history, versus the prior mean</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>prior     <span class="op">=</span> <span class="fu"><a href="../reference/G2G_varying_posterior_p0.html">G2G_varying_posterior_p0</a></span><span class="op">(</span><span class="va">fit_varying</span><span class="op">)</span>,</span>
 <span>  posterior <span class="op">=</span> <span class="fu"><a href="../reference/G2G_varying_posterior_p0.html">G2G_varying_posterior_p0</a></span><span class="op">(</span><span class="va">fit_varying</span>, <span class="va">hist_path</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       prior   posterior </span></span>
-<span><span class="co">#&gt; 0.008924056 0.007963411</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.008924056 0.002335981</span></span></code></pre></div>
 <p>The posterior mean of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>0</mn></msub><annotation encoding="application/x-tex">p_0</annotation></semantics></math>
 is below the prior mean because the customer has survived. The
@@ -882,10 +902,20 @@ through the history:</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>AdditionalWeeks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">cond_surv</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
 <span>           Probability     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">cond_surv</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   AdditionalWeeks Probability</span></span>
-<span><span class="co">#&gt; 1               0      1.0000</span></span>
-<span><span class="co">#&gt; 2               1      0.9947</span></span>
-<span><span class="co">#&gt; 3               2      0.9589</span></span></code></pre></div>
+<span><span class="co">#&gt;    AdditionalWeeks Probability</span></span>
+<span><span class="co">#&gt; 1                0      1.0000</span></span>
+<span><span class="co">#&gt; 2                1      0.9953</span></span>
+<span><span class="co">#&gt; 3                2      0.9926</span></span>
+<span><span class="co">#&gt; 4                3      0.9914</span></span>
+<span><span class="co">#&gt; 5                4      0.9903</span></span>
+<span><span class="co">#&gt; 6                5      0.9892</span></span>
+<span><span class="co">#&gt; 7                6      0.9883</span></span>
+<span><span class="co">#&gt; 8                7      0.9869</span></span>
+<span><span class="co">#&gt; 9                8      0.9853</span></span>
+<span><span class="co">#&gt; 10               9      0.9835</span></span>
+<span><span class="co">#&gt; 11              10      0.9817</span></span>
+<span><span class="co">#&gt; 12              11      0.9807</span></span>
+<span><span class="co">#&gt; 13              12      0.9797</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="example-time-invariant-covariates">Example: Time-Invariant Covariates<a class="anchor" aria-label="anchor" href="#example-time-invariant-covariates"></a>
@@ -972,11 +1002,11 @@ duration data</em> (Research Note No. 037). <a href="https://brucehardie.com/no
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] cli_3.6.6         knitr_1.52        rlang_1.3.0       xfun_0.62        </span></span>
-<span><span class="co">#&gt;  [5] otel_0.3.0        textshaping_1.0.5 jsonlite_2.0.0    htmltools_0.5.9  </span></span>
-<span><span class="co">#&gt;  [9] ragg_1.5.2        sass_0.4.10       rmarkdown_2.32    grid_4.6.2       </span></span>
+<span><span class="co">#&gt;  [5] otel_0.3.0        textshaping_1.1.0 jsonlite_2.0.0    htmltools_0.5.9  </span></span>
+<span><span class="co">#&gt;  [9] ragg_1.5.2        sass_0.5.0        rmarkdown_2.32    grid_4.6.2       </span></span>
 <span><span class="co">#&gt; [13] evaluate_1.0.5    jquerylib_0.1.4   fastmap_1.2.0     yaml_2.3.12      </span></span>
 <span><span class="co">#&gt; [17] lifecycle_1.0.5   compiler_4.6.2    fs_2.1.0          lattice_0.23-1   </span></span>
-<span><span class="co">#&gt; [21] systemfonts_1.3.3 digest_0.6.39     R6_2.6.1          splines_4.6.2    </span></span>
+<span><span class="co">#&gt; [21] systemfonts_1.3.4 digest_0.6.39     R6_2.6.1          splines_4.6.2    </span></span>
 <span><span class="co">#&gt; [25] bslib_0.12.0      Matrix_1.7-6      tools_4.6.2       pkgdown_2.2.1    </span></span>
 <span><span class="co">#&gt; [29] cachem_1.1.0      desc_1.4.3</span></span></code></pre></div>
 </div>
