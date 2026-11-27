@@ -3,29 +3,29 @@
 \docType{data}
 \name{kb_data_sample}
 \alias{kb_data_sample}
-\title{KB Sample Dataset}
+\title{Kiwi Bubbles Sample Dataset}
 \format{
 A data frame with the same 7 variables as \code{\link{kb_data}}:
 \describe{
-  \item{id}{Integer subject identifier.}
+  \item{id}{Integer panelist identifier.}
   \item{week}{Integer week index for the observation.}
-  \item{num_weeks}{Total weeks observed for the subject (integer).}
+  \item{num_weeks}{Total weeks observed for the panelist (integer).}
   \item{censor}{Censoring indicator (1 if censored on final row, 0 otherwise).}
-  \item{coupon}{Coupon stock covariate.}
-  \item{anyp}{Trade promotions covariate.}
-  \item{status}{Discrete-time failure event indicator (1 if event occurred in
-    the period, 0 otherwise).}
+  \item{coupon}{Exponentially smoothed coupon stock variable.}
+  \item{anyp}{Market-level promotional activity (\%ACV with any promotion).}
+  \item{status}{Discrete-time trial-purchase event indicator (1 if event
+    occurred in the period, 0 otherwise).}
 }
 }
 \source{
-Derived as a random sample from \code{\link{kb_data}} via
+Derived as a 20-panelist subset of \code{\link{kb_data}} via
   \file{data-raw/prepare_kb_data.R}.
 }
 \usage{
 kb_data_sample
 }
 \description{
-A 20-subject random sample of \code{\link{kb_data}} provided for fast unit
+A 20-panelist subset of \code{\link{kb_data}} provided for fast unit
 testing, minimal package checks, and vignette examples.
 }
 \examples{

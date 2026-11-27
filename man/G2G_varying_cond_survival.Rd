@@ -46,15 +46,14 @@ then the planned covariates. This equals \eqn{S(t + k) / S(t)} from
 }
 \examples{
 \donttest{
-  data(kb_data)
-  kb_data$status <- 1L - kb_data$censor
+  data(kb_data_sample)
   fit <- G2G_varying_MLE(
-    "Surv(week, status) ~ coupon + anyp",
-    data    = kb_data,
+    Surv(week, status) ~ coupon + anyp,
+    data    = kb_data_sample,
     subject = "id"
   )
   # Survived 8 weeks; plan 4 more weeks with a coupon and no other promotion
-  hist   <- kb_data[kb_data$id == kb_data$id[1], c("coupon", "anyp")][1:8, ]
+  hist   <- kb_data_sample[kb_data_sample$id == 165, c("coupon", "anyp")][1:8, ]
   future <- data.frame(coupon = rep(1, 4), anyp = rep(0, 4))
   G2G_varying_cond_survival(fit, hist, future)
 }

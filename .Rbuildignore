@@ -7,8 +7,6 @@
 ^\.Rproj\.user$
 ^scania\.r$
 ^G2G_kb_v\.R$
-^.*\.Rproj$
-^\.Rproj\.user$
 ^\.Rhistory$
 ^\.RData$
 ^\.Ruserdata$
@@ -23,7 +21,7 @@
 ^CRAN-SUBMISSION$
 ^revdep$
 ^dev/
-^.pdf
+\.pdf$
 ^\.positai$
 ^\.claude$
 ^vignettes/.*\.Rmd\.orig$

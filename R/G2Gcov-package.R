@@ -13,5 +13,9 @@
 #' @importFrom graphics curve abline mtext
 "_PACKAGE"
 
+#' @importFrom survival Surv
+#' @export
+survival::Surv
+
 ## usethis namespace: start
 ## usethis namespace: end

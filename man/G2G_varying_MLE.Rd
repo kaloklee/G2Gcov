@@ -10,12 +10,10 @@ G2G_varying_MLE(fo, data, subject, level = 0.95)
 \item{fo}{Formula object specifying the model in the format 
 \code{Surv(time, status) ~ x1 + x2 + ...} where time is the observation
 time, status is the event indicator, and x1, x2, etc. are time-varying
-covariates. Note: The formula should use variable names, not column indices.
-Only plain variable names are allowed on the right-hand side: transformations
-such as \code{log(x)}, \code{I(x^2)} or \code{factor(x)} and interactions
-such as \code{x1 * x2} are rejected with an error (they would otherwise be
-silently ignored). Create transformed variables as new columns in
-\code{data} first.}
+covariates. Transformations (such as \code{I(x - 60)}, \code{log(x)}, or
+\code{factor(x)}) and interactions are supported on the right-hand side,
+but the intercept must be kept (no \code{- 1} or \code{+ 0}): the intercept
+column is always dropped because \eqn{\alpha} plays its role.}
 
 \item{data}{Data frame containing all variables specified in the formula.
 Data should be in long format with one row per time point per subject
@@ -71,19 +69,18 @@ converted back to the original covariate scale.
 }
 \examples{
 \donttest{
-  data(kb_data)
-  kb_data$status <- 1L - kb_data$censor
+  data(kb_data_sample)
   fit <- G2G_varying_MLE(
-    "Surv(week, status) ~ coupon + anyp",
-    data    = kb_data,
+    Surv(week, status) ~ coupon + anyp,
+    data    = kb_data_sample,
     subject = "id"
   )
   print(fit)
 
   # 90\% confidence intervals instead of the default 95\%
   fit90 <- G2G_varying_MLE(
-    "Surv(week, status) ~ coupon + anyp",
-    data    = kb_data,
+    Surv(week, status) ~ coupon + anyp,
+    data    = kb_data_sample,
     subject = "id",
     level   = 0.90
   )

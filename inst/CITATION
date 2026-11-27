@@ -19,8 +19,36 @@ bibentry(
     person("Bruce G. S.", "Hardie")
   ),
   journal  = "Journal of Interactive Marketing",
-  year     = "1997",
-  volume   = "11",
+  year     = "2007",
+  volume   = "21",
   number   = "1",
-  pages    = "61--73"
+  pages    = "76--90"
+)
+
+bibentry(
+  bibtype  = "Article",
+  title    = "Exploring the Equivalence of Two Common Mixture Models for Duration Data",
+  author   = c(
+    person("Peter S.", "Fader"),
+    person("Bruce G. S.", "Hardie"),
+    person("Daniel", "McCarthy"),
+    person("Ramkumar", "Vaidyanathan")
+  ),
+  journal  = "The American Statistician",
+  year     = "2019",
+  volume   = "73",
+  number   = "3",
+  pages    = "288--295"
+)
+
+bibentry(
+  bibtype  = "TechReport",
+  title    = "Incorporating Time-Varying Covariates in a Simple Mixture Model for Discrete-Time Duration Data",
+  author   = c(
+    person("Peter S.", "Fader"),
+    person("Bruce G. S.", "Hardie")
+  ),
+  institution = "Research Note No. 037",
+  year     = "2020",
+  url      = "https://brucehardie.com/notes/037/time-varying_covariates_in_BG.pdf"
 )

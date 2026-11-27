@@ -3,34 +3,39 @@
 \docType{data}
 \name{kb_data}
 \alias{kb_data}
-\title{KB Dataset}
+\title{Kiwi Bubbles Dataset}
 \format{
 A data frame with 34,506 rows and 7 variables:
 \describe{
-  \item{id}{Integer subject identifier.}
+  \item{id}{Integer panelist identifier.}
   \item{week}{Integer week index for the observation (running 1, 2, ...).}
-  \item{num_weeks}{Total weeks observed for the subject (integer).}
-  \item{censor}{Censoring indicator on the subject's final row: 1 if the
-    subject was censored before experiencing the event, 0 if the event
+  \item{num_weeks}{Total weeks observed for the panelist (integer).}
+  \item{censor}{Censoring indicator on the panelist's final row: 1 if the
+    panelist was censored without a trial purchase, 0 if a trial purchase
     occurred. 0 on all preceding rows.}
-  \item{coupon}{Coupon stock covariate measuring aggregate distributed
-    coupons.}
-  \item{anyp}{Trade promotions covariate measuring percentage of stores with
-    active promotions in the market during the week.}
-  \item{status}{Discrete-time failure event indicator: 1 in the terminal
-    period if the subject experienced the event, 0 otherwise.}
+  \item{coupon}{Exponentially smoothed coupon stock variable capturing
+    carryover effects of market-level coupon activity.}
+  \item{anyp}{Market-level promotional activity measured as \%ACV with any
+    promotion (the standard scanner-data sales-weighted promotional measure).}
+  \item{status}{Discrete-time trial-purchase event indicator: 1 in the
+    terminal period if the panelist made a first purchase, 0 otherwise.}
 }
 }
 \source{
-Simulated customer churn data modeled after retail cohort dynamics.
-  Processed via \file{data-raw/prepare_kb_data.R}.
+IRI BehaviorScan "Kiwi Bubbles" test-market dataset (Market 2, first
+  24 weeks), originally distributed at
+  \url{https://brucehardie.com/datasets/kiwibubbles.zip} and processed via
+  \file{data-raw/prepare_kb_data.R}.
 }
 \usage{
 kb_data
 }
 \description{
-Person-period discrete-time survival dataset observing 1,499 subjects for up
-to 24 weeks with marketing covariates.
+Person-period discrete-time trial-purchase dataset for "Kiwi Bubbles" (a
+masked name for a shelf-stable multipack juice drink aimed primarily at
+children) from Market 2 of an IRI BehaviorScan test market, observing 1,499
+panelists over 24 weeks alongside weekly market-level marketing-mix
+covariates.
 }
 \examples{
 data(kb_data)

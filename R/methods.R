@@ -27,10 +27,9 @@
 #' @seealso \code{\link{G2G_static_MLE}}, \code{\link{G2G_varying_MLE}}
 #' @examples
 #' \donttest{
-#'   data(kb_data)
-#'   kb_data$status <- 1L - kb_data$censor
-#'   fit <- G2G_varying_MLE("Surv(week, status) ~ coupon + anyp",
-#'                           data = kb_data, subject = "id")
+#'   data(kb_data_sample)
+#'   fit <- G2G_varying_MLE(Surv(week, status) ~ coupon + anyp,
+#'                          data = kb_data_sample, subject = "id")
 #'   print(fit)
 #' }
 #' @method print G2Gcov
@@ -132,10 +131,9 @@ print.G2Gcov <- function(x, digits = 4, ...) {
 #' @importFrom stats dgamma qgamma
 #' @examples
 #' \donttest{
-#'   data(kb_data)
-#'   kb_data$status <- 1L - kb_data$censor
-#'   fit <- G2G_varying_MLE("Surv(week, status) ~ coupon + anyp",
-#'                           data = kb_data, subject = "id")
+#'   data(kb_data_sample)
+#'   fit <- G2G_varying_MLE(Surv(week, status) ~ coupon + anyp,
+#'                          data = kb_data_sample, subject = "id")
 #'   plot_p0(fit)
 #' }
 #' @export
@@ -196,10 +194,9 @@ plot_p0 <- function(solution) {
 #' @importFrom stats dgamma qgamma
 #' @examples
 #' \donttest{
-#'   data(kb_data)
-#'   kb_data$status <- 1L - kb_data$censor
+#'   data(kb_data_sample)
 #'   fit <- G2G_varying_MLE(Surv(week, status) ~ coupon + anyp,
-#'                          data = kb_data, subject = "id")
+#'                          data = kb_data_sample, subject = "id")
 #'   plot_lambda0(fit)
 #' }
 #' @export

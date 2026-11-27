@@ -154,12 +154,10 @@ G2G_varying_LL <- function(par,data_df) {
 #' @param fo Formula object specifying the model in the format 
 #'   \code{Surv(time, status) ~ x1 + x2 + ...} where time is the observation
 #'   time, status is the event indicator, and x1, x2, etc. are time-varying
-#'   covariates. Note: The formula should use variable names, not column indices.
-#'   Only plain variable names are allowed on the right-hand side: transformations
-#'   such as \code{log(x)}, \code{I(x^2)} or \code{factor(x)} and interactions
-#'   such as \code{x1 * x2} are rejected with an error (they would otherwise be
-#'   silently ignored). Create transformed variables as new columns in
-#'   \code{data} first.
+#'   covariates. Transformations (such as \code{I(x - 60)}, \code{log(x)}, or
+#'   \code{factor(x)}) and interactions are supported on the right-hand side,
+#'   but the intercept must be kept (no \code{- 1} or \code{+ 0}): the intercept
+#'   column is always dropped because \eqn{\alpha} plays its role.
 #' @param data Data frame containing all variables specified in the formula.
 #'   Data should be in long format with one row per time point per subject
 #'   (person-period format). Rows are sorted by subject and time internally.
@@ -205,22 +203,21 @@ G2G_varying_LL <- function(par,data_df) {
 #'
 #' @export
 #' @importFrom stats aggregate optim as.formula ave model.matrix model.frame terms
-#' @importFrom stats .getXlevels qnorm
+#' @importFrom stats delete.response .getXlevels qnorm
 #' @examples
 #' \donttest{
-#'   data(kb_data)
-#'   kb_data$status <- 1L - kb_data$censor
+#'   data(kb_data_sample)
 #'   fit <- G2G_varying_MLE(
-#'     "Surv(week, status) ~ coupon + anyp",
-#'     data    = kb_data,
+#'     Surv(week, status) ~ coupon + anyp,
+#'     data    = kb_data_sample,
 #'     subject = "id"
 #'   )
 #'   print(fit)
 #'
 #'   # 90% confidence intervals instead of the default 95%
 #'   fit90 <- G2G_varying_MLE(
-#'     "Surv(week, status) ~ coupon + anyp",
-#'     data    = kb_data,
+#'     Surv(week, status) ~ coupon + anyp,
+#'     data    = kb_data_sample,
 #'     subject = "id",
 #'     level   = 0.90
 #'   )
@@ -247,7 +244,8 @@ G2G_varying_MLE <- function(fo, data, subject, level = 0.95) {
 
   # Variable names from the formula, in order: time, status, then covariates
   # (for Surv(time, status) ~ x1 + x2 this is time, status, x1, x2).
-  vars        <- all.vars(as.formula(fo))
+  fo_obj      <- as.formula(fo)
+  vars        <- all.vars(fo_obj)
   time_name   <- vars[1]
   status_name <- vars[2]
   cov_names   <- vars[-(1:2)]
@@ -261,18 +259,13 @@ G2G_varying_MLE <- function(fo, data, subject, level = 0.95) {
     stop("Column(s) not found in 'data': ",
          paste(missing_cols, collapse = ", "), ".", call. = FALSE)
 
-  # The formula is only used to read off variable names, so every right-hand-side
-  # term must be a plain variable. Transformations (log(x), I(x^2), factor(x))
-  # and interactions (x1 * x2) would otherwise be silently ignored.
-  term_labels <- gsub("`", "", attr(terms(as.formula(fo)), "term.labels"),
-                      fixed = TRUE)
-  if (!setequal(term_labels, cov_names))
-    stop("The right-hand side of the formula must contain only plain variable ",
-         "names (no transformations or interactions). Offending term(s): ",
-         paste(setdiff(union(term_labels, cov_names),
-                       intersect(term_labels, cov_names)), collapse = ", "),
-         ". Create transformed variables as new columns in 'data' first.",
-         call. = FALSE)
+  # Evaluate the right-hand side terms (transformations, interactions and
+  # factor() terms are supported, matching G2G_static_MLE()). The intercept
+  # must be kept because it is dropped below and alpha plays its role.
+  rhs_tt <- delete.response(terms(fo_obj))
+  if (attr(rhs_tt, "intercept") == 0L)
+    stop("The formula must keep its intercept (do not use '- 1' or '+ 0'): ",
+         "alpha plays the role of the intercept.", call. = FALSE)
 
   na_cols <- c(subject, time_name, status_name, cov_names)
   na_cols <- na_cols[vapply(na_cols,
@@ -308,15 +301,13 @@ G2G_varying_MLE <- function(fo, data, subject, level = 0.95) {
   }
   # ---------------------------------------------------------------------------
   
-  # Design matrix for the covariates only. model.matrix() expands factors into
-  # dummy columns and adds an intercept column, which is dropped when
-  # standardizing below (an intercept would be redundant with alpha).
-  #df_temp<-data[,c(all.vars(as.formula(fo))[-c(1:2)])];
-  df_temp <- data[, c(all.vars(as.formula(fo))[-c(1:2)]), drop = FALSE];
-  X<-model.matrix( ~ ., data = df_temp);
-  # Keep the terms and factor levels so new data can be coded the same way
-  # at prediction time (used by G2G_varying_survival).
-  mf_cov <- model.frame(~ ., data = df_temp)
+  # Design matrix for the covariates only using the full RHS formula.
+  # model.matrix() honors transformations, interactions and factors and adds an
+  # intercept column, which is dropped when standardizing below (alpha plays
+  # the role of the intercept). Keep the terms and factor levels so new data
+  # can be coded the same way at prediction time (used by G2G_varying_survival).
+  mf_cov <- model.frame(rhs_tt, data = data)
+  X      <- model.matrix(rhs_tt, data = mf_cov)
   tt     <- attr(mf_cov, "terms")
 
   # Standardize the covariates (center and scale) so exp(X %*% coeff) cannot
@@ -517,15 +508,14 @@ G2G_varying_optim <- function(model_data) {
 #' @export
 #' @examples
 #' \donttest{
-#'   data(kb_data)
-#'   kb_data$status <- 1L - kb_data$censor
+#'   data(kb_data_sample)
 #'   fit <- G2G_varying_MLE(
-#'     "Surv(week, status) ~ coupon + anyp",
-#'     data    = kb_data,
+#'     Surv(week, status) ~ coupon + anyp,
+#'     data    = kb_data_sample,
 #'     subject = "id"
 #'   )
-#'   # Survival curve for the covariate path of the first subject
-#'   path <- kb_data[kb_data$id == kb_data$id[1], c("coupon", "anyp")]
+#'   # Survival curve for the covariate path of Subject 165
+#'   path <- kb_data_sample[kb_data_sample$id == 165, c("coupon", "anyp")]
 #'   G2G_varying_survival(fit, path)
 #' }
 #'
@@ -557,14 +547,13 @@ G2G_varying_survival <- function(solution, X_mat) {
 #' @export
 #' @examples
 #' \donttest{
-#'   data(kb_data)
-#'   kb_data$status <- 1L - kb_data$censor
+#'   data(kb_data_sample)
 #'   fit <- G2G_varying_MLE(
-#'     "Surv(week, status) ~ coupon + anyp",
-#'     data    = kb_data,
+#'     Surv(week, status) ~ coupon + anyp,
+#'     data    = kb_data_sample,
 #'     subject = "id"
 #'   )
-#'   path <- kb_data[kb_data$id == kb_data$id[1], c("coupon", "anyp")]
+#'   path <- kb_data_sample[kb_data_sample$id == 165, c("coupon", "anyp")]
 #'   G2G_varying_retention(fit, path)
 #' }
 #'

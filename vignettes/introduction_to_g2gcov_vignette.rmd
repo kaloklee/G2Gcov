@@ -15,9 +15,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment  = "#>",
   fig.width  = 7,
-  fig.height = 5,
-  warning  = FALSE,
-  message  = FALSE
+  fig.height = 5
 )
 ```
 
@@ -89,7 +87,7 @@ Factor and character covariates are expanded into dummy variables through standa
 
 ---
 
-## Example 1: Time-Varying Covariates (`kb_data`)
+## Example 1: Time-Varying Covariates (`kb_data_sample`)
 
 > **Note on Datasets:** To ensure this vignette builds rapidly within CRAN limits, we evaluate the models using `kb_data_sample`, a 20-subject subset of the package's full data intended for quick trials and interactive exploration. For full empirical analyses, simply use the entire cohort of 1,499 subjects via `kb_data <- G2Gcov::kb_data`. The syntax remains identical.
 

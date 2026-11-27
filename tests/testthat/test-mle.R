@@ -67,6 +67,26 @@ test_that("G2G_varying_MLE fits multiple covariates (coupon + anyp)", {
   })
 })
 
+test_that("G2G_varying_MLE supports inline RHS transformations like I()", {
+  fit_raw <- G2G_varying_MLE(
+    Surv(week, status) ~ coupon + anyp,
+    data = kb_data_sample,
+    subject = "id"
+  )
+  fit_centered <- G2G_varying_MLE(
+    Surv(week, status) ~ coupon + I(anyp - 50),
+    data = kb_data_sample,
+    subject = "id"
+  )
+  expect_equal(fit_centered$value, fit_raw$value, tolerance = 1e-4)
+  path <- kb_data_sample[kb_data_sample$id == 165, c("coupon", "anyp")]
+  expect_equal(
+    G2G_varying_survival(fit_centered, path),
+    G2G_varying_survival(fit_raw, path),
+    tolerance = 1e-4
+  )
+})
+
 test_that("G2G_varying_MLE respects custom Wald confidence level", {
   fit_90 <- G2G_varying_MLE(
     Surv(week, status) ~ coupon,

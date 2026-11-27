@@ -2,7 +2,6 @@ Package: G2Gcov
 Type: Package
 Title: Grassia(II)-Geometric Distribution with Time-Varying Covariates
 Version: 0.1.0
-Date: 2026-10-23
 Authors@R: c(
     person("Ka Lok", "Lee",
            email = "kaloklee@gmail.com",
@@ -15,13 +14,16 @@ Authors@R: c(
            role = c("aut", "ctb"))
     )
 Description: Implements the Grassia(II)-Geometric (G2G) distribution model for
-    discrete-time survival analysis. Provides maximum likelihood estimation for
-    hazard models with a primary focus on time-varying covariates using
-    person-period formatted data, while also supporting static (time-invariant)
-    covariates formatted as standard single-record survival data.
+    discrete-time survival analysis following Fader et al. (2019)
+    <doi:10.1080/00031305.2018.1543134> and Fader and Hardie (2020)
+    <https://brucehardie.com/notes/037/time-varying_covariates_in_BG.pdf>.
+    Provides maximum likelihood estimation for hazard models with a primary
+    focus on time-varying covariates using person-period formatted data, while
+    also supporting static (time-invariant) covariates formatted as standard
+    single-record survival data.
 License: Apache License (>= 2)
-URL: https://github.com/kaloklee/G2G_cov, https://kaloklee.github.io/G2Gcov/
-BugReports: https://github.com/kaloklee/G2G_cov/issues
+URL: https://github.com/kaloklee/G2Gcov, https://kaloklee.github.io/G2Gcov/
+BugReports: https://github.com/kaloklee/G2Gcov/issues
 Encoding: UTF-8
 Language: en-US
 LazyData: true
@@ -30,9 +32,9 @@ Depends: R (>= 3.5.0)
 VignetteBuilder: knitr
 Imports:
     graphics,
-    stats
+    stats,
+    survival
 Suggests:
-    survival,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

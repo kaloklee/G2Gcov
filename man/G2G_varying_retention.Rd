@@ -31,14 +31,13 @@ from \code{\link{G2G_varying_survival}}.
 }
 \examples{
 \donttest{
-  data(kb_data)
-  kb_data$status <- 1L - kb_data$censor
+  data(kb_data_sample)
   fit <- G2G_varying_MLE(
-    "Surv(week, status) ~ coupon + anyp",
-    data    = kb_data,
+    Surv(week, status) ~ coupon + anyp,
+    data    = kb_data_sample,
     subject = "id"
   )
-  path <- kb_data[kb_data$id == kb_data$id[1], c("coupon", "anyp")]
+  path <- kb_data_sample[kb_data_sample$id == 165, c("coupon", "anyp")]
   G2G_varying_retention(fit, path)
 }
 
