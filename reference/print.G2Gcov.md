@@ -52,23 +52,24 @@ they print as `NA` and a note is added below the table.
 
 ``` r
 # \donttest{
-  data(kb_data)
-  kb_data$status <- 1L - kb_data$censor
-  fit <- G2G_varying_MLE("Surv(week, status) ~ coupon + anyp",
-                          data = kb_data, subject = "id")
+  data(kb_data_sample)
+  fit <- G2G_varying_MLE(Surv(week, status) ~ coupon + anyp,
+                         data = kb_data_sample, subject = "id")
   print(fit)
 #> G2G Model Fit
 #> ---------------------------------------------------- 
 #> Convergence:       Converged (code 0)
-#> Log-likelihood:    -5612.181
-#> AIC:               11232.3619
+#> Log-likelihood:    -11.1869
+#> AIC:               30.3739
 #> Parameters:        4
 #> 
 #> Coefficients:
-#>                Estimate  Std.Error  Lower.95    Upper.95
-#> r (shape)     2994.7624  3725.7011  261.4605  34301.9392
-#> alpha (rate) 40695.9287 50674.4945 3545.1645 467159.8788
-#> coupon         -78.2543     4.2463  -86.5769    -69.9318
-#> anyp             0.0020     0.0012   -0.0002      0.0043
+#>              Estimate Std.Error Lower.95   Upper.95
+#> r (shape)      0.0611    0.1047   0.0021     1.7580
+#> alpha (rate)   6.3229   31.1821   0.0004 99709.9104
+#> coupon        24.9515   22.4348 -19.0199    68.9230
+#> anyp          -0.0159    0.0554  -0.1246     0.0927
+#> 
+#> Note: Wide confidence intervals for r and alpha reflect a flat likelihood ridge (common with small samples, few observed events, or very low unobserved heterogeneity). Interpret r and alpha jointly (e.g., via plot_p0() or plot_lambda0()).
 # }
 ```

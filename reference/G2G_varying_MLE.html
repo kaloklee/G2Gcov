@@ -29,7 +29,7 @@ converted back to the original covariate scale."></head><body>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/kaloklee/G2G_cov/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/kaloklee/G2Gcov/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -39,7 +39,7 @@ converted back to the original covariate scale."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Fit G2G Model with Time-Varying Covariates</h1>
-      <small class="dont-index">Source: <a href="https://github.com/kaloklee/G2G_cov/blob/ka_manualQC/R/G2G_varying_functions.R" class="external-link"><code>R/G2G_varying_functions.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/kaloklee/G2Gcov/blob/ka_manualQC/R/G2G_varying_functions.R" class="external-link"><code>R/G2G_varying_functions.R</code></a></small>
       <div class="d-none name"><code>G2G_varying_MLE.Rd</code></div>
     </div>
 
@@ -63,12 +63,10 @@ converted back to the original covariate scale.</p>
 <dd><p>Formula object specifying the model in the format
 <code>Surv(time, status) ~ x1 + x2 + ...</code> where time is the observation
 time, status is the event indicator, and x1, x2, etc. are time-varying
-covariates. Note: The formula should use variable names, not column indices.
-Only plain variable names are allowed on the right-hand side: transformations
-such as <code>log(x)</code>, <code>I(x^2)</code> or <code>factor(x)</code> and interactions
-such as <code>x1 * x2</code> are rejected with an error (they would otherwise be
-silently ignored). Create transformed variables as new columns in
-<code>data</code> first.</p></dd>
+covariates. Transformations (such as <code>I(x - 60)</code>, <code>log(x)</code>, or
+<code>factor(x)</code>) and interactions are supported on the right-hand side,
+but the intercept must be kept (no <code>- 1</code> or <code>+ 0</code>): the intercept
+column is always dropped because \(\alpha\) plays its role.</p></dd>
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
@@ -152,32 +150,33 @@ number strictly between 0 and 1. Default is 0.95.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">kb_data</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">kb_data</span><span class="op">$</span><span class="va">status</span> <span class="op">&lt;-</span> <span class="fl">1L</span> <span class="op">-</span> <span class="va">kb_data</span><span class="op">$</span><span class="va">censor</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">kb_data_sample</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">G2G_varying_MLE</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="st">"Surv(week, status) ~ coupon + anyp"</span>,</span></span>
-<span class="r-in"><span>    data    <span class="op">=</span> <span class="va">kb_data</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">week</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">coupon</span> <span class="op">+</span> <span class="va">anyp</span>,</span></span>
+<span class="r-in"><span>    data    <span class="op">=</span> <span class="va">kb_data_sample</span>,</span></span>
 <span class="r-in"><span>    subject <span class="op">=</span> <span class="st">"id"</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> G2G Model Fit</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------------------------- </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Convergence:       Converged (code 0)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Log-likelihood:    -5612.181</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AIC:               11232.3619</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Log-likelihood:    -11.1869</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AIC:               30.3739</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameters:        4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                Estimate  Std.Error  Lower.95    Upper.95</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> r (shape)     2994.7624  3725.7011  261.4605  34301.9392</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> alpha (rate) 40695.9287 50674.4945 3545.1645 467159.8788</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> coupon         -78.2543     4.2463  -86.5769    -69.9318</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> anyp             0.0020     0.0012   -0.0002      0.0043</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Estimate Std.Error Lower.95   Upper.95</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r (shape)      0.0611    0.1047   0.0021     1.7580</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> alpha (rate)   6.3229   31.1821   0.0004 99709.9104</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> coupon        24.9515   22.4348 -19.0199    68.9230</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> anyp          -0.0159    0.0554  -0.1246     0.0927</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Note: Wide confidence intervals for r and alpha reflect a flat likelihood ridge (common with small samples, few observed events, or very low unobserved heterogeneity). Interpret r and alpha jointly (e.g., via plot_p0() or plot_lambda0()).</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># 90% confidence intervals instead of the default 95%</span></span></span>
 <span class="r-in"><span>  <span class="va">fit90</span> <span class="op">&lt;-</span> <span class="fu">G2G_varying_MLE</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="st">"Surv(week, status) ~ coupon + anyp"</span>,</span></span>
-<span class="r-in"><span>    data    <span class="op">=</span> <span class="va">kb_data</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">week</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">coupon</span> <span class="op">+</span> <span class="va">anyp</span>,</span></span>
+<span class="r-in"><span>    data    <span class="op">=</span> <span class="va">kb_data_sample</span>,</span></span>
 <span class="r-in"><span>    subject <span class="op">=</span> <span class="st">"id"</span>,</span></span>
 <span class="r-in"><span>    level   <span class="op">=</span> <span class="fl">0.90</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>

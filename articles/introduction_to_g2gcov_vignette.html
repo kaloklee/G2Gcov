@@ -41,7 +41,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/kaloklee/G2G_cov/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/kaloklee/G2Gcov/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -59,9 +59,9 @@
                         <h4 data-toc-skip class="author">Ka Lok Lee,
 Aaron Ramsey, and Noah Park</h4>
             
-            <h4 data-toc-skip class="date">2026-11-25</h4>
+            <h4 data-toc-skip class="date">2026-11-27</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/kaloklee/G2G_cov/blob/ka_manualQC/vignettes/introduction_to_g2gcov_vignette.rmd" class="external-link"><code>vignettes/introduction_to_g2gcov_vignette.rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/kaloklee/G2Gcov/blob/ka_manualQC/vignettes/introduction_to_g2gcov_vignette.rmd" class="external-link"><code>vignettes/introduction_to_g2gcov_vignette.rmd</code></a></small>
       <div class="d-none name"><code>introduction_to_g2gcov_vignette.rmd</code></div>
     </div>
 
@@ -258,7 +258,8 @@ treatment contrasts).</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="example-1-time-varying-covariates-kb_data">Example 1: Time-Varying Covariates (<code>kb_data</code>)<a class="anchor" aria-label="anchor" href="#example-1-time-varying-covariates-kb_data"></a>
+<h2 id="example-1-time-varying-covariates-kb_data_sample">Example 1: Time-Varying Covariates
+(<code>kb_data_sample</code>)<a class="anchor" aria-label="anchor" href="#example-1-time-varying-covariates-kb_data_sample"></a>
 </h2>
 <blockquote>
 <p><strong>Note on Datasets:</strong> To ensure this vignette builds
@@ -275,7 +276,7 @@ standard scanner-data measure of promotional activity (%ACV with any
 promotion). We print the first two subjects (11 rows) to illustrate the
 person-period structure required for time-varying modeling.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/kaloklee/G2G_cov" class="external-link">G2Gcov</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/kaloklee/G2Gcov" class="external-link">G2Gcov</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Load the quick-start sample dataset</span></span>
@@ -318,7 +319,7 @@ at least one covariate on the right-hand side of the formula.</p>
 <span><span class="co">#&gt; Coefficients:</span></span>
 <span><span class="co">#&gt;              Estimate Std.Error Lower.95   Upper.95</span></span>
 <span><span class="co">#&gt; r (shape)      0.0611    0.1047   0.0021     1.7580</span></span>
-<span><span class="co">#&gt; alpha (rate)   6.3229   31.1821   0.0004 99709.9092</span></span>
+<span><span class="co">#&gt; alpha (rate)   6.3229   31.1821   0.0004 99709.9104</span></span>
 <span><span class="co">#&gt; coupon        24.9515   22.4348 -19.0199    68.9230</span></span>
 <span><span class="co">#&gt; anyp          -0.0159    0.0554  -0.1246     0.0927</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -544,8 +545,8 @@ the <code><a href="https://rdrr.io/pkg/survival/man/veteran.html" class="externa
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients:</span></span>
 <span><span class="co">#&gt;                    Estimate  Std.Error Lower.99     Upper.99</span></span>
-<span><span class="co">#&gt; r (shape)           24.4605    65.4850   0.0248 2.417306e+04</span></span>
-<span><span class="co">#&gt; alpha (rate)      8031.0071 23544.0705   4.2192 1.528657e+07</span></span>
+<span><span class="co">#&gt; r (shape)           24.4605    65.4851   0.0248 2.417343e+04</span></span>
+<span><span class="co">#&gt; alpha (rate)      8031.0071 23544.1149   4.2191 1.528679e+07</span></span>
 <span><span class="co">#&gt; age                  0.0074     0.0097  -0.0175 3.230000e-02</span></span>
 <span><span class="co">#&gt; celltypesmallcell    1.0711     0.2450   0.4401 1.702200e+00</span></span>
 <span><span class="co">#&gt; celltypeadeno        1.2015     0.2819   0.4753 1.927800e+00</span></span>

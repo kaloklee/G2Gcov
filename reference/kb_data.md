@@ -1,7 +1,10 @@
-# KB Dataset
+# Kiwi Bubbles Dataset
 
-Person-period discrete-time survival dataset observing 1,499 subjects
-for up to 24 weeks with marketing covariates.
+Person-period discrete-time trial-purchase dataset for "Kiwi Bubbles" (a
+masked name for a shelf-stable multipack juice drink aimed primarily at
+children) from Market 2 of an IRI BehaviorScan test market, observing
+1,499 panelists over 24 weeks alongside weekly market-level
+marketing-mix covariates.
 
 ## Usage
 
@@ -15,7 +18,7 @@ A data frame with 34,506 rows and 7 variables:
 
 - id:
 
-  Integer subject identifier.
+  Integer panelist identifier.
 
 - week:
 
@@ -23,32 +26,35 @@ A data frame with 34,506 rows and 7 variables:
 
 - num_weeks:
 
-  Total weeks observed for the subject (integer).
+  Total weeks observed for the panelist (integer).
 
 - censor:
 
-  Censoring indicator on the subject's final row: 1 if the subject was
-  censored before experiencing the event, 0 if the event occurred. 0 on
-  all preceding rows.
+  Censoring indicator on the panelist's final row: 1 if the panelist was
+  censored without a trial purchase, 0 if a trial purchase occurred. 0
+  on all preceding rows.
 
 - coupon:
 
-  Coupon stock covariate measuring aggregate distributed coupons.
+  Exponentially smoothed coupon stock variable capturing carryover
+  effects of market-level coupon activity.
 
 - anyp:
 
-  Trade promotions covariate measuring percentage of stores with active
-  promotions in the market during the week.
+  Market-level promotional activity measured as %ACV with any promotion
+  (the standard scanner-data sales-weighted promotional measure).
 
 - status:
 
-  Discrete-time failure event indicator: 1 in the terminal period if the
-  subject experienced the event, 0 otherwise.
+  Discrete-time trial-purchase event indicator: 1 in the terminal period
+  if the panelist made a first purchase, 0 otherwise.
 
 ## Source
 
-Simulated customer churn data modeled after retail cohort dynamics.
-Processed via `data-raw/prepare_kb_data.R`.
+IRI BehaviorScan "Kiwi Bubbles" test-market dataset (Market 2, first 24
+weeks), originally distributed at
+<https://brucehardie.com/datasets/kiwibubbles.zip> and processed via
+`data-raw/prepare_kb_data.R`.
 
 ## Examples
 

@@ -48,10 +48,9 @@ the median.
 
 ``` r
 # \donttest{
-  data(kb_data)
-  kb_data$status <- 1L - kb_data$censor
-  fit <- G2G_varying_MLE("Surv(week, status) ~ coupon + anyp",
-                          data = kb_data, subject = "id")
+  data(kb_data_sample)
+  fit <- G2G_varying_MLE(Surv(week, status) ~ coupon + anyp,
+                         data = kb_data_sample, subject = "id")
   plot_p0(fit)
 
 # }

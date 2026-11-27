@@ -29,7 +29,7 @@ cumulative sum, over periods 1 to t, of the exponentiated linear predictor
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/kaloklee/G2G_cov/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/kaloklee/G2Gcov/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -39,7 +39,7 @@ cumulative sum, over periods 1 to t, of the exponentiated linear predictor
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Survival Curve for the G2G Model with Time-Varying Covariates</h1>
-      <small class="dont-index">Source: <a href="https://github.com/kaloklee/G2G_cov/blob/ka_manualQC/R/G2G_varying_functions.R" class="external-link"><code>R/G2G_varying_functions.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/kaloklee/G2Gcov/blob/ka_manualQC/R/G2G_varying_functions.R" class="external-link"><code>R/G2G_varying_functions.R</code></a></small>
       <div class="d-none name"><code>G2G_varying_survival.Rd</code></div>
     </div>
 
@@ -84,18 +84,19 @@ unnamed, already in the same order as the coefficients.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">kb_data</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">kb_data</span><span class="op">$</span><span class="va">status</span> <span class="op">&lt;-</span> <span class="fl">1L</span> <span class="op">-</span> <span class="va">kb_data</span><span class="op">$</span><span class="va">censor</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">kb_data_sample</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="G2G_varying_MLE.html">G2G_varying_MLE</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="st">"Surv(week, status) ~ coupon + anyp"</span>,</span></span>
-<span class="r-in"><span>    data    <span class="op">=</span> <span class="va">kb_data</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">week</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">coupon</span> <span class="op">+</span> <span class="va">anyp</span>,</span></span>
+<span class="r-in"><span>    data    <span class="op">=</span> <span class="va">kb_data_sample</span>,</span></span>
 <span class="r-in"><span>    subject <span class="op">=</span> <span class="st">"id"</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="co"># Survival curve for the covariate path of the first subject</span></span></span>
-<span class="r-in"><span>  <span class="va">path</span> <span class="op">&lt;-</span> <span class="va">kb_data</span><span class="op">[</span><span class="va">kb_data</span><span class="op">$</span><span class="va">id</span> <span class="op">==</span> <span class="va">kb_data</span><span class="op">$</span><span class="va">id</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coupon"</span>, <span class="st">"anyp"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-in"><span>  <span class="co"># Survival curve for the covariate path of Subject 165</span></span></span>
+<span class="r-in"><span>  <span class="va">path</span> <span class="op">&lt;-</span> <span class="va">kb_data_sample</span><span class="op">[</span><span class="va">kb_data_sample</span><span class="op">$</span><span class="va">id</span> <span class="op">==</span> <span class="fl">165</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"coupon"</span>, <span class="st">"anyp"</span><span class="op">)</span><span class="op">]</span></span></span>
 <span class="r-in"><span>  <span class="fu">G2G_varying_survival</span><span class="op">(</span><span class="va">fit</span>, <span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           r (shape) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.0000000 0.9208866 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.0000000 0.9961475 0.9925494 0.9873133 0.9517759 0.9435223 0.9403493</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.9377270 0.9339596 0.9329796 0.9316340 0.9229708 0.9181504 0.9138431</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [15] 0.9113546 0.9102154 0.9092013 0.9082543 0.9073679 0.9061442 0.9046525</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [22] 0.9029872 0.9013737 0.9004307 0.8995220</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

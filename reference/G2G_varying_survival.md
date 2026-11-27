@@ -39,17 +39,18 @@ S(1), ..., S(T).
 
 ``` r
 # \donttest{
-  data(kb_data)
-  kb_data$status <- 1L - kb_data$censor
+  data(kb_data_sample)
   fit <- G2G_varying_MLE(
-    "Surv(week, status) ~ coupon + anyp",
-    data    = kb_data,
+    Surv(week, status) ~ coupon + anyp,
+    data    = kb_data_sample,
     subject = "id"
   )
-  # Survival curve for the covariate path of the first subject
-  path <- kb_data[kb_data$id == kb_data$id[1], c("coupon", "anyp")]
+  # Survival curve for the covariate path of Subject 165
+  path <- kb_data_sample[kb_data_sample$id == 165, c("coupon", "anyp")]
   G2G_varying_survival(fit, path)
-#>           r (shape) 
-#> 1.0000000 0.9208866 
+#>  [1] 1.0000000 0.9961475 0.9925494 0.9873133 0.9517759 0.9435223 0.9403493
+#>  [8] 0.9377270 0.9339596 0.9329796 0.9316340 0.9229708 0.9181504 0.9138431
+#> [15] 0.9113546 0.9102154 0.9092013 0.9082543 0.9073679 0.9061442 0.9046525
+#> [22] 0.9029872 0.9013737 0.9004307 0.8995220
 # }
 ```

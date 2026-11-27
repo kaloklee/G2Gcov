@@ -30,9 +30,9 @@
   : G2Gcov: Discrete-Time Grassia(II)-Geometric Survival Models with
   Covariates
 - [`kb_data`](https://kaloklee.github.io/G2Gcov/reference/kb_data.md) :
-  KB Dataset
+  Kiwi Bubbles Dataset
 - [`kb_data_sample`](https://kaloklee.github.io/G2Gcov/reference/kb_data_sample.md)
-  : KB Sample Dataset
+  : Kiwi Bubbles Sample Dataset
 - [`plot_lambda0()`](https://kaloklee.github.io/G2Gcov/reference/plot_lambda0.md)
   : Plot the Baseline Rate Distribution of a Fitted G2Gcov Model
 - [`plot_p0()`](https://kaloklee.github.io/G2Gcov/reference/plot_p0.md)

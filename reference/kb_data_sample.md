@@ -1,6 +1,6 @@
-# KB Sample Dataset
+# Kiwi Bubbles Sample Dataset
 
-A 20-subject random sample of
+A 20-panelist subset of
 [`kb_data`](https://kaloklee.github.io/G2Gcov/reference/kb_data.md)
 provided for fast unit testing, minimal package checks, and vignette
 examples.
@@ -18,7 +18,7 @@ A data frame with the same 7 variables as
 
 - id:
 
-  Integer subject identifier.
+  Integer panelist identifier.
 
 - week:
 
@@ -26,7 +26,7 @@ A data frame with the same 7 variables as
 
 - num_weeks:
 
-  Total weeks observed for the subject (integer).
+  Total weeks observed for the panelist (integer).
 
 - censor:
 
@@ -34,20 +34,20 @@ A data frame with the same 7 variables as
 
 - coupon:
 
-  Coupon stock covariate.
+  Exponentially smoothed coupon stock variable.
 
 - anyp:
 
-  Trade promotions covariate.
+  Market-level promotional activity (%ACV with any promotion).
 
 - status:
 
-  Discrete-time failure event indicator (1 if event occurred in the
-  period, 0 otherwise).
+  Discrete-time trial-purchase event indicator (1 if event occurred in
+  the period, 0 otherwise).
 
 ## Source
 
-Derived as a random sample from
+Derived as a 20-panelist subset of
 [`kb_data`](https://kaloklee.github.io/G2Gcov/reference/kb_data.md) via
 `data-raw/prepare_kb_data.R`.
 

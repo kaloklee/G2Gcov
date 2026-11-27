@@ -47,16 +47,15 @@ where \\C(t) = \sum\_{j=1}^{t} e^{z(j)\beta'}\\. The posterior mean of
 
 ``` r
 # \donttest{
-  data(kb_data)
-  kb_data$status <- 1L - kb_data$censor
+  data(kb_data_sample)
   fit <- G2G_varying_MLE(
-    "Surv(week, status) ~ coupon + anyp",
-    data    = kb_data,
+    Surv(week, status) ~ coupon + anyp,
+    data    = kb_data_sample,
     subject = "id"
   )
   # A customer who has survived the first 8 weeks
-  hist <- kb_data[kb_data$id == kb_data$id[1], c("coupon", "anyp")][1:8, ]
+  hist <- kb_data_sample[kb_data_sample$id == 165, c("coupon", "anyp")][1:8, ]
   G2G_varying_posterior_p0(fit, hist)
-#> Error in na.fail.default(structure(list(coupon = c(0, NA, NA, NA, NA, NA, NA, NA), anyp = c(55.61, NA, NA, NA, NA, NA, NA, NA)), class = "data.frame", row.names = c("1", "NA", "NA.1", "NA.2", "NA.3", "NA.4", "NA.5", "NA.6"), terms = ~coupon +     anyp)): missing values in object
+#> [1] 0.003069842
 # }
 ```

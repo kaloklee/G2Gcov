@@ -57,17 +57,16 @@ are taken from the number of rows of `X_hist` and `X_future`.
 
 ``` r
 # \donttest{
-  data(kb_data)
-  kb_data$status <- 1L - kb_data$censor
+  data(kb_data_sample)
   fit <- G2G_varying_MLE(
-    "Surv(week, status) ~ coupon + anyp",
-    data    = kb_data,
+    Surv(week, status) ~ coupon + anyp,
+    data    = kb_data_sample,
     subject = "id"
   )
   # Survived 8 weeks; plan 4 more weeks with a coupon and no other promotion
-  hist   <- kb_data[kb_data$id == kb_data$id[1], c("coupon", "anyp")][1:8, ]
+  hist   <- kb_data_sample[kb_data_sample$id == 165, c("coupon", "anyp")][1:8, ]
   future <- data.frame(coupon = rep(1, 4), anyp = rep(0, 4))
   G2G_varying_cond_survival(fit, hist, future)
-#> Error in na.fail.default(structure(list(coupon = c(0, NA, NA, NA, NA, NA, NA, NA), anyp = c(55.61, NA, NA, NA, NA, NA, NA, NA)), class = "data.frame", row.names = c("1", "NA", "NA.1", "NA.2", "NA.3", "NA.4", "NA.5", "NA.6"), terms = ~coupon +     anyp)): missing values in object
+#> [1] 1.0000000 0.2612150 0.2503916 0.2442695 0.2400167
 # }
 ```

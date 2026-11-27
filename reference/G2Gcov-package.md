@@ -8,11 +8,11 @@ estimation.
 
 Useful links:
 
-- <https://github.com/kaloklee/G2G_cov>
+- <https://github.com/kaloklee/G2Gcov>
 
 - <https://kaloklee.github.io/G2Gcov/>
 
-- Report bugs at <https://github.com/kaloklee/G2G_cov/issues>
+- Report bugs at <https://github.com/kaloklee/G2Gcov/issues>
 
 ## Author
 
